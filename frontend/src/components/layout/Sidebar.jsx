@@ -19,6 +19,15 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
   ];
 
+  const buyerItems = [
+    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
+    { key: "products", label: "Marketplace", icon: <Package size={18} /> },
+    { key: "cart", label: "My Cart", icon: <ShoppingCart size={18} /> },
+    { key: "orders", label: "My Orders", icon: <Clock size={18} /> },
+    { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
+    { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
+  ];
+
   const genericItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
     {
@@ -33,6 +42,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   let menuItems = genericItems;
   if (user?.role === "TRANSPORTER") menuItems = transporterItems;
   if (user?.role === "FARMER") menuItems = farmerItems;
+  if (user?.role === "BUYER") menuItems = buyerItems;
 
   return (
     <aside className="dashboard-sidebar">

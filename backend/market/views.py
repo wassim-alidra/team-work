@@ -11,9 +11,18 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Product.objects.all()
+        
         if user.role == User.Role.FARMER:
-            return Product.objects.filter(farmer=user)
-        return Product.objects.all()
+            queryset = queryset.filter(farmer=user)
+            
+        # Filtering for Buyer/All
+        search = self.request.query_params.get('search')
+        
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+            
+        return queryset
 
     def perform_create(self, serializer):
         if self.request.user.role != User.Role.FARMER:
@@ -94,6 +103,26 @@ class OrderViewSet(viewsets.ModelViewSet):
         else:
              super().perform_update(serializer)
 
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """Buyer-specific statistics"""
+        if request.user.role != User.Role.BUYER:
+             return Response({"error": "Only buyers can view these stats."}, status=403)
+        
+        user = request.user
+        buyer_orders = Order.objects.filter(buyer=user)
+        total_orders = buyer_orders.count()
+        pending_deliveries = buyer_orders.filter(status__in=['ACCEPTED', 'IN_TRANSIT']).count()
+        delivered_count = buyer_orders.filter(status='DELIVERED').count()
+        total_spent = sum(o.total_price for o in buyer_orders.filter(status='DELIVERED'))
+        
+        return Response({
+            "total_orders": total_orders,
+            "pending_deliveries": pending_deliveries,
+            "delivered_count": delivered_count,
+            "total_spent": total_spent
+        })
+
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
     serializer_class = DeliverySerializer
@@ -137,3 +166,4 @@ class DeliveryViewSet(viewsets.ModelViewSet):
             "completed_count": completed_deliveries.count(),
             "history": DeliverySerializer(completed_deliveries, many=True).data
         })
+
