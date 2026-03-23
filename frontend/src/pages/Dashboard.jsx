@@ -14,23 +14,16 @@ const Dashboard = () => {
 
     return (
         <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
-            {user.role === "FARMER" && activeTab !== "tracking" && (
+            {user.role === "FARMER" && (
                 <FarmerDashboard activeTab={activeTab} />
             )}
 
-            {user.role === "BUYER" && activeTab !== "tracking" && (
+            {user.role === "BUYER" && (
                 <BuyerDashboard activeTab={activeTab} />
             )}
 
             {user.role === "TRANSPORTER" && (
                 <TransporterDashboard activeTab={activeTab} />
-            )}
-
-            {activeTab === "tracking" && (
-                <div className="glass-panel">
-                    <h3>🚚 Track Order</h3>
-                    <p>Tracking system coming soon...</p>
-                </div>
             )}
 
             {user.role === "ADMIN" && (

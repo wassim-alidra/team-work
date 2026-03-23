@@ -310,7 +310,7 @@ const BuyerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "tracking") {
-        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status));
+        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
         return (
             <div className="glass-panel animate-in">
                 <div className="section-header">

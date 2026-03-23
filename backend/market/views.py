@@ -145,6 +145,23 @@ class DeliveryViewSet(viewsets.ModelViewSet):
              raise permissions.PermissionDenied("Only transporters can accept deliveries.")
          serializer.save(transporter=self.request.user)
 
+    def perform_update(self, serializer):
+        user = self.request.user
+        delivery = self.get_object()
+        
+        if user.role != User.Role.TRANSPORTER or delivery.transporter != user:
+             raise permissions.PermissionDenied("You can only update your own assigned deliveries.")
+        
+        # Valid status transitions
+        if 'status' in serializer.validated_data:
+            new_status = serializer.validated_data['status']
+            if delivery.status == 'ASSIGNED' and new_status != 'IN_TRANSIT':
+                raise permissions.PermissionDenied("From ASSIGNED, you must move to IN_TRANSIT.")
+            if delivery.status == 'IN_TRANSIT' and new_status != 'DELIVERED':
+                raise permissions.PermissionDenied("From IN_TRANSIT, you must move to DELIVERED.")
+        
+        serializer.save()
+
     @action(detail=False, methods=['get'])
     def available_orders(self, request):
         """List orders ready for delivery assignment"""

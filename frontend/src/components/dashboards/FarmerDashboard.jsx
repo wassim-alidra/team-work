@@ -290,7 +290,7 @@ const FarmerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "tracking") {
-        const activeTracking = orders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status));
+        const activeTracking = orders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
         return (
             <div className="glass-panel animate-in">
                 <div className="section-header">
