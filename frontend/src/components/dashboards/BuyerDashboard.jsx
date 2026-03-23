@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import api from "../../api/axios";
-import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle } from "lucide-react";
+import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell } from "lucide-react";
 import "../../styles/dashboard.css";
 
 const BuyerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
     const [myOrders, setMyOrders] = useState([]);
+    const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState({
         total_orders: 0,
         pending_deliveries: 0,
@@ -17,6 +18,7 @@ const BuyerDashboard = ({ activeTab }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        if (activeTab === "notifications") fetchNotifications();
         fetchMyOrders();
         fetchStats();
         // Load cart from local storage
@@ -38,6 +40,15 @@ const BuyerDashboard = ({ activeTab }) => {
             
             const res = await api.get(url);
             setProducts(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        try {
+            const res = await api.get("market/notifications/");
+            setNotifications(res.data);
         } catch (err) {
             console.error(err);
         }
@@ -110,6 +121,53 @@ const BuyerDashboard = ({ activeTab }) => {
             alert("Error cancelling order");
         }
     };
+
+    const handleSubmitComplaint = async (e) => {
+        e.preventDefault();
+        const subject = e.target.subject.value;
+        const message = e.target.message.value;
+        const orderId = e.target.orderId.value;
+
+        if (!subject || !message) return alert("Please fill subject and message");
+
+        setLoading(true);
+        try {
+            await api.post("market/complaints/", {
+                subject,
+                message,
+                order: orderId ? parseInt(orderId.replace('#', '')) : null
+            });
+            alert("Complaint logged for review!");
+            e.target.reset();
+        } catch (err) {
+            alert("Error submitting complaint");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (activeTab === "notifications") {
+        return (
+            <div className="glass-panel animate-in">
+                <div className="section-header">
+                    <h2>Notifications</h2>
+                    <p>Information and alerts from the Ministry</p>
+                </div>
+                <div className="notifications-list">
+                    {notifications.map(n => (
+                        <div key={n.id} className={`notification-card ${n.is_read ? 'read' : 'unread'}`}>
+                            <div className="notif-icon"><Bell size={20} /></div>
+                            <div className="notif-content">
+                                <p>{n.message}</p>
+                                <span className="timestamp">{new Date(n.created_at).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    ))}
+                    {notifications.length === 0 && <p className="empty-text">No notifications yet.</p>}
+                </div>
+            </div>
+        );
+    }
 
     if (activeTab === "dashboard") {
         const statCards = [
@@ -363,26 +421,22 @@ const BuyerDashboard = ({ activeTab }) => {
                     <h2>Submit a Complaint</h2>
                     <p>Report issues with orders or delivery quality</p>
                 </div>
-                <form className="complaint-form" onSubmit={(e) => { e.preventDefault(); alert("Complaint logged for review."); }}>
+                <form className="complaint-form" onSubmit={handleSubmitComplaint}>
                     <div className="form-group">
-                        <label>Reason for Complaint</label>
-                        <select>
-                            <option>Late Delivery</option>
-                            <option>Poor Product Quality</option>
-                            <option>Incorrect Quantity</option>
-                            <option>Pricing Issue</option>
-                            <option>Other</option>
-                        </select>
-                    </div>
-                    <div className="form-group">
-                        <label>Order ID</label>
-                        <input type="text" placeholder="e.g. #15" />
+                        <label>Reason for Complaint (Subject)</label>
+                        <input name="subject" placeholder="Summary of the issue" required />
                     </div>
                     <div className="form-group">
                         <label>Details</label>
-                        <textarea rows="4" placeholder="Briefly describe the issue..."></textarea>
+                        <textarea name="message" rows="4" placeholder="Briefly describe the issue..." required></textarea>
                     </div>
-                    <button type="submit" className="btn-danger">Report Issue</button>
+                    <div className="form-group">
+                        <label>Order ID (Optional)</label>
+                        <input name="orderId" type="text" placeholder="e.g. #15" />
+                    </div>
+                    <button type="submit" className="btn-danger" disabled={loading}>
+                        {loading ? "Reporting..." : "Report Issue"}
+                    </button>
                 </form>
             </div>
         );

@@ -3,6 +3,7 @@ import AuthContext from "../context/AuthContext";
 import FarmerDashboard from "../components/dashboards/FarmerDashboard";
 import BuyerDashboard from "../components/dashboards/BuyerDashboard";
 import TransporterDashboard from "../components/dashboards/TransporterDashboard";
+import AdminDashboard from "../components/dashboards/AdminDashboard";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import "../styles/dashboard.css";
 
@@ -27,9 +28,7 @@ const Dashboard = () => {
             )}
 
             {user.role === "ADMIN" && (
-                <div className="glass-panel">
-                    <h3>Admin Dashboard (Coming Soon)</h3>
-                </div>
+                <AdminDashboard activeTab={activeTab} />
             )}
         </DashboardLayout>
     );

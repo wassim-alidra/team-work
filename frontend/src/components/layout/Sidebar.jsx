@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock } from "lucide-react";
+import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle } from "lucide-react";
 
 const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const transporterItems = [
@@ -16,6 +16,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "orders", label: "My Orders", icon: <ShoppingCart size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
     { key: "prices", label: "Official Prices", icon: <Package size={18} /> },
+    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
     { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
   ];
 
@@ -25,7 +26,15 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "cart", label: "My Cart", icon: <ShoppingCart size={18} /> },
     { key: "orders", label: "My Orders", icon: <Clock size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
+    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
     { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
+  ];
+
+  const adminItems = [
+    { key: "dashboard", label: "Overview", icon: <Home size={18} /> },
+    { key: "users", label: "Users Management", icon: <Users size={18} /> },
+    { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
+    { key: "notifications", label: "Farmer Alerts", icon: <Bell size={18} /> },
   ];
 
   const genericItems = [
@@ -43,6 +52,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   if (user?.role === "TRANSPORTER") menuItems = transporterItems;
   if (user?.role === "FARMER") menuItems = farmerItems;
   if (user?.role === "BUYER") menuItems = buyerItems;
+  if (user?.role === "ADMIN") menuItems = adminItems;
 
   return (
     <aside className="dashboard-sidebar">

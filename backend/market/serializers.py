@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Order, Delivery
+from .models import Product, Order, Delivery, Complaint, Notification
 
 class ProductSerializer(serializers.ModelSerializer):
     farmer_name = serializers.CharField(source='farmer.username', read_only=True)
@@ -28,3 +28,15 @@ class DeliverySerializer(serializers.ModelSerializer):
         model = Delivery
         fields = '__all__'
         read_only_fields = ('transporter',)
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    class Meta:
+        model = Complaint
+        fields = '__all__'
+        read_only_fields = ('user',)
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'

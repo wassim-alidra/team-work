@@ -66,3 +66,23 @@ class Delivery(models.Model):
 
     def __str__(self):
         return f"Delivery for Order #{self.order.id}"
+
+class Complaint(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='complaints')
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.subject}"
+
+class Notification(models.Model):
+    recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"To {self.recipient.username}: {self.message[:20]}..."

@@ -1,9 +1,13 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Product, Order, Delivery
-from .serializers import ProductSerializer, OrderSerializer, DeliverySerializer
+from .models import Product, Order, Delivery, Complaint, Notification
+from .serializers import (
+    ProductSerializer, OrderSerializer, DeliverySerializer, 
+    ComplaintSerializer, NotificationSerializer
+)
 from users.models import User
+from django.db.models import Sum
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -183,4 +187,81 @@ class DeliveryViewSet(viewsets.ModelViewSet):
             "completed_count": completed_deliveries.count(),
             "history": DeliverySerializer(completed_deliveries, many=True).data
         })
+
+class ComplaintViewSet(viewsets.ModelViewSet):
+    queryset = Complaint.objects.all()
+    serializer_class = ComplaintSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == User.Role.ADMIN:
+            return Complaint.objects.all()
+        return Complaint.objects.filter(user=user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def send_broadcast(self, request):
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Only Admin can send notifications."}, status=status.HTTP_403_FORBIDDEN)
+        
+        message = request.data.get('message')
+        if not message:
+            return Response({"detail": "Message is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Send to Farmers and Buyers
+        recipients = User.objects.filter(role__in=[User.Role.FARMER, User.Role.BUYER])
+        notifications = [Notification(recipient=r, message=message) for r in recipients]
+        Notification.objects.bulk_create(notifications)
+        
+        return Response({"detail": f"Notification sent to {len(notifications)} users."}, status=status.HTTP_201_CREATED)
+
+class AdminStatsView(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        
+        stats = {
+            "total_users": User.objects.count(),
+            "farmers_count": User.objects.filter(role=User.Role.FARMER).count(),
+            "buyers_count": User.objects.filter(role=User.Role.BUYER).count(),
+            "transporters_count": User.objects.filter(role=User.Role.TRANSPORTER).count(),
+            "total_products": Product.objects.count(),
+            "total_orders": Order.objects.count(),
+            "total_revenue": Order.objects.filter(status='DELIVERED').aggregate(Sum('total_price'))['total_price__sum'] or 0,
+            "pending_complaints": Complaint.objects.filter(is_resolved=False).count()
+        }
+        return Response(stats)
+
+class UserListViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.role != User.Role.ADMIN:
+            return User.objects.none()
+        return User.objects.all().order_by('-date_joined')
+
+    def list(self, request):
+        users = self.get_queryset()
+        data = [{
+            "id": u.id,
+            "username": u.username,
+            "role": u.role,
+            "email": u.email,
+            "date_joined": u.date_joined
+        } for u in users]
+        return Response(data)
 

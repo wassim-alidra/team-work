@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText } from "lucide-react";
+import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell } from "lucide-react";
 import "../../styles/dashboard.css";
 
 const FarmerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
+    const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState({
         total_products: 0,
         total_quantity: 0,
@@ -26,6 +27,7 @@ const FarmerDashboard = ({ activeTab }) => {
         fetchProducts();
         fetchOrders();
         fetchStats();
+        fetchNotifications();
     }, [activeTab]);
 
     const fetchProducts = async () => {
@@ -112,6 +114,15 @@ const FarmerDashboard = ({ activeTab }) => {
         }
     };
 
+    const fetchNotifications = async () => {
+        try {
+            const res = await api.get("market/notifications/");
+            setNotifications(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const handleUpdateOrderStatus = async (id, status) => {
         try {
             await api.patch(`market/orders/${id}/`, { status });
@@ -120,6 +131,30 @@ const FarmerDashboard = ({ activeTab }) => {
         } catch (err) {
             console.error("Error updating order:", err);
             alert("Failed to update order status.");
+        }
+    };
+
+    const handleSubmitComplaint = async (e) => {
+        e.preventDefault();
+        const subject = e.target.subject.value;
+        const message = e.target.message.value;
+        const orderId = e.target.orderId.value;
+
+        if (!subject || !message) return alert("Please fill subject and message");
+
+        setLoading(true);
+        try {
+            await api.post("market/complaints/", {
+                subject,
+                message,
+                order: orderId ? parseInt(orderId.replace('#', '')) : null
+            });
+            alert("Complaint submitted successfully!");
+            e.target.reset();
+        } catch (err) {
+            alert("Error submitting complaint");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -370,6 +405,29 @@ const FarmerDashboard = ({ activeTab }) => {
         );
     }
 
+    if (activeTab === "notifications") {
+        return (
+            <div className="glass-panel animate-in">
+                <div className="section-header">
+                    <h2>Notifications</h2>
+                    <p>Alerts and updates from the Ministry</p>
+                </div>
+                <div className="notifications-list">
+                    {notifications.map(n => (
+                        <div key={n.id} className={`notification-card ${n.is_read ? 'read' : 'unread'}`}>
+                            <div className="notif-icon"><Bell size={20} /></div>
+                            <div className="notif-content">
+                                <p>{n.message}</p>
+                                <span className="timestamp">{new Date(n.created_at).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    ))}
+                    {notifications.length === 0 && <p className="empty-text">No notifications yet.</p>}
+                </div>
+            </div>
+        );
+    }
+
     if (activeTab === "complaints") {
         return (
             <div className="glass-panel animate-in max-600">
@@ -377,25 +435,22 @@ const FarmerDashboard = ({ activeTab }) => {
                     <h2>Submit a Complaint</h2>
                     <p>Report issues with buyers, transporters, or payments</p>
                 </div>
-                <form className="complaint-form" onSubmit={(e) => { e.preventDefault(); alert("Complaint submitted to Ministry."); }}>
+                <form className="complaint-form" onSubmit={handleSubmitComplaint}>
                     <div className="form-group">
-                        <label>Issue Type</label>
-                        <select>
-                            <option>Payment Issue</option>
-                            <option>Transporter Delay</option>
-                            <option>Product Refusal</option>
-                            <option>Other</option>
-                        </select>
+                        <label>Subject / Issue Type</label>
+                        <input name="subject" placeholder="Summary of the issue" required />
                     </div>
                     <div className="form-group">
                         <label>Description</label>
-                        <textarea placeholder="Describe the problem in detail..." rows="5"></textarea>
+                        <textarea name="message" placeholder="Describe the problem in detail..." rows="5" required></textarea>
                     </div>
                     <div className="form-group">
                         <label>Related Order ID (Optional)</label>
-                        <input type="text" placeholder="e.g. #123" />
+                        <input name="orderId" type="text" placeholder="e.g. #123" />
                     </div>
-                    <button type="submit" className="btn-danger">Submit Complaint</button>
+                    <button type="submit" className="btn-danger" disabled={loading}>
+                        {loading ? "Submitting..." : "Submit Complaint"}
+                    </button>
                 </form>
             </div>
         );
