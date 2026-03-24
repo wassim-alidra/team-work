@@ -200,7 +200,10 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         return Complaint.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        try:
+            serializer.save(user=self.request.user)
+        except Exception as e:
+            raise serializers.ValidationError({"detail": str(e)})
 
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
@@ -219,12 +222,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
         if not message:
             return Response({"detail": "Message is required."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Send to Farmers and Buyers
-        recipients = User.objects.filter(role__in=[User.Role.FARMER, User.Role.BUYER])
-        notifications = [Notification(recipient=r, message=message) for r in recipients]
-        Notification.objects.bulk_create(notifications)
-        
-        return Response({"detail": f"Notification sent to {len(notifications)} users."}, status=status.HTTP_201_CREATED)
+        try:
+            # Send to Farmers and Buyers
+            recipients = User.objects.filter(role__in=[User.Role.FARMER, User.Role.BUYER])
+            notifications = [Notification(recipient=r, message=message) for r in recipients]
+            Notification.objects.bulk_create(notifications)
+            return Response({"detail": f"Notification sent to {len(notifications)} users."}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"detail": f"Backend Error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdminStatsView(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]

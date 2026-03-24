@@ -52,7 +52,8 @@ const AdminDashboard = ({ activeTab }) => {
             alert("Broadcast sent successfully to all Farmers and Buyers!");
             setNotifMessage("");
         } catch (err) {
-            alert("Error sending notification. Please try again.");
+            const msg = err.response?.data?.detail || err.response?.data?.message || "Error sending notification. Please try again.";
+            alert(msg);
         } finally {
             setLoading(false);
         }

@@ -152,7 +152,8 @@ const FarmerDashboard = ({ activeTab }) => {
             alert("Complaint submitted successfully!");
             e.target.reset();
         } catch (err) {
-            alert("Error submitting complaint");
+            const msg = err.response?.data?.detail || err.response?.data?.message || "Error submitting complaint";
+            alert(msg);
         } finally {
             setLoading(false);
         }

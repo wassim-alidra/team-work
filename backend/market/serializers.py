@@ -12,13 +12,21 @@ class ProductSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     buyer_name = serializers.CharField(source='buyer.username', read_only=True)
-    delivery_status = serializers.CharField(source='delivery.status', read_only=True)
-    transporter_name = serializers.CharField(source='delivery.transporter.username', read_only=True)
+    delivery_status = serializers.SerializerMethodField()
+    transporter_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
         fields = '__all__'
         read_only_fields = ('buyer', 'total_price')
+
+    def get_delivery_status(self, obj):
+        return getattr(obj, 'delivery').status if hasattr(obj, 'delivery') else "PENDING"
+
+    def get_transporter_name(self, obj):
+        if hasattr(obj, 'delivery') and obj.delivery.transporter:
+            return obj.delivery.transporter.username
+        return "Not Assigned"
 
 class DeliverySerializer(serializers.ModelSerializer):
     transporter_name = serializers.CharField(source='transporter.username', read_only=True)

@@ -140,7 +140,8 @@ const BuyerDashboard = ({ activeTab }) => {
             alert("Complaint logged for review!");
             e.target.reset();
         } catch (err) {
-            alert("Error submitting complaint");
+            const msg = err.response?.data?.detail || err.response?.data?.message || "Error submitting complaint";
+            alert(msg);
         } finally {
             setLoading(false);
         }
