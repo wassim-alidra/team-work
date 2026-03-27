@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 
 import AuthContext, { AuthProvider } from "./context/AuthContext";
@@ -7,6 +7,7 @@ import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import Landing from "./pages/Landing";
 
 const PrivateRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -15,14 +16,17 @@ const PrivateRoute = ({ children }) => {
 
 function AppContent() {
   const { user } = useContext(AuthContext);
+  const location = useLocation();
+  
+  // Show Navbar ONLY when NOT in dashboard and NOT in landing page
+  const showDefaultNavbar = !user && location.pathname !== '/';
 
   return (
     <>
-      {/* Show Navbar ONLY when NOT in dashboard */}
-      {!user && <Navbar />}
+      {showDefaultNavbar && <Navbar />}
 
       <Routes>
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+        <Route path="/" element={<Landing />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

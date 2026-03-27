@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
 const Register = () => {
@@ -41,46 +41,80 @@ const Register = () => {
     };
 
     return (
-        <div className="auth-container" style={{ maxWidth: '500px' }}>
+        <div className="auth-container fade-in" style={{ maxWidth: '550px' }}>
             <div className="glass-panel">
-                <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>Create Account</h2>
+                <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Create Account</h2>
+                <p className="auth-subtitle">Join AgriGov Market to start trading today</p>
+                
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <input type="text" name="username" placeholder="Username" onChange={handleChange} required />
-                        <input type="password" name="password" placeholder="Password" onChange={handleChange} required />
+                        <div>
+                            <label className="auth-form-label">Username</label>
+                            <input type="text" name="username" placeholder="Choose a username" onChange={handleChange} required />
+                        </div>
+                        <div>
+                            <label className="auth-form-label">Password</label>
+                            <input type="password" name="password" placeholder="Create a password" onChange={handleChange} required />
+                        </div>
                     </div>
-                    <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+                    
+                    <div>
+                        <label className="auth-form-label">Email Address</label>
+                        <input type="email" name="email" placeholder="Enter your email" onChange={handleChange} required />
+                    </div>
 
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#cbd5e1' }}>Select Role</label>
-                    <select name="role" onChange={handleChange} value={formData.role}>
-                        <option value="FARMER">Farmer</option>
-                        <option value="BUYER">Buyer</option>
-                        <option value="TRANSPORTER">Transporter</option>
-                    </select>
+                    <div>
+                        <label className="auth-form-label">Select Account Role</label>
+                        <select name="role" onChange={handleChange} value={formData.role}>
+                            <option value="FARMER">Farmer</option>
+                            <option value="BUYER">Buyer</option>
+                            <option value="TRANSPORTER">Transporter</option>
+                        </select>
+                    </div>
 
                     {formData.role === 'FARMER' && (
-                        <div className="role-fields fade-in">
-                            <input type="text" name="farm_name" placeholder="Farm Name" onChange={handleChange} />
-                            <input type="text" name="location" placeholder="Location" onChange={handleChange} />
+                        <div className="role-fields fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '-0.5rem' }}>
+                            <div>
+                                <label className="auth-form-label">Farm Name</label>
+                                <input type="text" name="farm_name" placeholder="Your farm name" onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="auth-form-label">Location</label>
+                                <input type="text" name="location" placeholder="Farm location" onChange={handleChange} />
+                            </div>
                         </div>
                     )}
 
                     {formData.role === 'BUYER' && (
-                        <div className="role-fields fade-in">
-                            <input type="text" name="company_name" placeholder="Company Name" onChange={handleChange} />
+                        <div className="role-fields fade-in" style={{ marginTop: '-0.5rem' }}>
+                            <label className="auth-form-label">Company Name</label>
+                            <input type="text" name="company_name" placeholder="Your company name" onChange={handleChange} />
                         </div>
                     )}
 
                     {formData.role === 'TRANSPORTER' && (
-                        <div className="role-fields fade-in">
-                            <input type="text" name="vehicle_type" placeholder="Vehicle Type" onChange={handleChange} />
-                            <input type="text" name="license_plate" placeholder="License Plate" onChange={handleChange} />
-                            <input type="number" name="capacity" placeholder="Capacity (tons)" onChange={handleChange} />
+                        <div className="role-fields fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginTop: '-0.5rem' }}>
+                            <div>
+                                <label className="auth-form-label">Vehicle Type</label>
+                                <input type="text" name="vehicle_type" placeholder="e.g. Truck" onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="auth-form-label">License Plate</label>
+                                <input type="text" name="license_plate" placeholder="Plate No." onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="auth-form-label">Capacity</label>
+                                <input type="number" name="capacity" placeholder="Tons" onChange={handleChange} />
+                            </div>
                         </div>
                     )}
 
-                    <button type="submit" style={{ width: '100%', marginTop: '1rem' }}>Register</button>
+                    <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>Open Account</button>
                 </form>
+                
+                <p className="auth-footer">
+                    Already have an account? <Link to="/login" className="auth-link">Sign In</Link>
+                </p>
             </div>
         </div>
     );
