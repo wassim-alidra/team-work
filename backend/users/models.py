@@ -10,6 +10,7 @@ class User(AbstractUser):
         TRANSPORTER = 'TRANSPORTER', _('Transporter')
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.FARMER)
+    is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.is_superuser:

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.exceptions import AuthenticationFailed
 from .models import FarmerProfile, BuyerProfile, TransporterProfile
 
 User = get_user_model()
@@ -74,3 +76,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             )
         
         return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        # We check the user object directly before the standard validation attempts authentication.
+        # This prevents the generic "No active account found" error from hiding our specific messages.
+        username = attrs.get(self.username_field)
+        password = attrs.get("password")
+        
+        user = User.objects.filter(username=username).first()
+        if user and user.check_password(password):
+            if hasattr(user, 'is_deleted') and user.is_deleted:
+                raise AuthenticationFailed("This account has been deleted and is no longer accessible.")
+            if not user.is_active:
+                raise AuthenticationFailed("Your account has been suspended. Please contact the administrator.")
+                
+        return super().validate(attrs)

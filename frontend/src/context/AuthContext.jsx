@@ -29,7 +29,11 @@ export const AuthProvider = ({ children }) => {
 
             }
         } catch (error) {
-            alert('Something went wrong!');
+            const detail = error.response?.data?.detail || error.response?.data?.non_field_errors?.[0];
+            if (detail) {
+                throw new Error(detail);
+            }
+            throw new Error('Something went wrong! Please try again.');
         }
     }
 

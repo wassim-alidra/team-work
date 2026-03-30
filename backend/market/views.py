@@ -290,10 +290,10 @@ class AdminStatsView(viewsets.ViewSet):
             return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
         
         stats = {
-            "total_users": User.objects.count(),
-            "farmers_count": User.objects.filter(role=User.Role.FARMER).count(),
-            "buyers_count": User.objects.filter(role=User.Role.BUYER).count(),
-            "transporters_count": User.objects.filter(role=User.Role.TRANSPORTER).count(),
+            "total_users": User.objects.filter(is_deleted=False).count(),
+            "farmers_count": User.objects.filter(role=User.Role.FARMER, is_deleted=False).count(),
+            "buyers_count": User.objects.filter(role=User.Role.BUYER, is_deleted=False).count(),
+            "transporters_count": User.objects.filter(role=User.Role.TRANSPORTER, is_deleted=False).count(),
             "total_products": Product.objects.count(),
             "total_orders": Order.objects.count(),
             "total_revenue": Order.objects.filter(status='DELIVERED').aggregate(Sum('total_price'))['total_price__sum'] or 0,
@@ -312,12 +312,55 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request):
         users = self.get_queryset()
-        data = [{
-            "id": u.id,
-            "username": u.username,
-            "role": u.role,
-            "email": u.email,
-            "date_joined": u.date_joined
-        } for u in users]
+        data = []
+        for u in users:
+            item = {
+                "id": u.id,
+                "username": u.username,
+                "first_name": u.first_name,
+                "last_name": u.last_name,
+                "role": u.role,
+                "email": u.email,
+                "date_joined": u.date_joined,
+                "is_active": u.is_active,
+                "is_deleted": getattr(u, 'is_deleted', False),
+            }
+            if u.role == User.Role.FARMER and hasattr(u, 'farmer_profile'):
+                item['extra_info'] = f"Farm: {u.farmer_profile.farm_name}"
+            elif u.role == User.Role.BUYER and hasattr(u, 'buyer_profile'):
+                item['extra_info'] = f"Company: {u.buyer_profile.company_name}"
+            elif u.role == User.Role.TRANSPORTER and hasattr(u, 'transporter_profile'):
+                item['extra_info'] = f"Vehicle: {u.transporter_profile.vehicle_type}"
+            else:
+                item['extra_info'] = ''
+            data.append(item)
         return Response(data)
+
+    @action(detail=True, methods=['post'])
+    def suspend(self, request, pk=None):
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object()
+        user.is_active = False
+        user.save()
+        return Response({"detail": "User suspended successfully."})
+
+    @action(detail=True, methods=['post'])
+    def activate(self, request, pk=None):
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object()
+        user.is_active = True
+        user.save()
+        return Response({"detail": "User activated successfully."})
+
+    @action(detail=True, methods=['post'])
+    def delete_account(self, request, pk=None):
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object()
+        user.is_active = False
+        user.is_deleted = True
+        user.save()
+        return Response({"detail": "User deleted successfully."})
 

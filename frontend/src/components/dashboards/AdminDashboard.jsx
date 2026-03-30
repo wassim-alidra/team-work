@@ -12,6 +12,8 @@ const AdminDashboard = ({ activeTab }) => {
     const [notifTarget, setNotifTarget] = useState("all");
     const [catalogForm, setCatalogForm] = useState({ name: "", description: "", min_price: "", max_price: "" });
     const [loading, setLoading] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [tempMessage, setTempMessage] = useState("");
 
     useEffect(() => {
         if (activeTab === "dashboard") fetchStats();
@@ -35,6 +37,30 @@ const AdminDashboard = ({ activeTab }) => {
             setUsers(res.data);
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const handleUserAction = async (actionType, id) => {
+        if (actionType === 'delete_account' && !window.confirm("Are you sure you want to delete this account? This action cannot be fully undone.")) return;
+        setLoading(true);
+        try {
+            await api.post(`market/users-list/${id}/${actionType}/`);
+            setTempMessage(`User ${actionType === 'suspend' ? 'suspended' : actionType === 'activate' ? 'activated' : 'deleted'} successfully.`);
+            fetchUsers();
+            
+            setSelectedUser(prev => {
+                if (!prev) return prev;
+                if (actionType === 'delete_account') return { ...prev, is_deleted: true, is_active: false };
+                if (actionType === 'suspend') return { ...prev, is_active: false };
+                if (actionType === 'activate') return { ...prev, is_active: true };
+                return prev;
+            });
+            
+            setTimeout(() => setTempMessage(""), 3000);
+        } catch (err) {
+            alert("Error processing action: " + (err.response?.data?.detail || err.message));
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -167,7 +193,9 @@ const AdminDashboard = ({ activeTab }) => {
                                 <th>Username</th>
                                 <th>Role</th>
                                 <th>Email</th>
+                                <th>Status</th>
                                 <th>Joined Date</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -176,12 +204,69 @@ const AdminDashboard = ({ activeTab }) => {
                                     <td><strong>{u.username}</strong></td>
                                     <td><span className={`role-pill role-${u.role.toLowerCase()}`}>{u.role}</span></td>
                                     <td>{u.email}</td>
+                                    <td>
+                                        {u.is_deleted ? (
+                                            <span className="status-badge" style={{ backgroundColor: '#fee2e2', color: '#ef4444' }}>Deleted</span>
+                                        ) : u.is_active ? (
+                                            <span className="status-badge" style={{ backgroundColor: '#d1fae5', color: '#065f46' }}>Active</span>
+                                        ) : (
+                                            <span className="status-badge" style={{ backgroundColor: '#fef3c7', color: '#f59e0b' }}>Suspended</span>
+                                        )}
+                                    </td>
                                     <td>{new Date(u.date_joined).toLocaleDateString()}</td>
+                                    <td>
+                                        <button className="btn-secondary-sm" onClick={() => setSelectedUser(u)}>View Details</button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
                     </table>
                 </div>
+
+                {/* User Details Modal */}
+                {selectedUser && (
+                    <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                        <div className="modal-content animate-in glass-panel" style={{ maxWidth: '550px', width: '90%', padding: '2rem', position: 'relative' }}>
+                            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
+                                <h3 style={{ margin: 0, color: '#10b981' }}>User Details</h3>
+                                <button className="close-btn" style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }} onClick={() => { setSelectedUser(null); setTempMessage(""); }}>×</button>
+                            </div>
+                            {tempMessage && <div className="alert alert-success" style={{ margin: '10px 0', padding: '10px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '4px', border: '1px solid #a7f3d0' }}>{tempMessage}</div>}
+                            <div className="modal-body" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', color: '#334155' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.8rem' }}>
+                                    <strong>Username:</strong> <span>{selectedUser.username}</span>
+                                    <strong>Full Name:</strong> <span>{selectedUser.first_name || '-'} {selectedUser.last_name || '-'}</span>
+                                    <strong>Email:</strong> <span>{selectedUser.email}</span>
+                                    <strong>Role:</strong> <span><span className={`role-pill role-${selectedUser.role.toLowerCase()}`}>{selectedUser.role}</span></span>
+                                    <strong>Status:</strong> <span>
+                                        {selectedUser.is_deleted ? "Deleted" : selectedUser.is_active ? "Active" : "Suspended"}
+                                    </span>
+                                    <strong>Joined Date:</strong> <span>{new Date(selectedUser.date_joined).toLocaleDateString()}</span>
+                                    {selectedUser.extra_info && <><strong>Profile Info:</strong> <span>{selectedUser.extra_info}</span></>}
+                                </div>
+                            </div>
+                            <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                                {!selectedUser.is_deleted && (
+                                    <>
+                                        {selectedUser.is_active ? (
+                                            <button className="btn-danger-outline" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #ef4444', color: '#ef4444', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('suspend', selectedUser.id)} disabled={loading}>
+                                                {loading ? "..." : "Suspend"}
+                                            </button>
+                                        ) : (
+                                            <button className="btn-success" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#10b981', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>
+                                                {loading ? "..." : "Activate"}
+                                            </button>
+                                        )}
+                                        <button className="btn-danger" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#ef4444', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>
+                                            {loading ? "..." : "Delete"}
+                                        </button>
+                                    </>
+                                )}
+                                <button className="btn-secondary" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #cbd5e1', color: '#475569', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 500 }} onClick={() => { setSelectedUser(null); setTempMessage(""); }}>Close</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         );
     }
