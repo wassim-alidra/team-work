@@ -104,7 +104,8 @@ const BuyerDashboard = ({ activeTab }) => {
             fetchMyOrders();
             fetchStats();
         } catch (err) {
-            alert("Error placing order");
+            const msg = err.response?.data?.quantity || err.response?.data?.detail || "Error placing order";
+            alert(Array.isArray(msg) ? msg[0] : msg);
             console.error(err);
         } finally {
             setLoading(false);

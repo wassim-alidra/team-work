@@ -113,6 +113,18 @@ class OrderViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if self.request.user.role != User.Role.BUYER:
             raise permissions.PermissionDenied("Only buyers can place orders.")
+            
+        product = serializer.validated_data['product']
+        quantity = serializer.validated_data['quantity']
+        
+        if quantity > product.quantity_available:
+            raise ValidationError(
+                {"quantity": f"Cannot order {quantity}kg. Only {product.quantity_available}kg available."}
+            )
+            
+        product.quantity_available -= quantity
+        product.save()
+        
         serializer.save(buyer=self.request.user)
 
     def perform_update(self, serializer):
@@ -121,9 +133,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
             if user.role == User.Role.FARMER and order.product.farmer == user:
+                 if new_status == 'CANCELLED' and order.status != 'CANCELLED':
+                     order.product.quantity_available += order.quantity
+                     order.product.save()
                  serializer.save()
             elif user.role == User.Role.BUYER and order.buyer == user:
                 if order.status == 'PENDING' and new_status == 'CANCELLED':
+                    order.product.quantity_available += order.quantity
+                    order.product.save()
                     serializer.save()
                 else:
                     raise permissions.PermissionDenied("Buyers can only cancel PENDING orders.")
