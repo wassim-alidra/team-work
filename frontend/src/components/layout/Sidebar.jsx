@@ -56,14 +56,34 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   if (user?.role === "ADMIN") menuItems = adminItems;
 
   return (
-    <aside className="dashboard-sidebar">
-      <div className="sidebar-brand">
-        <div className="sidebar-brand-icon">A</div>
-        <div>
-          <h2>AgriGov</h2>
-          <p>Market Platform</p>
-        </div>
-      </div>
+  <aside 
+  className="dashboard-sidebar"
+  style={{ display: "flex", flexDirection: "column" }}
+>
+
+  <div 
+    className="sidebar-brand"
+    style={{
+      height: "80px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+      padding: "5px"
+    }}
+  >
+    <img 
+      src="/Agrigove web site.PNG" 
+      alt="AgriGov Logo"
+      style={{
+        height: "100%",
+        width: "auto",
+        objectFit: "contain"
+      }}
+    />
+  </div>
+
+
 
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
