@@ -211,11 +211,11 @@ const FarmerDashboard = ({ activeTab }) => {
                                     />
                                     {selectedCatalogItem?.min_price && selectedCatalogItem?.max_price && (
                                         <small style={{color:'#6b7280', fontSize:'0.75rem'}}>
-                                            Allowed: {selectedCatalogItem.min_price} – {selectedCatalogItem.max_price} DA/kg
+                                            Allowed: {selectedCatalogItem.min_price} – {selectedCatalogItem.max_price} DA / {selectedCatalogItem.unit || 'kg'}
                                         </small>
                                     )}
                                 </div>
-                                <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder="Qty kg" required />
+                                <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Qty (${selectedCatalogItem?.unit || 'kg'})`} required />
                             </div>
                             <button type="submit" className="btn-primary" disabled={loading}>{loading ? "Adding..." : "Add Product"}</button>
                         </form>
@@ -277,13 +277,13 @@ const FarmerDashboard = ({ activeTab }) => {
                             />
                             {selectedCatalogItem?.min_price && selectedCatalogItem?.max_price && (
                                 <small className="price-hint">
-                                    💰 Allowed range: <strong>{selectedCatalogItem.min_price}</strong> to <strong>{selectedCatalogItem.max_price}</strong> DA/kg
+                                    💰 Allowed range: <strong>{selectedCatalogItem.min_price}</strong> to <strong>{selectedCatalogItem.max_price}</strong> DA / {selectedCatalogItem.unit || 'kg'}
                                 </small>
                             )}
                         </div>
                         <div className="form-group">
                             <label>Available Quantity (kg)</label>
-                            <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder="0" required />
+                            <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required />
                         </div>
                     </div>
                     <button type="submit" className="btn-primary mt-1" disabled={loading}>{loading ? "Publishing..." : "Add Product to Market"}</button>
@@ -418,8 +418,9 @@ const FarmerDashboard = ({ activeTab }) => {
                             <tr>
                                 <th>Product</th>
                                 <th>Description</th>
-                                <th>Min Price (DA/kg)</th>
-                                <th>Max Price (DA/kg)</th>
+                                <th>Min Price (DA)</th>
+                                <th>Max Price (DA)</th>
+                                <th>Unit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -429,6 +430,7 @@ const FarmerDashboard = ({ activeTab }) => {
                                     <td>{c.description || "—"}</td>
                                     <td style={{color:'#059669', fontWeight:600}}>{c.min_price ?? "—"}</td>
                                     <td style={{color:'#dc2626', fontWeight:600}}>{c.max_price ?? "—"}</td>
+                                    <td style={{fontSize:'0.85rem', color:'#64748b'}}>{c.unit || 'kg'}</td>
                                 </tr>
                             ))}
                         </tbody>

@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle } from "lucide-react";
+import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid } from "lucide-react";
 
 const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const transporterItems = [
@@ -33,8 +33,9 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const adminItems = [
     { key: "dashboard", label: "Overview", icon: <Home size={18} /> },
     { key: "users", label: "Users Management", icon: <Users size={18} /> },
+    { key: "categories", label: "Categories", icon: <LayoutGrid size={18} /> },
     { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
-    { key: "catalog", label: "Manage Catalog", icon: <Package size={18} /> },
+    { key: "catalog", label: "Official Prices", icon: <Package size={18} /> },
     { key: "notifications", label: "Farmer Alerts", icon: <Bell size={18} /> },
   ];
 

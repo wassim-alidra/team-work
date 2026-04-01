@@ -1,9 +1,26 @@
 from rest_framework import serializers
-from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog
+from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
 
 class ProductCatalogSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    category_color = serializers.CharField(source='category.color', read_only=True)
+    category_icon = serializers.CharField(source='category.icon', read_only=True)
+    updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
+    
     class Meta:
         model = ProductCatalog
+        fields = '__all__'
+
+class PriceHistorySerializer(serializers.ModelSerializer):
+    updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
+    
+    class Meta:
+        model = PriceHistory
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -11,6 +28,7 @@ class ProductSerializer(serializers.ModelSerializer):
     name = serializers.ReadOnlyField()
     description = serializers.ReadOnlyField()
     catalog_name = serializers.SerializerMethodField()
+    catalog_unit = serializers.ReadOnlyField(source='catalog.unit')
     
     class Meta:
         model = Product
@@ -25,6 +43,7 @@ class OrderSerializer(serializers.ModelSerializer):
     buyer_name = serializers.CharField(source='buyer.username', read_only=True)
     delivery_status = serializers.SerializerMethodField()
     transporter_name = serializers.SerializerMethodField()
+    product_unit = serializers.ReadOnlyField(source='product.catalog.unit')
 
     class Meta:
         model = Order

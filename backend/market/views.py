@@ -2,23 +2,70 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
-from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog
+from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory
 from .serializers import (
     ProductSerializer, OrderSerializer, DeliverySerializer, 
-    ComplaintSerializer, NotificationSerializer, ProductCatalogSerializer
+    ComplaintSerializer, NotificationSerializer, ProductCatalogSerializer,
+    CategorySerializer, PriceHistorySerializer
 )
 from users.models import User
 from django.db.models import Sum
 
-class ProductCatalogViewSet(viewsets.ModelViewSet):
-    queryset = ProductCatalog.objects.all()
-    serializer_class = ProductCatalogSerializer
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all().order_by('name')
+    serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             return [permissions.IsAdminUser()]
         return super().get_permissions()
+
+class ProductCatalogViewSet(viewsets.ModelViewSet):
+    serializer_class = ProductCatalogSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = ProductCatalog.objects.all().order_by('name')
+        category_id = self.request.query_params.get('category')
+        search = self.request.query_params.get('search')
+        
+        if category_id and category_id != 'all':
+            queryset = queryset.filter(category_id=category_id)
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+            
+        return queryset
+
+    def get_permissions(self):
+        if self.action in ['create', 'update', 'partial_update', 'destroy']:
+            return [permissions.IsAdminUser()]
+        return super().get_permissions()
+
+    def perform_create(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        # Track history before saving new values
+        PriceHistory.objects.create(
+            product=instance,
+            min_price=instance.min_price,
+            max_price=instance.max_price,
+            updated_by=instance.updated_by
+        )
+        serializer.save(updated_by=self.request.user)
+
+class PriceHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PriceHistorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = PriceHistory.objects.all()
+        product_id = self.request.query_params.get('product')
+        if product_id:
+            queryset = queryset.filter(product_id=product_id)
+        return queryset
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer

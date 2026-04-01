@@ -73,7 +73,7 @@ const BuyerDashboard = ({ activeTab }) => {
     };
 
     const addToCart = (product) => {
-        const qty = prompt(`How many kg of ${product.name} would you like?`, "1");
+        const qty = prompt(`How many ${product.catalog_unit || 'units'} of ${product.name} would you like?`, "1");
         if (!qty || isNaN(qty) || parseFloat(qty) <= 0) return;
         
         const item = {
@@ -205,7 +205,7 @@ const BuyerDashboard = ({ activeTab }) => {
                                     <div className="item-img">{p.name?.[0] || 'P'}</div>
                                     <div className="item-details">
                                         <strong>{p.name || "Unnamed Product"}</strong>
-                                        <span>{p.price_per_kg} DA/kg</span>
+                                        <span>{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</span>
                                     </div>
                                     <button className="btn-icon" onClick={() => addToCart(p)}>+</button>
                                 </div>
@@ -260,8 +260,8 @@ const BuyerDashboard = ({ activeTab }) => {
                             <div className="product-info">
                                 <h3>{p.name || "Unnamed Product"}</h3>
                                 <p className="farmer-name">By {p.farmer_name}</p>
-                                <div className="price-tag">{p.price_per_kg} DA/kg</div>
-                                <p className="stock-info">{p.quantity_available}kg available</p>
+                                <div className="price-tag">{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</div>
+                                <p className="stock-info">{p.quantity_available} {p.catalog_unit || 'kg'} available</p>
                             </div>
                             <button className="btn-buy-now" onClick={() => addToCart(p)}>Add to Cart</button>
                         </div>
@@ -287,18 +287,18 @@ const BuyerDashboard = ({ activeTab }) => {
                             <div className="item-text">
                                 <h3>{cart.name || "Unnamed Product"}</h3>
                                 <p>From: {cart.farmer_name}</p>
-                                <div className="checkout-badge">{cart.quantity}kg</div>
+                                <div className="checkout-badge">{cart.quantity} {cart.catalog_unit || 'kg'}</div>
                             </div>
                             <button className="btn-delete" onClick={removeFromCart}><Trash2 size={20} /></button>
                         </div>
                         <div className="checkout-summary">
                             <div className="summary-row">
                                 <span>Unit Price</span>
-                                <span>{cart.price_per_kg} DA/kg</span>
+                                <span>{cart.price_per_kg} DA / {cart.catalog_unit || 'kg'}</span>
                             </div>
                             <div className="summary-row">
-                                <span>Weight</span>
-                                <span>{cart.quantity} kg</span>
+                                <span>Quantity</span>
+                                <span>{cart.quantity} {cart.catalog_unit || 'kg'}</span>
                             </div>
                             <div className="summary-row total">
                                 <span>Order Total</span>
@@ -350,7 +350,7 @@ const BuyerDashboard = ({ activeTab }) => {
                                     <td>#{o.id}</td>
                                     <td>{o.product_name}</td>
                                     <td>{o.farmer_name}</td>
-                                    <td>{o.quantity}kg</td>
+                                    <td>{o.quantity} {o.product_unit || 'kg'}</td>
                                     <td><strong>{o.total_price} DA</strong></td>
                                     <td><span className={`status-badge ${o.status.toLowerCase()}`}>{o.status}</span></td>
                                     <td>
