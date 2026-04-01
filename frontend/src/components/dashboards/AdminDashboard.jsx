@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { Users, Home, AlertCircle, Bell, TrendingUp, Package, ShoppingCart, CheckCircle, Plus, MoreVertical, Pencil, Trash2, Clock, Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout, Eye, EyeOff, Calendar, User } from "lucide-react";
 import "../../styles/dashboard.css";
 
 const AdminDashboard = ({ activeTab }) => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
     const [complaints, setComplaints] = useState([]);
@@ -1017,14 +1019,24 @@ const AdminDashboard = ({ activeTab }) => {
 
                 <div className="grid-list">
                     {categories.map(cat => (
-                        <div key={cat.id} className="category-card-premium card-item">
+                        <div 
+                            key={cat.id} 
+                            className="category-card-premium card-item clickable-card"
+                            onClick={() => navigate(`/dashboard/category/${cat.id}`)}
+                        >
                             <div className="card-top">
                                 <div className="icon-container" style={{ backgroundColor: cat.color, color: cat.textColor || "#111827" }}>
                                     {getIconComponent(cat.icon)}
                                 </div>
                                 <div className="card-actions-wrapper">
                                     {cat.is_hidden && <span className="badge-hidden">HIDDEN</span>}
-                                    <button className="icon-btn-ghost" onClick={() => setActiveMenu(activeMenu === cat.id ? null : cat.id)}>
+                                    <button 
+                                        className="icon-btn-ghost" 
+                                        onClick={(e) => { 
+                                            e.stopPropagation(); // Prevent card click navigation
+                                            setActiveMenu(activeMenu === cat.id ? null : cat.id); 
+                                        }}
+                                    >
                                         <MoreVertical size={18} />
                                     </button>
                                     
@@ -1217,8 +1229,9 @@ const AdminDashboard = ({ activeTab }) => {
                     .btn-success-lg { background: #2f8f3a; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 12px; display: flex; align-items: center; gap: 0.5rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
                     .btn-success-lg:hover { background: #25702d; transform: translateY(-1px); }
                     
-                    .category-card-premium { position: relative; display: flex; flex-direction: column; padding: 1.5rem; border-radius: 20px; background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: 0.2s ease; }
-                    .category-card-premium:hover { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+                    .category-card-premium { position: relative; display: flex; flex-direction: column; padding: 1.5rem; border-radius: 20px; background: white; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+                    .category-card-premium:hover { box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1); transform: translateY(-4px); }
+                    .clickable-card { cursor: pointer; }
                     
                     .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
                     .icon-container { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; opacity: 0.9; }

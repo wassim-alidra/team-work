@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Landing from "./pages/Landing";
+import CategoryProductsPage from "./pages/CategoryProductsPage";
 
 const PrivateRoute = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -36,6 +37,14 @@ function AppContent() {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard/category/:id"
+          element={
+            <PrivateRoute>
+              <CategoryProductsPage />
             </PrivateRoute>
           }
         />
