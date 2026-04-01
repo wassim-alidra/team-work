@@ -303,7 +303,12 @@ const AdminDashboard = ({ activeTab }) => {
                                     </td>
                                     <td>{new Date(u.date_joined).toLocaleDateString()}</td>
                                     <td>
-                                        <button className="btn-secondary-sm" onClick={() => setSelectedUser(u)}>View Details</button>
+                                      <button
+    className="btn-view-small"
+    onClick={() => setSelectedUser(u)}
+>
+    View
+</button> 
                                     </td>
                                 </tr>
                             ))}
@@ -521,7 +526,7 @@ const AdminDashboard = ({ activeTab }) => {
                                                         setShowAddModal(true); 
                                                     }}
                                                 >
-                                                    <Pencil size={18} strokeWidth={2.5} />
+                                                    <Pencil size={16} />
                                                 </button>
                                                 <button 
                                                     className="action-btn btn-history"
@@ -531,14 +536,14 @@ const AdminDashboard = ({ activeTab }) => {
                                                         fetchPriceHistory(item.id);
                                                     }}
                                                 >
-                                                    <Clock size={18} strokeWidth={2.5} />
+                                                    <Clock size={16} />
                                                 </button>
                                                 <button 
                                                     className="action-btn btn-delete" 
                                                     title="Remove Product Entry"
                                                     onClick={() => handleDeleteCatalogItem(item.id)}
                                                 >
-                                                    <Trash2 size={18} strokeWidth={2.5} />
+                                                    <Trash2 size={16} />
                                                 </button>
                                             </div>
                                         </td>
@@ -679,7 +684,10 @@ const AdminDashboard = ({ activeTab }) => {
                                             <div className="history-main">
                                                 <div className="price-tag">{h.min_price} – {h.max_price} <small>DA/{selectedCatalogItem?.unit}</small></div>
                                                 <div className="meta-info">
-                                                    <span><Calendar size={12} /> {new Date(h.created_at).toLocaleDateString()}</span>
+                                                   <span>
+  <Calendar size={12} /> 
+  {new Date(h.updated_at).toLocaleDateString("fr-FR")}
+</span>
                                                     <span><User size={12} /> {h.updated_by_name || "System"}</span>
                                                 </div>
                                             </div>
@@ -1057,9 +1065,26 @@ const AdminDashboard = ({ activeTab }) => {
                                                 {cat.is_hidden ? <Eye size={14} /> : <EyeOff size={14} />} {cat.is_hidden ? "Unhide" : "Hide"}
                                             </button>
                                             <hr />
-                                            <button className="delete-action" onClick={() => { setSelectedCategory(cat); setShowDeleteModal(true); setActiveMenu(null); }}>
-                                                <Trash2 size={14} /> Delete
-                                            </button>
+                                            <button
+    className="delete-action"
+    onClick={async (e) => {
+        e.stopPropagation();
+        setActiveMenu(null);
+
+        const confirmed = window.confirm(`Are you sure you want to delete ${cat.name}?`);
+        if (!confirmed) return;
+
+        try {
+            await api.delete(`market/categories/${cat.id}/`);
+            fetchCategories();
+        } catch (err) {
+            console.error("Delete category error:", err);
+            alert(err.response?.data?.detail || "Error deleting category");
+        }
+    }}
+>
+    <Trash2 size={14} /> Delete
+</button>
                                         </div>
                                     )}
                                 </div>

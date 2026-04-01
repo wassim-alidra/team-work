@@ -2,9 +2,14 @@ from rest_framework import serializers
 from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory
 
 class CategorySerializer(serializers.ModelSerializer):
+    productsCount = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
         fields = '__all__'
+
+    def get_productsCount(self, obj): 
+        return obj.products.count()
 
 class ProductCatalogSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
