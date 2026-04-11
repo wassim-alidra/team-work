@@ -375,12 +375,24 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
             }
             if u.role == User.Role.FARMER and hasattr(u, 'farmer_profile'):
                 item['extra_info'] = f"Farm: {u.farmer_profile.farm_name}"
+                item['documents'] = []
+                if u.farmer_profile.farmer_card_file:
+                    item['documents'].append({'name': 'Farmer Card', 'url': request.build_absolute_uri(u.farmer_profile.farmer_card_file.url)})
             elif u.role == User.Role.BUYER and hasattr(u, 'buyer_profile'):
                 item['extra_info'] = f"Company: {u.buyer_profile.company_name}"
+                item['documents'] = []
+                if u.buyer_profile.commercial_register_file:
+                    item['documents'].append({'name': 'Commercial Register', 'url': request.build_absolute_uri(u.buyer_profile.commercial_register_file.url)})
             elif u.role == User.Role.TRANSPORTER and hasattr(u, 'transporter_profile'):
                 item['extra_info'] = f"Vehicle: {u.transporter_profile.vehicle_type}"
+                item['documents'] = []
+                if u.transporter_profile.driving_license_file:
+                    item['documents'].append({'name': 'Driving License', 'url': request.build_absolute_uri(u.transporter_profile.driving_license_file.url)})
+                if u.transporter_profile.car_license_file:
+                    item['documents'].append({'name': 'Car License', 'url': request.build_absolute_uri(u.transporter_profile.car_license_file.url)})
             else:
                 item['extra_info'] = ''
+                item['documents'] = []
             data.append(item)
         return Response(data)
 

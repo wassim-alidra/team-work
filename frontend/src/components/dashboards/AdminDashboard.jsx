@@ -343,6 +343,18 @@ const AdminDashboard = ({ activeTab }) => {
                                     </span>
                                     <strong>Joined Date:</strong> <span>{new Date(selectedUser.date_joined).toLocaleDateString()}</span>
                                     {selectedUser.extra_info && <><strong>Profile Info:</strong> <span>{selectedUser.extra_info}</span></>}
+                                    {selectedUser.documents && selectedUser.documents.length > 0 && (
+                                        <>
+                                            <strong>Documents:</strong>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                                {selectedUser.documents.map((doc, idx) => (
+                                                    <a key={idx} href={doc.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 500, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                        📄 {doc.name}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                             <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
