@@ -90,5 +90,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 raise AuthenticationFailed("This account has been deleted and is no longer accessible.")
             if not user.is_active:
                 raise AuthenticationFailed("Your account has been suspended. Please contact the administrator.")
+            if getattr(user, 'approval_status', 'approved') == 'pending':
+                raise AuthenticationFailed("Your account is pending admin approval.")
                 
         return super().validate(attrs)

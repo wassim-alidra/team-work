@@ -371,6 +371,7 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
                 "date_joined": u.date_joined,
                 "is_active": u.is_active,
                 "is_deleted": getattr(u, 'is_deleted', False),
+                "approval_status": getattr(u, 'approval_status', 'approved'),
             }
             if u.role == User.Role.FARMER and hasattr(u, 'farmer_profile'):
                 item['extra_info'] = f"Farm: {u.farmer_profile.farm_name}"
@@ -410,4 +411,13 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
         user.is_deleted = True
         user.save()
         return Response({"detail": "User deleted successfully."})
+
+    @action(detail=True, methods=['post'])
+    def approve_account(self, request, pk=None):
+        if request.user.role != User.Role.ADMIN:
+            return Response({"detail": "Unauthorized"}, status=status.HTTP_403_FORBIDDEN)
+        user = self.get_object()
+        user.approval_status = 'approved'
+        user.save()
+        return Response({"detail": "User approved successfully."})
 

@@ -11,7 +11,12 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.FARMER)
     is_deleted = models.BooleanField(default=False)
-
+    
+    APPROVAL_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved')
+    ]
+    approval_status = models.CharField(max_length=20, choices=APPROVAL_CHOICES, default='pending')
     def save(self, *args, **kwargs):
         if self.is_superuser:
             self.role = self.Role.ADMIN
