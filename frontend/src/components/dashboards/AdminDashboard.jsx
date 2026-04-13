@@ -82,7 +82,13 @@ const AdminDashboard = ({ activeTab }) => {
         setLoading(true);
         try {
             await api.post(`market/users-list/${id}/${actionType}/`);
-            setTempMessage(`User ${actionType === 'suspend' ? 'suspended' : actionType === 'activate' ? 'activated' : 'deleted'} successfully.`);
+            let successText = actionType;
+            if (actionType === 'suspend') successText = 'suspended';
+            else if (actionType === 'activate') successText = 'activated';
+            else if (actionType === 'delete_account') successText = 'deleted';
+            else if (actionType === 'approve_account') successText = 'approved';
+            
+            setTempMessage(`User ${successText} successfully.`);
             fetchUsers();
             
             setSelectedUser(prev => {
@@ -90,6 +96,7 @@ const AdminDashboard = ({ activeTab }) => {
                 if (actionType === 'delete_account') return { ...prev, is_deleted: true, is_active: false };
                 if (actionType === 'suspend') return { ...prev, is_active: false };
                 if (actionType === 'activate') return { ...prev, is_active: true };
+                if (actionType === 'approve_account') return { ...prev, approval_status: 'approved' };
                 return prev;
             });
             
@@ -287,14 +294,14 @@ const AdminDashboard = ({ activeTab }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {users.map(u => (
+                            {users.filter(u => !u.is_deleted).map(u => (
                                 <tr key={u.id}>
                                     <td><strong>{u.username}</strong></td>
                                     <td><span className={`role-pill role-${u.role.toLowerCase()}`}>{u.role}</span></td>
                                     <td>{u.email}</td>
                                     <td>
-                                        {u.is_deleted ? (
-                                            <span className="status-badge" style={{ backgroundColor: '#fee2e2', color: '#ef4444' }}>Deleted</span>
+                                        {u.approval_status === "pending" ? (
+                                            <span className="status-badge" style={{ backgroundColor: '#fef08a', color: '#854d0e' }}>Pending Approval</span>
                                         ) : u.is_active ? (
                                             <span className="status-badge" style={{ backgroundColor: '#d1fae5', color: '#065f46' }}>Active</span>
                                         ) : (
@@ -336,6 +343,18 @@ const AdminDashboard = ({ activeTab }) => {
                                     </span>
                                     <strong>Joined Date:</strong> <span>{new Date(selectedUser.date_joined).toLocaleDateString()}</span>
                                     {selectedUser.extra_info && <><strong>Profile Info:</strong> <span>{selectedUser.extra_info}</span></>}
+                                    {selectedUser.documents && selectedUser.documents.length > 0 && (
+                                        <>
+                                            <strong>Documents:</strong>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                                {selectedUser.documents.map((doc, idx) => (
+                                                    <a key={idx} href={doc.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: 500, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                                        📄 {doc.name}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                             <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
@@ -348,6 +367,11 @@ const AdminDashboard = ({ activeTab }) => {
                                         ) : (
                                             <button className="btn-success" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#10b981', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>
                                                 {loading ? "..." : "Activate"}
+                                            </button>
+                                        )}
+                                        {selectedUser.approval_status === 'pending' && (
+                                            <button className="btn-warning" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#eab308', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('approve_account', selectedUser.id)} disabled={loading}>
+                                                {loading ? "..." : "Approve Account"}
                                             </button>
                                         )}
                                         <button className="btn-danger" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#ef4444', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>

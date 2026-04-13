@@ -11,9 +11,14 @@ const Register = () => {
         farm_name: '',
         location: '',
         company_name: '',
+        company_name: '',
         vehicle_type: '',
         license_plate: '',
-        capacity: 0
+        capacity: 0,
+        farmer_card_file: null,
+        commercial_register_file: null,
+        driving_license_file: null,
+        car_license_file: null
     });
 
     const navigate = useNavigate();
@@ -22,10 +27,24 @@ const Register = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleFileChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.files[0] });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        const data = new FormData();
+        for (const key in formData) {
+            if (formData[key] !== null && formData[key] !== '') {
+                data.append(key, formData[key]);
+            }
+        }
+        
         try {
-            await api.post('users/register/', formData);
+            await api.post('users/register/', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             alert('Registration successful! Please login.');
             navigate('/login');
         } catch (error) {
@@ -73,38 +92,62 @@ const Register = () => {
                     </div>
 
                     {formData.role === 'FARMER' && (
-                        <div className="role-fields fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '-0.5rem' }}>
-                            <div>
-                                <label className="auth-form-label">Farm Name</label>
-                                <input type="text" name="farm_name" placeholder="Your farm name" onChange={handleChange} />
+                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label className="auth-form-label">Farm Name</label>
+                                    <input type="text" name="farm_name" placeholder="Your farm name" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label className="auth-form-label">Location</label>
+                                    <input type="text" name="location" placeholder="Farm location" onChange={handleChange} />
+                                </div>
                             </div>
                             <div>
-                                <label className="auth-form-label">Location</label>
-                                <input type="text" name="location" placeholder="Farm location" onChange={handleChange} />
+                                <label className="auth-form-label">Farmer Card (PDF)</label>
+                                <input type="file" name="farmer_card_file" accept=".pdf" onChange={handleFileChange} required />
                             </div>
                         </div>
                     )}
 
                     {formData.role === 'BUYER' && (
-                        <div className="role-fields fade-in" style={{ marginTop: '-0.5rem' }}>
-                            <label className="auth-form-label">Company Name</label>
-                            <input type="text" name="company_name" placeholder="Your company name" onChange={handleChange} />
+                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
+                            <div>
+                                <label className="auth-form-label">Company Name</label>
+                                <input type="text" name="company_name" placeholder="Your company name" onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="auth-form-label">Commercial Register (PDF)</label>
+                                <input type="file" name="commercial_register_file" accept=".pdf" onChange={handleFileChange} required />
+                            </div>
                         </div>
                     )}
 
                     {formData.role === 'TRANSPORTER' && (
-                        <div className="role-fields fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginTop: '-0.5rem' }}>
-                            <div>
-                                <label className="auth-form-label">Vehicle Type</label>
-                                <input type="text" name="vehicle_type" placeholder="e.g. Truck" onChange={handleChange} />
+                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                                <div>
+                                    <label className="auth-form-label">Vehicle Type</label>
+                                    <input type="text" name="vehicle_type" placeholder="e.g. Truck" onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label className="auth-form-label">License Plate</label>
+                                    <input type="text" name="license_plate" placeholder="Plate No." onChange={handleChange} />
+                                </div>
+                                <div>
+                                    <label className="auth-form-label">Capacity (Tons)</label>
+                                    <input type="number" name="capacity" placeholder="Tons" onChange={handleChange} />
+                                </div>
                             </div>
-                            <div>
-                                <label className="auth-form-label">License Plate</label>
-                                <input type="text" name="license_plate" placeholder="Plate No." onChange={handleChange} />
-                            </div>
-                            <div>
-                                <label className="auth-form-label">Capacity</label>
-                                <input type="number" name="capacity" placeholder="Tons" onChange={handleChange} />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div>
+                                    <label className="auth-form-label">Driving License (PDF)</label>
+                                    <input type="file" name="driving_license_file" accept=".pdf" onChange={handleFileChange} required />
+                                </div>
+                                <div>
+                                    <label className="auth-form-label">Car License (PDF)</label>
+                                    <input type="file" name="car_license_file" accept=".pdf" onChange={handleFileChange} required />
+                                </div>
                             </div>
                         </div>
                     )}
