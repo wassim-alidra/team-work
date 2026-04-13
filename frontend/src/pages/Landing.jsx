@@ -4,21 +4,6 @@ import '../styles/landing.css';
 const Landing = () => {
   return (
     <div className="landing-page">
-      {/* Landing Navbar */}
-      <nav className="landing-navbar">
-        <Link to="/" className="landing-brand">AgriGov Market</Link>
-        <div className="landing-nav-center">
-          <a href="#home">Home</a>
-          <a href="#about">About Us</a>
-          <a href="#services">Services</a>
-          <a href="#contact">Contact</a>
-        </div>
-        <div className="landing-nav-right">
-          <Link to="/login" className="btn-login">Login</Link>
-          <Link to="/register" className="btn-register">Register</Link>
-        </div>
-      </nav>
-
       {/* Hero Section */}
       <section id="home" className="hero-section">
         <div className="hero-content">

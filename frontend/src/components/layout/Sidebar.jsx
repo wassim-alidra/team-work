@@ -99,12 +99,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
         ))}
       </nav>
 
-      <div className="sidebar-footer">
-        <button className="sidebar-logout" onClick={logoutUser}>
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
-      </div>
+      
     </aside>
   );
 };

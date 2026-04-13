@@ -293,8 +293,13 @@ const AdminDashboard = ({ activeTab }) => {
                                     <td><span className={`role-pill role-${u.role.toLowerCase()}`}>{u.role}</span></td>
                                     <td>{u.email}</td>
                                     <td>
+<<<<<<< Updated upstream
                                         {u.is_deleted ? (
                                             <span className="status-badge" style={{ backgroundColor: '#fee2e2', color: '#ef4444' }}>Deleted</span>
+=======
+                                        {u.approval_status === "pending" ? (
+                                            <span className="status-badge" style={{ backgroundColor: '#fef08a', color: '#854d0e' }}>Pending</span>
+>>>>>>> Stashed changes
                                         ) : u.is_active ? (
                                             <span className="status-badge" style={{ backgroundColor: '#d1fae5', color: '#065f46' }}>Active</span>
                                         ) : (
@@ -318,14 +323,14 @@ const AdminDashboard = ({ activeTab }) => {
 
                 {/* User Details Modal */}
                 {selectedUser && (
-                    <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                        <div className="modal-content animate-in glass-panel" style={{ maxWidth: '550px', width: '90%', padding: '2rem', position: 'relative' }}>
-                            <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1rem' }}>
-                                <h3 style={{ margin: 0, color: '#10b981' }}>User Details</h3>
+                    <div className="modal-overlay">
+                        <div className="modal-content animate-in glass-panel" style={{ maxWidth: '550px', width: '90%', position: 'relative' }}>
+                            <div className="modal-header">
+                                <h3>User Details</h3>
                                 <button className="close-btn" style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }} onClick={() => { setSelectedUser(null); setTempMessage(""); }}>×</button>
                             </div>
-                            {tempMessage && <div className="alert alert-success" style={{ margin: '10px 0', padding: '10px', backgroundColor: '#d1fae5', color: '#065f46', borderRadius: '4px', border: '1px solid #a7f3d0' }}>{tempMessage}</div>}
-                            <div className="modal-body" style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', color: '#334155' }}>
+                            {tempMessage && <div className="alert alert-success">{tempMessage}</div>}
+                            <div className="modal-body" style={{ color: '#334155' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '0.8rem' }}>
                                     <strong>Username:</strong> <span>{selectedUser.username}</span>
                                     <strong>Full Name:</strong> <span>{selectedUser.first_name || '-'} {selectedUser.last_name || '-'}</span>
@@ -338,9 +343,10 @@ const AdminDashboard = ({ activeTab }) => {
                                     {selectedUser.extra_info && <><strong>Profile Info:</strong> <span>{selectedUser.extra_info}</span></>}
                                 </div>
                             </div>
-                            <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                            <div className="modal-footer">
                                 {!selectedUser.is_deleted && (
                                     <>
+<<<<<<< Updated upstream
                                         {selectedUser.is_active ? (
                                             <button className="btn-danger-outline" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #ef4444', color: '#ef4444', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('suspend', selectedUser.id)} disabled={loading}>
                                                 {loading ? "..." : "Suspend"}
@@ -351,11 +357,34 @@ const AdminDashboard = ({ activeTab }) => {
                                             </button>
                                         )}
                                         <button className="btn-danger" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#ef4444', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>
+=======
+                                        {/* Status Toggle Actions */}
+                                        {selectedUser.approval_status === 'pending' && (
+                                            <button className="btn-warning" onClick={() => handleUserAction('approve_account', selectedUser.id)} disabled={loading}>
+                                                {loading ? "..." : "Approve"}
+                                            </button>
+                                        )}
+
+                                        {selectedUser.approval_status === 'approved' && (
+                                            selectedUser.is_active ? (
+                                                <button className="btn-danger-outline" onClick={() => handleUserAction('suspend', selectedUser.id)} disabled={loading}>
+                                                    {loading ? "..." : "Suspend"}
+                                                </button>
+                                            ) : (
+                                                <button className="btn-success" onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>
+                                                    {loading ? "..." : "Activate"}
+                                                </button>
+                                            )
+                                        )}
+
+                                        {/* Delete Action */}
+                                        <button className="btn-danger" onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>
+>>>>>>> Stashed changes
                                             {loading ? "..." : "Delete"}
                                         </button>
                                     </>
                                 )}
-                                <button className="btn-secondary" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #cbd5e1', color: '#475569', backgroundColor: '#f1f5f9', cursor: 'pointer', fontWeight: 500 }} onClick={() => { setSelectedUser(null); setTempMessage(""); }}>Close</button>
+                                <button className="btn-secondary" onClick={() => { setSelectedUser(null); setTempMessage(""); }}>Close</button>
                             </div>
                         </div>
                     </div>

@@ -6,25 +6,44 @@ const Navbar = () => {
     let { user, logoutUser } = useContext(AuthContext);
     const location = useLocation();
     
-    const isActive = (path) => location.pathname === path;
+    // Logic to determine if we are on landing page or not (though App.jsx handles this for now)
+    const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
     return (
-        <nav className="navbar">
+        <nav className="navbar fade-in">
             <Link to="/" className="navbar-brand">AgriGov Market</Link>
             
-            <div className="navbar-links">
-                {user && <Link to="/dashboard" className="navbar-link">Dashboard</Link>}
+            {!isAuthPage && (
+                <div className="navbar-nav-center">
+                    <Link to="/" className="navbar-link">Home</Link>
+                    <a href="#about" className="navbar-link">About Us</a>
+                    <a href="#services" className="navbar-link">Services</a>
+                    <a href="#contact" className="navbar-link">Contact</a>
+                </div>
+            )}
+
+            <div className="navbar-nav-right">
                 {user ? (
                     <>
-                        <span style={{ color: '#475569', fontWeight: '500', marginRight: '0.5rem' }}>
-                            Hello, <strong style={{ color: '#1e293b' }}>{user.username}</strong>
+                        <span style={{ color: 'var(--gray-500)', fontSize: '0.9rem', marginRight: '0.5rem' }}>
+                            Hello, <strong style={{ color: 'var(--gray-900)' }}>{user.username}</strong>
                         </span>
-                        <button onClick={logoutUser} className="navbar-btn" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>Logout</button>
+                        <button onClick={logoutUser} className="navbar-btn-register" style={{ border: 'none' }}>
+                            Logout
+                        </button>
                     </>
                 ) : (
                     <>
-                        <Link to="/login" className="navbar-link" style={isActive('/login') ? { color: 'var(--primary-color)', backgroundColor: '#f0fdf4' } : {}}>Login</Link>
-                        <Link to="/register" className="navbar-btn">Register</Link>
+                        <Link 
+                            to="/login" 
+                            className="navbar-btn-login"
+                            style={location.pathname === '/login' ? { color: 'var(--brand-600)', background: 'var(--brand-50)' } : {}}
+                        >
+                            Login
+                        </Link>
+                        <Link to="/register" className="navbar-btn-register">
+                            Register
+                        </Link>
                     </>
                 )}
             </div>
