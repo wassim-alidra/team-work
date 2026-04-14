@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Local
     'users',
     'market',
+    'weather',
 ]
 
 MIDDLEWARE = [

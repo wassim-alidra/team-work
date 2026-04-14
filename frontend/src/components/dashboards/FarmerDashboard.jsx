@@ -3,6 +3,67 @@ import api from "../../api/axios";
 import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell } from "lucide-react";
 import "../../styles/dashboard.css";
 
+const ALGERIA_WILAYAS = [
+    { id: 1, name: "Adrar", lat: 27.8727, lon: -0.2929 },
+    { id: 2, name: "Chlef", lat: 36.1667, lon: 1.3333 },
+    { id: 3, name: "Laghouat", lat: 33.8000, lon: 2.8667 },
+    { id: 4, name: "Oum El Bouaghi", lat: 35.8750, lon: 7.1133 },
+    { id: 5, name: "Batna", lat: 35.5500, lon: 6.1667 },
+    { id: 6, name: "Bejaia", lat: 36.7500, lon: 5.0667 },
+    { id: 7, name: "Biskra", lat: 34.8500, lon: 5.7333 },
+    { id: 8, name: "Bechar", lat: 31.6167, lon: -2.2167 },
+    { id: 9, name: "Blida", lat: 36.4833, lon: 2.8333 },
+    { id: 10, name: "Bouira", lat: 36.3833, lon: 3.9000 },
+    { id: 11, name: "Tamanrasset", lat: 22.7850, lon: 5.5228 },
+    { id: 12, name: "Tebessa", lat: 35.4000, lon: 8.1167 },
+    { id: 13, name: "Tlemcen", lat: 34.8833, lon: -1.3167 },
+    { id: 14, name: "Tiaret", lat: 35.3667, lon: 1.3167 },
+    { id: 15, name: "Tizi Ouzou", lat: 36.7139, lon: 4.0486 },
+    { id: 16, name: "Algiers", lat: 36.7525, lon: 3.0420 },
+    { id: 17, name: "Djelfa", lat: 34.6667, lon: 3.2500 },
+    { id: 18, name: "Jijel", lat: 36.8167, lon: 5.7667 },
+    { id: 19, name: "Setif", lat: 36.1833, lon: 5.4167 },
+    { id: 20, name: "Saida", lat: 34.8333, lon: 0.1500 },
+    { id: 21, name: "Skikda", lat: 36.8667, lon: 6.9167 },
+    { id: 22, name: "Sidi Bel Abbes", lat: 35.2000, lon: -0.6333 },
+    { id: 23, name: "Annaba", lat: 36.9000, lon: 7.7667 },
+    { id: 24, name: "Guelma", lat: 36.4667, lon: 7.4833 },
+    { id: 25, name: "Constantine", lat: 36.3667, lon: 6.6000 },
+    { id: 26, name: "Medea", lat: 36.2667, lon: 2.7500 },
+    { id: 27, name: "Mostaganem", lat: 35.9333, lon: 0.0833 },
+    { id: 28, name: "M'Sila", lat: 35.7000, lon: 4.5333 },
+    { id: 29, name: "Mascara", lat: 35.4000, lon: 0.1333 },
+    { id: 30, name: "Ouargla", lat: 31.9500, lon: 5.3167 },
+    { id: 31, name: "Oran", lat: 35.7000, lon: -0.6333 },
+    { id: 32, name: "El Bayadh", lat: 33.6833, lon: 1.0167 },
+    { id: 33, name: "Illizi", lat: 26.4833, lon: 8.4667 },
+    { id: 34, name: "Bordj Bou Arreridj", lat: 36.0667, lon: 4.7667 },
+    { id: 35, name: "Boumerdes", lat: 36.7500, lon: 3.4833 },
+    { id: 36, name: "El Tarf", lat: 36.7667, lon: 8.3167 },
+    { id: 37, name: "Tindouf", lat: 27.6667, lon: -8.1333 },
+    { id: 38, name: "Tissemsilt", lat: 35.6000, lon: 1.8167 },
+    { id: 39, name: "El Oued", lat: 33.3667, lon: 6.8667 },
+    { id: 40, name: "Khenchela", lat: 35.4333, lon: 7.1500 },
+    { id: 41, name: "Souk Ahras", lat: 36.2833, lon: 7.9500 },
+    { id: 42, name: "Tipaza", lat: 36.5914, lon: 2.4439 },
+    { id: 43, name: "Mila", lat: 36.4500, lon: 6.2667 },
+    { id: 44, name: "Ain Defla", lat: 36.2667, lon: 1.9667 },
+    { id: 45, name: "Naama", lat: 33.2667, lon: -0.3167 },
+    { id: 46, name: "Ain Temouchent", lat: 35.3000, lon: -1.1333 },
+    { id: 47, name: "Ghardaia", lat: 32.4833, lon: 3.6667 },
+    { id: 48, name: "Relizane", lat: 35.7333, lon: 0.5500 },
+    { id: 49, name: "El M'Ghair", lat: 33.9189, lon: 5.9286 },
+    { id: 50, name: "El Meniaa", lat: 30.5772, lon: 2.8794 },
+    { id: 51, name: "Ouled Djellal", lat: 34.4333, lon: 5.0667 },
+    { id: 52, name: "Bordj Baji Mokhtar", lat: 21.3333, lon: 0.9667 },
+    { id: 53, name: "Beni Abbes", lat: 30.1333, lon: -2.1667 },
+    { id: 54, name: "Timimoun", lat: 29.2631, lon: 0.2311 },
+    { id: 55, name: "Touggourt", lat: 33.1000, lon: 6.0667 },
+    { id: 56, name: "Djanet", lat: 24.5500, lon: 9.4833 },
+    { id: 57, name: "In Salah", lat: 27.2000, lon: 2.4833 },
+    { id: 58, name: "In Guezzam", lat: 19.5667, lon: 5.7667 }
+];
+
 const FarmerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
     const [orders, setOrders] = useState([]);
@@ -23,6 +84,11 @@ const FarmerDashboard = ({ activeTab }) => {
     });
     const [selectedCatalogItem, setSelectedCatalogItem] = useState(null);
     const [loading, setLoading] = useState(false);
+    
+    // Weather Feature States
+    const [weatherData, setWeatherData] = useState(null);
+    const [loadingWeather, setLoadingWeather] = useState(true);
+    const [selectedWilaya, setSelectedWilaya] = useState(ALGERIA_WILAYAS[15]); // Default to Algiers
 
     useEffect(() => {
         fetchProducts();
@@ -31,6 +97,22 @@ const FarmerDashboard = ({ activeTab }) => {
         fetchNotifications();
         fetchCatalog();
     }, [activeTab]);
+
+    useEffect(() => {
+        fetchWeatherData();
+    }, [selectedWilaya]);
+
+    const fetchWeatherData = async () => {
+        setLoadingWeather(true);
+        try {
+            const res = await api.get(`weather/?lat=${selectedWilaya.lat}&lon=${selectedWilaya.lon}`);
+            setWeatherData(res.data);
+        } catch (err) {
+            console.error("Error fetching weather:", err);
+        } finally {
+            setLoadingWeather(false);
+        }
+    };
 
     const fetchCatalog = async () => {
         try {
@@ -174,6 +256,96 @@ const FarmerDashboard = ({ activeTab }) => {
 
         return (
             <div className="farmer-dashboard-home animate-in">
+                {/* Weather & Location Section */}
+                <div className="weather-header-section glass-panel mb-2">
+                    <div className="weather-top-row">
+                        <div className="location-info">
+                            <div className="location-label">
+                                <Truck size={18} color="#2f8f3a" />
+                                <span>Farm Location:</span>
+                            </div>
+                            <select 
+                                className="wilaya-select"
+                                value={selectedWilaya.id}
+                                onChange={(e) => {
+                                    const w = ALGERIA_WILAYAS.find(wilaya => String(wilaya.id) === String(e.target.value));
+                                    setSelectedWilaya(w);
+                                }}
+                            >
+                                {ALGERIA_WILAYAS.map(w => (
+                                    <option key={w.id} value={w.id}>{w.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="weather-status">
+                            {loadingWeather ? (
+                                <span className="text-muted">Syncing climate data...</span>
+                            ) : (
+                                <span className="text-muted">Last updated: {weatherData?.last_updated || '--'}</span>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="weather-grid mt-1">
+                        {/* Current Weather */}
+                        <div className="weather-card-mini">
+                            <div className="w-card-header">
+                                <Plus size={18} color="#2f8f3a" />
+                                <h4>Current Weather</h4>
+                            </div>
+                            {loadingWeather ? <div className="skeleton-line"></div> : (
+                                <div className="w-card-body">
+                                    <div className="w-main-temp">
+                                        <span className="temp-val">{weatherData?.weather.temp}°C</span>
+                                        <span className="temp-desc">{weatherData?.weather.description}</span>
+                                    </div>
+                                    <div className="w-details">
+                                        <span>Humidity: <strong>{weatherData?.weather.humidity}%</strong></span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Irrigation & Soil */}
+                        <div className="weather-card-mini">
+                            <div className="w-card-header">
+                                <AlertCircle size={18} color="#f59e0b" />
+                                <h4>Soil & Irrigation</h4>
+                            </div>
+                            {loadingWeather ? <div className="skeleton-line"></div> : (
+                                <div className="w-card-body">
+                                    <div className={`recommendation-badge ${weatherData?.soil.is_needed ? 'needed' : 'optimal'}`}>
+                                        {weatherData?.soil.irrigation_recommendation}
+                                    </div>
+                                    <div className="w-details">
+                                        <span>Soil Moisture: <strong>{(weatherData?.soil.moisture * 100).toFixed(0)}%</strong></span>
+                                        <span>Surface Temp: <strong>{weatherData?.soil.surface_temp}°C</strong></span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 3-Day Forecast */}
+                        <div className="weather-card-mini span-2-tablet">
+                            <div className="w-card-header">
+                                <Clock size={18} color="#3b82f6" />
+                                <h4>3-Day Forecast</h4>
+                            </div>
+                            <div className="forecast-mini-list">
+                                {loadingWeather ? [1,2,3].map(i => <div key={i} className="skeleton-line-sm"></div>) : (
+                                    weatherData?.forecast.map((f, i) => (
+                                        <div key={i} className="forecast-mini-item">
+                                            <span className="f-day">{f.day}</span>
+                                            <span className="f-desc">{f.desc}</span>
+                                            <span className="f-temp">{f.temp}°C</span>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div className="stats-grid">
                     {statCards.map((s, i) => (
                         <div key={i} className={`stat-card stat-${s.color}`}>
