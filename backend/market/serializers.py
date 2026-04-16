@@ -46,9 +46,12 @@ class ProductSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     buyer_name = serializers.CharField(source='buyer.username', read_only=True)
+    farmer_name = serializers.CharField(source='product.farmer.username', read_only=True)
     delivery_status = serializers.SerializerMethodField()
     transporter_name = serializers.SerializerMethodField()
     product_unit = serializers.ReadOnlyField(source='product.catalog.unit')
+    farmer_wilaya = serializers.CharField(source='product.farmer.wilaya', read_only=True)
+    buyer_wilaya = serializers.CharField(source='buyer.wilaya', read_only=True)
 
     class Meta:
         model = Order

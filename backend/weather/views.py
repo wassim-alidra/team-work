@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import permissions
 
 class WeatherDashboardView(APIView):
-    permission_classes = [permissions.AllowAny] # You can change this to IsAuthenticated if needed
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         API_KEY = "016703301c3347d84b85d9eaa230463d"

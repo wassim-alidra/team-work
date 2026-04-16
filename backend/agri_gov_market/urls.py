@@ -29,6 +29,7 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/market/', include('market.urls')),
     path('api/weather/', include('weather.urls')),
+    path('api/routing/', include('routing.urls')),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

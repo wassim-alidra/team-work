@@ -11,6 +11,7 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.FARMER)
     is_deleted = models.BooleanField(default=False)
+    wilaya = models.CharField(max_length=100, blank=True, null=True)
     
     APPROVAL_CHOICES = [
         ('pending', 'Pending'),
