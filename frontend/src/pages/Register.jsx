@@ -2,15 +2,33 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
+const ALGERIA_WILAYAS = [
+    { id: 1, name: "Adrar" }, { id: 2, name: "Chlef" }, { id: 3, name: "Laghouat" }, { id: 4, name: "Oum El Bouaghi" },
+    { id: 5, name: "Batna" }, { id: 6, name: "Bejaia" }, { id: 7, name: "Biskra" }, { id: 8, name: "Bechar" },
+    { id: 9, name: "Blida" }, { id: 10, name: "Bouira" }, { id: 11, name: "Tamanrasset" }, { id: 12, name: "Tebessa" },
+    { id: 13, name: "Tlemcen" }, { id: 14, name: "Tiaret" }, { id: 15, name: "Tizi Ouzou" }, { id: 16, name: "Algiers" },
+    { id: 17, name: "Djelfa" }, { id: 18, name: "Jijel" }, { id: 19, name: "Setif" }, { id: 20, name: "Saida" },
+    { id: 21, name: "Skikda" }, { id: 22, name: "Sidi Bel Abbes" }, { id: 23, name: "Annaba" }, { id: 24, name: "Guelma" },
+    { id: 25, name: "Constantine" }, { id: 26, name: "Medea" }, { id: 27, name: "Mostaganem" }, { id: 28, name: "M'Sila" },
+    { id: 29, name: "Mascara" }, { id: 30, name: "Ouargla" }, { id: 31, name: "Oran" }, { id: 32, name: "El Bayadh" },
+    { id: 33, name: "Illizi" }, { id: 34, name: "Bordj Bou Arreridj" }, { id: 35, name: "Boumerdes" }, { id: 36, name: "El Tarf" },
+    { id: 37, name: "Tindouf" }, { id: 38, name: "Tissemsilt" }, { id: 39, name: "El Oued" }, { id: 40, name: "Khenchela" },
+    { id: 41, name: "Souk Ahras" }, { id: 42, name: "Tipaza" }, { id: 43, name: "Mila" }, { id: 44, name: "Ain Defla" },
+    { id: 45, name: "Naama" }, { id: 46, name: "Ain Temouchent" }, { id: 47, name: "Ghardaia" }, { id: 48, name: "Relizane" },
+    { id: 49, name: "El M'Ghair" }, { id: 50, name: "El Meniaa" }, { id: 51, name: "Ouled Djellal" }, { id: 52, name: "Bordj Baji Mokhtar" },
+    { id: 53, name: "Beni Abbes" }, { id: 54, name: "Timimoun" }, { id: 55, name: "Touggourt" }, { id: 56, name: "Djanet" },
+    { id: 57, name: "In Salah" }, { id: 58, name: "In Guezzam" }
+];
+
 const Register = () => {
     const [formData, setFormData] = useState({
         username: '',
         password: '',
         email: '',
         role: 'FARMER',
+        wilaya: '',
         farm_name: '',
         location: '',
-        company_name: '',
         company_name: '',
         vehicle_type: '',
         license_plate: '',
@@ -90,6 +108,18 @@ const Register = () => {
                             <option value="TRANSPORTER">Transporter</option>
                         </select>
                     </div>
+
+                    {(formData.role === 'FARMER' || formData.role === 'BUYER') && (
+                        <div>
+                            <label className="auth-form-label">Select Wilaya</label>
+                            <select name="wilaya" onChange={handleChange} value={formData.wilaya} required>
+                                <option value="">-- Choose your Wilaya --</option>
+                                {ALGERIA_WILAYAS.map(w => (
+                                    <option key={w.id} value={w.name}>{w.id} - {w.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     {formData.role === 'FARMER' && (
                         <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
