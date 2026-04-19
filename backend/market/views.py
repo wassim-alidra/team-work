@@ -2,11 +2,11 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
-from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory
+from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory, Equipment, EquipmentBooking
 from .serializers import (
     ProductSerializer, OrderSerializer, DeliverySerializer, 
     ComplaintSerializer, NotificationSerializer, ProductCatalogSerializer,
-    CategorySerializer, PriceHistorySerializer
+    CategorySerializer, PriceHistorySerializer, EquipmentSerializer, EquipmentBookingSerializer
 )
 from users.models import User
 from django.db.models import Sum
@@ -432,4 +432,100 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
         user.approval_status = 'approved'
         user.save()
         return Response({"detail": "User approved successfully."})
+
+class EquipmentViewSet(viewsets.ModelViewSet):
+    serializer_class = EquipmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # Auto-restore expired bookings
+        from django.utils import timezone
+        from .models import EquipmentBooking
+        expired_bookings = EquipmentBooking.objects.filter(status='ACCEPTED', expected_return_date__lte=timezone.now())
+        for booking in expired_bookings:
+            equipment = booking.equipment
+            equipment.quantity_available += booking.requested_quantity
+            equipment.is_available = True
+            equipment.save()
+            booking.status = 'COMPLETED'
+            booking.save()
+
+        if user.role == User.Role.EQUIPMENT_PROVIDER:
+            return Equipment.objects.filter(provider=user)
+        # Farmers and others can browse equipment
+        queryset = Equipment.objects.all()
+        is_available = self.request.query_params.get('is_available')
+        if is_available:
+            queryset = queryset.filter(is_available=is_available.lower() == 'true')
+        return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.role != User.Role.EQUIPMENT_PROVIDER:
+             raise permissions.PermissionDenied("Only equipment providers can add equipment.")
+        serializer.save(provider=self.request.user)
+
+    def perform_update(self, serializer):
+        if self.get_object().provider != self.request.user:
+            raise permissions.PermissionDenied("You can only edit your own equipment.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.provider != self.request.user:
+            raise permissions.PermissionDenied("You can only delete your own equipment.")
+        instance.delete()
+
+class EquipmentBookingViewSet(viewsets.ModelViewSet):
+    serializer_class = EquipmentBookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == User.Role.FARMER:
+            return EquipmentBooking.objects.filter(farmer=user).order_by('-created_at')
+        elif user.role == User.Role.EQUIPMENT_PROVIDER:
+            return EquipmentBooking.objects.filter(equipment__provider=user).order_by('-created_at')
+        return EquipmentBooking.objects.none()
+
+    def perform_create(self, serializer):
+        if self.request.user.role != User.Role.FARMER:
+            raise permissions.PermissionDenied("Only farmers can book equipment.")
+            
+        equipment = serializer.validated_data['equipment']
+        requested_quantity = serializer.validated_data.get('requested_quantity', 1)
+        
+        if equipment.quantity_available < requested_quantity:
+            raise ValidationError({"detail": f"Only {equipment.quantity_available} units available."})
+            
+        booking = serializer.save(farmer=self.request.user)
+        # Create notification for provider
+        Notification.objects.create(
+            recipient=booking.equipment.provider,
+            message=f"New booking request from {self.request.user.username} for {booking.equipment.name}."
+        )
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        booking = self.get_object()
+        
+        if 'status' in serializer.validated_data:
+            new_status = serializer.validated_data['status']
+            if user.role == User.Role.EQUIPMENT_PROVIDER and booking.equipment.provider == user:
+                if new_status == 'ACCEPTED' and booking.status == 'PENDING':
+                    if booking.equipment.quantity_available >= booking.requested_quantity:
+                        booking.equipment.quantity_available -= booking.requested_quantity
+                        booking.equipment.save()
+                    else:
+                        raise ValidationError({"detail": "Not enough available quantity to accept this booking."})
+                serializer.save()
+                Notification.objects.create(
+                    recipient=booking.farmer,
+                    message=f"Your booking for {booking.equipment.name} has been {new_status.lower()}."
+                )
+            else:
+                 super().perform_update(serializer)
+        else:
+            super().perform_update(serializer)
+
 
