@@ -1,7 +1,8 @@
 import { useEffect, useState, useContext } from "react";
 import api from "../../api/axios";
-import { Truck, ClipboardList, Clock, CheckCircle, DollarSign, User as UserIcon, Save, Package } from "lucide-react";
+import { Truck, ClipboardList, CheckCircle, DollarSign, Save, Package, MapPin } from "lucide-react";
 import AuthContext from "../../context/AuthContext";
+import RouteMapModal from "./RouteMapModal";
 import "../../styles/dashboard.css";
 
 const TransporterDashboard = ({ activeTab }) => {
@@ -15,6 +16,7 @@ const TransporterDashboard = ({ activeTab }) => {
         capacity: 0
     });
     const [loading, setLoading] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
         if (activeTab === "dashboard" || activeTab === "requests") fetchAvailableOrders();
@@ -73,7 +75,7 @@ const TransporterDashboard = ({ activeTab }) => {
         try {
             await api.patch(`market/deliveries/${deliveryId}/`, { status });
             fetchMyDeliveries();
-            if (status === 'DELIVERED') fetchEarnings(); // Refresh earnings if something was delivered
+            if (status === "DELIVERED") fetchEarnings();
         } catch (err) {
             alert("Error updating status");
         }
@@ -84,13 +86,7 @@ const TransporterDashboard = ({ activeTab }) => {
         setLoading(true);
         try {
             const res = await api.patch("users/me/", profileForm);
-            setUser({
-                ...user,
-                profile: {
-                    ...user.profile,
-                    ...res.data
-                }
-            });
+            setUser({ ...user, profile: { ...user.profile, ...res.data } });
             alert("Profile updated successfully!");
         } catch (err) {
             alert("Error updating profile");
@@ -99,118 +95,183 @@ const TransporterDashboard = ({ activeTab }) => {
         }
     };
 
+    // ─────────────────── DASHBOARD TAB ───────────────────
     if (activeTab === "dashboard") {
         const stats = [
             { label: "Available", value: availableOrders.length, icon: <ClipboardList />, color: "blue" },
-            { label: "Active", value: myDeliveries.filter(d => d.status !== 'DELIVERED').length, icon: <Truck />, color: "green" },
-            { label: "Completed", value: myDeliveries.filter(d => d.status === 'DELIVERED').length, icon: <CheckCircle />, color: "purple" },
-            { label: "Earnings", value: `$${earningsData.total_earnings || 0}`, icon: <DollarSign />, color: "yellow" }
+            { label: "Active", value: myDeliveries.filter(d => d.status !== "DELIVERED").length, icon: <Truck />, color: "green" },
+            { label: "Completed", value: myDeliveries.filter(d => d.status === "DELIVERED").length, icon: <CheckCircle />, color: "purple" },
+            { label: "Earnings", value: `${earningsData.total_earnings || 0} DA`, icon: <DollarSign />, color: "yellow" }
         ];
 
         return (
-            <div className="transporter-home">
-                <div className="stats-grid">
-                    {stats.map((s, i) => (
-                        <div key={i} className={`stat-card stat-${s.color}`}>
-                            <div className="stat-icon">{s.icon}</div>
-                            <div className="stat-info">
-                                <h3>{s.value}</h3>
-                                <p>{s.label}</p>
+            <>
+                <div className="transporter-home">
+                    <div className="stats-grid">
+                        {stats.map((s, i) => (
+                            <div key={i} className={`stat-card stat-${s.color}`}>
+                                <div className="stat-icon">{s.icon}</div>
+                                <div className="stat-info">
+                                    <h3>{s.value}</h3>
+                                    <p>{s.label}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="dashboard-sections">
-                    <div className="glass-panel">
-                        <div className="panel-header">
-                            <h3>Ready for Pickup</h3>
-                            <button className="text-btn" onClick={() => fetchAvailableOrders()}>Refresh</button>
-                        </div>
-                        {availableOrders.length === 0 ? (
-                            <p className="empty-text">No delivery requests available.</p>
-                        ) : (
-                            <div className="mini-list">
-                                {availableOrders.slice(0, 3).map(o => (
-                                    <div key={o.id} className="mini-item">
-                                        <div className="item-main">
-                                            <strong>Order #{o.id}</strong>
-                                            <span>{o.product_name}</span>
-                                        </div>
-                                        <button className="btn-sm" onClick={() => handleAccept(o.id)}>Accept</button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        ))}
                     </div>
 
-                    <div className="glass-panel">
-                        <div className="panel-header">
-                            <h3>Active Deliveries</h3>
-                        </div>
-                        {myDeliveries.filter(d => d.status !== 'DELIVERED').length === 0 ? (
-                            <p className="empty-text">No active missions.</p>
-                        ) : (
-                            <div className="mini-list">
-                                {myDeliveries.filter(d => d.status !== 'DELIVERED').slice(0, 3).map(d => (
-                                    <div key={d.id} className="mini-item">
-                                        <div className="item-main">
-                                            <strong>Delivery #{d.id}</strong>
-                                            <span className={`status-pill ${d.status.toLowerCase()}`}>{d.status}</span>
-                                        </div>
-                                        <Truck size={16} color="#6b7280" />
-                                    </div>
-                                ))}
+                    <div className="dashboard-sections">
+                        <div className="glass-panel">
+                            <div className="panel-header">
+                                <h3>Ready for Pickup</h3>
+                                <button className="text-btn" onClick={() => fetchAvailableOrders()}>Refresh</button>
                             </div>
-                        )}
+                            {availableOrders.length === 0 ? (
+                                <p className="empty-text">No delivery requests available.</p>
+                            ) : (
+                                <div className="mini-list">
+                                    {availableOrders.slice(0, 3).map(o => (
+                                        <div key={o.id} className="mini-item">
+                                            <div className="item-main">
+                                                <strong>Order #{o.id}</strong>
+                                                <span>{o.product_name}</span>
+                                            </div>
+                                            <div style={{ display: "flex", gap: 6 }}>
+                                                <button
+                                                    className="btn-sm"
+                                                    style={{
+                                                        display: "flex", alignItems: "center", gap: 4,
+                                                        background: "rgba(59,130,246,0.15)",
+                                                        border: "1px solid rgba(59,130,246,0.4)",
+                                                        color: "#93c5fd"
+                                                    }}
+                                                    onClick={() => setSelectedOrder(o)}
+                                                >
+                                                    <MapPin size={13} /> View
+                                                </button>
+                                                <button className="btn-sm" onClick={() => handleAccept(o.id)}>Accept</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="glass-panel">
+                            <div className="panel-header">
+                                <h3>Active Deliveries</h3>
+                            </div>
+                            {myDeliveries.filter(d => d.status !== "DELIVERED").length === 0 ? (
+                                <p className="empty-text">No active missions.</p>
+                            ) : (
+                                <div className="mini-list">
+                                    {myDeliveries.filter(d => d.status !== "DELIVERED").slice(0, 3).map(d => (
+                                        <div key={d.id} className="mini-item">
+                                            <div className="item-main">
+                                                <strong>Delivery #{d.id}</strong>
+                                                <span className={`status-pill ${d.status.toLowerCase()}`}>{d.status}</span>
+                                            </div>
+                                            <Truck size={16} color="#6b7280" />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                {selectedOrder && (
+                    <RouteMapModal
+                        order={selectedOrder}
+                        onClose={() => setSelectedOrder(null)}
+                        onAccept={async (orderId) => { await handleAccept(orderId); setSelectedOrder(null); }}
+                    />
+                )}
+            </>
         );
     }
 
+    // ─────────────────── REQUESTS TAB ───────────────────
     if (activeTab === "requests") {
         return (
-            <div className="glass-panel">
-                <div className="section-header">
-                    <h2>Available Delivery Requests</h2>
-                    <p>Missions waiting for a transporter</p>
-                </div>
-                <div className="grid-list">
-                    {availableOrders.map(o => (
-                        <div key={o.id} className="card-item animate-in">
-                            <div className="card-badge">Available</div>
-                            <div className="card-content">
-                                <h3>Order #{o.id}</h3>
-                                <div className="detail-row">
-                                    <Package size={16} />
-                                    <span>{o.product_name} ({o.quantity}kg)</span>
+            <>
+                <div className="glass-panel">
+                    <div className="section-header">
+                        <h2>Available Delivery Requests</h2>
+                        <p>Missions waiting for a transporter</p>
+                    </div>
+                    <div className="grid-list">
+                        {availableOrders.map(o => (
+                            <div key={o.id} className="card-item animate-in">
+                                <div className="card-badge">Available</div>
+                                <div className="card-content">
+                                    <h3>Order #{o.id}</h3>
+                                    <div className="detail-row">
+                                        <Package size={16} />
+                                        <span>{o.product_name} — {o.quantity} kg</span>
+                                    </div>
+                                    <div className="detail-row" style={{ marginTop: 4 }}>
+                                        <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>Value:</span>
+                                        <span style={{ fontSize: "0.78rem", color: "#facc15", fontWeight: 600 }}>{o.total_price} DA</span>
+                                    </div>
+                                    <div className="route-flow" style={{ marginTop: 10 }}>
+                                        <div className="node">
+                                            <div className="dot green"></div>
+                                            <span style={{ fontSize: "0.75rem" }}>{o.farmer_wilaya || "Farmer"}</span>
+                                        </div>
+                                        <div className="line"></div>
+                                        <div className="node">
+                                            <div className="dot blue"></div>
+                                            <span style={{ fontSize: "0.75rem" }}>{o.buyer_wilaya || "Buyer"}</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="route-flow">
-                                    <div className="node">
-                                        <div className="dot green"></div>
-                                        <span>Pickup</span>
-                                    </div>
-                                    <div className="line"></div>
-                                    <div className="node">
-                                        <div className="dot blue"></div>
-                                        <span>Destination</span>
-                                    </div>
+                                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                    <button
+                                        className="btn-primary"
+                                        style={{
+                                            flex: 1, display: "flex", alignItems: "center",
+                                            justifyContent: "center", gap: 6,
+                                            background: "linear-gradient(135deg,#1d4ed8,#1e40af)",
+                                            boxShadow: "0 4px 12px rgba(29,78,216,0.3)"
+                                        }}
+                                        onClick={() => setSelectedOrder(o)}
+                                    >
+                                        <MapPin size={15} /> View Details
+                                    </button>
+                                    <button
+                                        className="btn-primary"
+                                        style={{
+                                            flex: 1,
+                                            background: "linear-gradient(135deg,#16a34a,#15803d)",
+                                            boxShadow: "0 4px 12px rgba(22,163,74,0.3)"
+                                        }}
+                                        onClick={() => handleAccept(o.id)}
+                                    >
+                                        ✓ Accept
+                                    </button>
                                 </div>
                             </div>
-                            <button className="btn-primary full-width" onClick={() => handleAccept(o.id)}>
-                                Accept Mission
-                            </button>
-                        </div>
-                    ))}
-                    {availableOrders.length === 0 && <p className="empty-state">No requests available at the moment.</p>}
+                        ))}
+                        {availableOrders.length === 0 && (
+                            <p className="empty-state">No requests available at the moment.</p>
+                        )}
+                    </div>
                 </div>
-            </div>
+
+                {selectedOrder && (
+                    <RouteMapModal
+                        order={selectedOrder}
+                        onClose={() => setSelectedOrder(null)}
+                        onAccept={async (orderId) => { await handleAccept(orderId); setSelectedOrder(null); }}
+                    />
+                )}
+            </>
         );
     }
 
+    // ─────────────────── STATUS TAB ───────────────────
     if (activeTab === "status") {
-        const active = myDeliveries.filter(d => d.status !== 'DELIVERED');
+        const active = myDeliveries.filter(d => d.status !== "DELIVERED");
         return (
             <div className="glass-panel">
                 <div className="section-header">
@@ -225,19 +286,19 @@ const TransporterDashboard = ({ activeTab }) => {
                                 <span className={`status-badge ${d.status.toLowerCase()}`}>{d.status}</span>
                             </div>
                             <div className="progress-track">
-                                <div className={`dot ${d.status === 'ASSIGNED' || d.status === 'IN_TRANSIT' ? 'active' : ''}`}></div>
-                                <div className={`line ${d.status === 'IN_TRANSIT' ? 'active' : ''}`}></div>
-                                <div className={`dot ${d.status === 'IN_TRANSIT' ? 'active' : ''}`}></div>
-                                <div className={`line`}></div>
-                                <div className={`dot`}></div>
+                                <div className={`dot ${d.status === "ASSIGNED" || d.status === "IN_TRANSIT" ? "active" : ""}`}></div>
+                                <div className={`line ${d.status === "IN_TRANSIT" ? "active" : ""}`}></div>
+                                <div className={`dot ${d.status === "IN_TRANSIT" ? "active" : ""}`}></div>
+                                <div className="line"></div>
+                                <div className="dot"></div>
                             </div>
                             <div className="action-row">
-                                {d.status === 'ASSIGNED' ? (
-                                    <button className="btn-secondary" onClick={() => handleUpdateStatus(d.id, 'IN_TRANSIT')}>
+                                {d.status === "ASSIGNED" ? (
+                                    <button className="btn-secondary" onClick={() => handleUpdateStatus(d.id, "IN_TRANSIT")}>
                                         Start Transit
                                     </button>
                                 ) : (
-                                    <button className="btn-success" onClick={() => handleUpdateStatus(d.id, 'DELIVERED')}>
+                                    <button className="btn-success" onClick={() => handleUpdateStatus(d.id, "DELIVERED")}>
                                         Mark as Delivered
                                     </button>
                                 )}
@@ -250,8 +311,9 @@ const TransporterDashboard = ({ activeTab }) => {
         );
     }
 
+    // ─────────────────── HISTORY TAB ───────────────────
     if (activeTab === "history") {
-        const history = myDeliveries.filter(d => d.status === 'DELIVERED');
+        const history = myDeliveries.filter(d => d.status === "DELIVERED");
         return (
             <div className="glass-panel">
                 <div className="section-header">
@@ -275,7 +337,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                     <td>#{d.id}</td>
                                     <td>Order #{d.order}</td>
                                     <td>{new Date(d.delivery_date).toLocaleDateString()}</td>
-                                    <td className="earning-text">${d.delivery_fee}</td>
+                                    <td className="earning-text">{d.delivery_fee} DA</td>
                                     <td><span className="badge-success">Completed</span></td>
                                 </tr>
                             ))}
@@ -287,6 +349,7 @@ const TransporterDashboard = ({ activeTab }) => {
         );
     }
 
+    // ─────────────────── EARNINGS TAB ───────────────────
     if (activeTab === "earnings") {
         return (
             <div className="earnings-view">
@@ -295,7 +358,7 @@ const TransporterDashboard = ({ activeTab }) => {
                         <DollarSign size={32} className="icon-gold" />
                         <div>
                             <span>Total Earnings</span>
-                            <h2>${earningsData.total_earnings}</h2>
+                            <h2>{earningsData.total_earnings} DA</h2>
                         </div>
                     </div>
                     <div className="summary-card">
@@ -313,7 +376,7 @@ const TransporterDashboard = ({ activeTab }) => {
                         {earningsData.history?.map(d => (
                             <div key={d.id} className="mini-item">
                                 <span>Delivery #{d.id}</span>
-                                <strong className="green-text">+${d.delivery_fee}</strong>
+                                <strong className="green-text">+{d.delivery_fee} DA</strong>
                             </div>
                         ))}
                     </div>
@@ -322,6 +385,7 @@ const TransporterDashboard = ({ activeTab }) => {
         );
     }
 
+    // ─────────────────── PROFILE TAB ───────────────────
     if (activeTab === "profile") {
         return (
             <div className="glass-panel max-600">

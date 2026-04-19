@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'users',
     'market',
     'weather',
+    'routing',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +156,6 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True # For development
+
+# OpenRouteService API Key for map routing
+OPENROUTESERVICE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OTM3Mzc0ODc3NjQ0OWE4YjIzMTZjNjUwYTJiZWUxIiwiaCI6Im11cm11cjY0In0='
