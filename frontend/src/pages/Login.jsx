@@ -16,7 +16,8 @@ const Login = () => {
     };
 
     return (
-        <div className="auth-container fade-in">
+        <div className="auth-page-wrapper">
+            <div className="auth-container fade-in">
             <style>
                 {`
                 .login-error {
@@ -71,7 +72,8 @@ const Login = () => {
                 </p>
             </div>
         </div>
-    );
+    </div>
+);
 };
 
 export default Login;

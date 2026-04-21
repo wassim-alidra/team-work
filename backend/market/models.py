@@ -44,6 +44,7 @@ class PriceHistory(models.Model):
 
 class Product(models.Model):
     farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products', limit_choices_to={'role': User.Role.FARMER})
+    farm = models.ForeignKey('farms.Farm', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
     catalog = models.ForeignKey(ProductCatalog, on_delete=models.CASCADE, related_name='instances', null=True, blank=True)
     price_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_available = models.FloatField(help_text="Quantity in kg")

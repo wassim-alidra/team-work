@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell } from "lucide-react";
+import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/dashboard.css";
+import Pagination from "../common/Pagination";
 
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar", lat: 27.8727, lon: -0.2929 },
@@ -66,9 +67,20 @@ const ALGERIA_WILAYAS = [
 
 const FarmerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
+    const [productsCount, setProductsCount] = useState(0);
+    const [productsPage, setProductsPage] = useState(1);
+
     const [orders, setOrders] = useState([]);
+    const [ordersCount, setOrdersCount] = useState(0);
+    const [ordersPage, setOrdersPage] = useState(1);
+
     const [notifications, setNotifications] = useState([]);
+    
     const [catalog, setCatalog] = useState([]);
+    const [catalogCount, setCatalogCount] = useState(0);
+    const [catalogPage, setCatalogPage] = useState(1);
+
+    const [farms, setFarms] = useState([]);
     const [stats, setStats] = useState({
         total_products: 0,
         total_quantity: 0,
@@ -81,6 +93,7 @@ const FarmerDashboard = ({ activeTab }) => {
         catalog: "",
         price_per_kg: "",
         quantity_available: "",
+        farm: "",
     });
     const [selectedCatalogItem, setSelectedCatalogItem] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -91,12 +104,13 @@ const FarmerDashboard = ({ activeTab }) => {
     const [selectedWilaya, setSelectedWilaya] = useState(ALGERIA_WILAYAS[15]); // Default to Algiers
 
     useEffect(() => {
-        fetchProducts();
-        fetchOrders();
+        fetchProducts(productsPage);
+        fetchOrders(ordersPage);
         fetchStats();
         fetchNotifications();
-        fetchCatalog();
-    }, [activeTab]);
+        fetchCatalog(catalogPage);
+        fetchFarms();
+    }, [activeTab, productsPage, ordersPage, catalogPage]);
 
     useEffect(() => {
         fetchWeatherData();
@@ -114,30 +128,57 @@ const FarmerDashboard = ({ activeTab }) => {
         }
     };
 
-    const fetchCatalog = async () => {
+    const fetchCatalog = async (page = 1) => {
         try {
-            const res = await api.get("market/catalog/");
-            setCatalog(res.data);
+            const res = await api.get(`market/catalog/?page=${page}`);
+            const data = res.data.results || res.data;
+            setCatalog(Array.isArray(data) ? data : []);
+            setCatalogCount(res.data.count || (Array.isArray(data) ? data.length : 0));
         } catch (err) {
             console.error(err);
         }
     };
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (page = 1) => {
         try {
-            const res = await api.get("market/products/");
-            setProducts(res.data);
+            const res = await api.get(`market/products/?page=${page}`);
+            if (res.data.results) {
+                setProducts(res.data.results);
+                setProductsCount(res.data.count);
+            } else {
+                setProducts(res.data);
+                setProductsCount(res.data.length);
+            }
         } catch (err) {
             console.error("Error fetching products:", err);
         }
     };
 
-    const fetchOrders = async () => {
+    const fetchOrders = async (page = 1) => {
         try {
-            const res = await api.get("market/orders/");
-            setOrders(res.data);
+            const res = await api.get(`market/orders/?page=${page}`);
+            if (res.data.results) {
+                setOrders(res.data.results);
+                setOrdersCount(res.data.count);
+            } else {
+                setOrders(res.data);
+                setOrdersCount(res.data.length);
+            }
         } catch (err) {
             console.error("Error fetching orders:", err);
+        }
+    };
+
+    const fetchFarms = async () => {
+        try {
+            const res = await api.get("farms/");
+            const data = res.data.results || res.data;
+            setFarms(Array.isArray(data) ? data : []);
+            if (Array.isArray(data) && data.length > 0 && !formData.farm) {
+                setFormData(prev => ({ ...prev, farm: data[0].id }));
+            }
+        } catch (err) {
+            console.error("Error fetching farms:", err);
         }
     };
 
@@ -163,8 +204,8 @@ const FarmerDashboard = ({ activeTab }) => {
         e.preventDefault();
         setLoading(true);
 
-        if (!formData.catalog || !formData.price_per_kg || !formData.quantity_available) {
-            alert("Please select a product type and fill all fields.");
+        if (!formData.catalog || !formData.price_per_kg || !formData.quantity_available || !formData.farm) {
+            alert("Please select a product type, farm, and fill all fields.");
             setLoading(false);
             return;
         }
@@ -176,6 +217,7 @@ const FarmerDashboard = ({ activeTab }) => {
                 catalog: "",
                 price_per_kg: "",
                 quantity_available: "",
+                farm: farms.length > 0 ? farms[0].id : "",
             });
             fetchProducts();
             fetchStats();
@@ -201,10 +243,42 @@ const FarmerDashboard = ({ activeTab }) => {
         }
     };
 
+    const handleAddFarm = async (e) => {
+        e.preventDefault();
+        const name = e.target.farm_name.value;
+        const wilaya = e.target.wilaya.value;
+        const location = e.target.location.value;
+
+        if (!name || !wilaya) return alert("Farm name and wilaya are required.");
+
+        setLoading(true);
+        try {
+            await api.post("farms/", { name, wilaya, location });
+            alert("Farm added successfully!");
+            e.target.reset();
+            fetchFarms();
+        } catch (err) {
+            alert(err.response?.data?.detail || "Error adding farm.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteFarm = async (id) => {
+        if (!window.confirm("Are you sure? This will delete the farm profile.")) return;
+        try {
+            await api.delete(`farms/${id}/`);
+            fetchFarms();
+        } catch (err) {
+            alert("Error deleting farm.");
+        }
+    };
+
     const fetchNotifications = async () => {
         try {
             const res = await api.get("market/notifications/");
-            setNotifications(res.data);
+            const data = res.data.results || res.data;
+            setNotifications(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
         }
@@ -371,6 +445,12 @@ const FarmerDashboard = ({ activeTab }) => {
                                     <option key={c.id} value={c.id}>{c.name}</option>
                                 ))}
                             </select>
+                            <select name="farm" value={formData.farm} onChange={handleChange} required>
+                                <option value="">Select Farm</option>
+                                {farms.map(f => (
+                                    <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>
+                                ))}
+                            </select>
                             <div className="form-row">
                                 <div style={{display:'flex', flexDirection:'column', gap:'4px'}}>
                                     <input
@@ -438,6 +518,15 @@ const FarmerDashboard = ({ activeTab }) => {
                                 ))}
                             </select>
                         </div>
+                        <div className="form-group span-2">
+                            <label>Origin Farm</label>
+                            <select name="farm" value={formData.farm} onChange={handleChange} required>
+                                <option value="">-- Select Farm --</option>
+                                {farms.map(f => (
+                                    <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="form-group">
                             <label>Price per Kg (DA)</label>
                             <input
@@ -467,7 +556,12 @@ const FarmerDashboard = ({ activeTab }) => {
                         {products.map(p => (
                             <div key={p.id} className="card-item animate-in">
                                 <div className="card-content">
-                                    <h3>{p.name || "Unnamed Product"}</h3>
+                                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'start'}}>
+                                        <h3>{p.name || "Unnamed Product"}</h3>
+                                        <span className="source-farm-tag" style={{fontSize:'0.7rem', padding:'2px 8px', background:'#f3f4f6', borderRadius:'12px', color:'#374151'}}>
+                                            📍 {p.farm_name || "Unknown Farm"}
+                                        </span>
+                                    </div>
                                     <p className="p-desc">{p.description || "No description available"}</p>
                                     <div className="product-meta">
                                         <strong>{p.price_per_kg} DA/kg</strong>
@@ -479,6 +573,12 @@ const FarmerDashboard = ({ activeTab }) => {
                         ))}
                     </div>
                 </div>
+                <Pagination 
+                    currentPage={productsPage}
+                    totalCount={productsCount}
+                    pageSize={10}
+                    onPageChange={setProductsPage}
+                />
             </div>
         );
     }
@@ -528,6 +628,12 @@ const FarmerDashboard = ({ activeTab }) => {
                     </table>
                     {orders.length === 0 && <p className="empty-state">No orders yet.</p>}
                 </div>
+                <Pagination 
+                    currentPage={ordersPage}
+                    totalCount={ordersCount}
+                    pageSize={10}
+                    onPageChange={setOrdersPage}
+                />
             </div>
         );
     }
@@ -608,6 +714,12 @@ const FarmerDashboard = ({ activeTab }) => {
                         </tbody>
                     </table>
                 )}
+                <Pagination 
+                    currentPage={catalogPage}
+                    totalCount={catalogCount}
+                    pageSize={10}
+                    onPageChange={setCatalogPage}
+                />
             </div>
         );
     }
@@ -635,30 +747,79 @@ const FarmerDashboard = ({ activeTab }) => {
         );
     }
 
-    if (activeTab === "complaints") {
+    if (activeTab === "farms") {
         return (
-            <div className="glass-panel animate-in max-600">
+            <div className="glass-panel animate-in">
                 <div className="section-header">
-                    <h2>Submit a Complaint</h2>
-                    <p>Report issues with buyers, transporters, or payments</p>
+                    <h2>Manage My Farms</h2>
+                    <p>View and add your agriculture locations (Max 5)</p>
                 </div>
-                <form className="complaint-form" onSubmit={handleSubmitComplaint}>
-                    <div className="form-group">
-                        <label>Subject / Issue Type</label>
-                        <input name="subject" placeholder="Summary of the issue" required />
+
+                <div className="dashboard-sections mb-2">
+                    <div className="glass-panel" style={{flex: 1}}>
+                        <div className="panel-header">
+                            <h3>Add New Farm</h3>
+                            <Plus size={20} color="#6b7280" />
+                        </div>
+                        <form className="mini-form" onSubmit={handleAddFarm}>
+                            <div className="form-group">
+                                <label>Farm Name</label>
+                                <input name="farm_name" placeholder="Name of your farm" required />
+                            </div>
+                            <div className="form-row">
+                                <div style={{flex: 1}}>
+                                    <label>Wilaya</label>
+                                    <select name="wilaya" required>
+                                        <option value="">Select Wilaya</option>
+                                        {ALGERIA_WILAYAS.map(w => (
+                                            <option key={w.id} value={w.name}>{w.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div style={{flex: 1}}>
+                                    <label>Location (Optional)</label>
+                                    <input name="location" placeholder="Specific area" />
+                                </div>
+                            </div>
+                            <button type="submit" className="btn-primary" disabled={loading || farms.length >= 5}>
+                                {loading ? "Adding..." : farms.length >= 5 ? "Limit Reached" : "Create Farm Profile"}
+                            </button>
+                            {farms.length >= 5 && <p style={{color:'#ef4444', fontSize:'0.75rem', marginTop:'8px'}}>You have reached the maximum of 5 farms.</p>}
+                        </form>
                     </div>
-                    <div className="form-group">
-                        <label>Description</label>
-                        <textarea name="message" placeholder="Describe the problem in detail..." rows="5" required></textarea>
+
+                    <div className="glass-panel" style={{flex: 1.5}}>
+                        <div className="panel-header">
+                            <h3>Active Farms</h3>
+                            <Truck size={20} color="#059669" />
+                        </div>
+                        <div className="mini-list">
+                            {farms.map(f => (
+                                <div key={f.id} className="mini-item" style={{alignItems: 'center', padding: '15px'}}>
+                                    <div className="item-main">
+                                        <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+                                            <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#059669'}}></div>
+                                            <strong style={{fontSize:'1.1rem'}}>{f.name}</strong>
+                                        </div>
+                                        <div style={{marginLeft: '20px', fontSize: '0.85rem', color: '#6b7280'}}>
+                                            Wilaya: {f.wilaya} {f.location && `• ${f.location}`}
+                                        </div>
+                                    </div>
+                                    <button 
+                                        className="btn-danger-sm btn-outline" 
+                                        onClick={() => handleDeleteFarm(f.id)}
+                                        style={{opacity: farms.length > 1 ? 1 : 0.5}}
+                                        disabled={farms.length <= 1}
+                                        title={farms.length <= 1 ? "Minimum 1 farm required" : "Delete farm"}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            ))}
+                            {farms.length === 0 && <p className="empty-text">No farms registered yet.</p>}
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label>Related Order ID (Optional)</label>
-                        <input name="orderId" type="text" placeholder="e.g. #123" />
-                    </div>
-                    <button type="submit" className="btn-danger" disabled={loading}>
-                        {loading ? "Submitting..." : "Submit Complaint"}
-                    </button>
-                </form>
+                </div>
             </div>
         );
     }

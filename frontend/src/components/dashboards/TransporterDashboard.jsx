@@ -1,14 +1,20 @@
 import { useEffect, useState, useContext } from "react";
 import api from "../../api/axios";
-import { Truck, ClipboardList, CheckCircle, DollarSign, Save, Package, MapPin } from "lucide-react";
+import { Truck, ClipboardList, CheckCircle, DollarSign, Save, Package, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import AuthContext from "../../context/AuthContext";
 import RouteMapModal from "./RouteMapModal";
 import "../../styles/dashboard.css";
+import Pagination from "../common/Pagination";
 
 const TransporterDashboard = ({ activeTab }) => {
     const { user, setUser } = useContext(AuthContext);
     const [availableOrders, setAvailableOrders] = useState([]);
+    const [availableOrdersCount, setAvailableOrdersCount] = useState(0);
+    const [availableOrdersPage, setAvailableOrdersPage] = useState(1);
+
     const [myDeliveries, setMyDeliveries] = useState([]);
+    const [myDeliveriesCount, setMyDeliveriesCount] = useState(0);
+    const [myDeliveriesPage, setMyDeliveriesPage] = useState(1);
     const [earningsData, setEarningsData] = useState({ total_earnings: 0, completed_count: 0, history: [] });
     const [profileForm, setProfileForm] = useState({
         vehicle_type: "",
@@ -19,9 +25,9 @@ const TransporterDashboard = ({ activeTab }) => {
     const [selectedOrder, setSelectedOrder] = useState(null);
 
     useEffect(() => {
-        if (activeTab === "dashboard" || activeTab === "requests") fetchAvailableOrders();
-        if (activeTab === "dashboard" || activeTab === "status") fetchMyDeliveries();
-        if (activeTab === "history") fetchMyDeliveries("DELIVERED");
+        if (activeTab === "dashboard" || activeTab === "requests") fetchAvailableOrders(availableOrdersPage);
+        if (activeTab === "dashboard" || activeTab === "status") fetchMyDeliveries(null, myDeliveriesPage);
+        if (activeTab === "history") fetchMyDeliveries("DELIVERED", myDeliveriesPage);
         if (activeTab === "earnings") fetchEarnings();
         if (activeTab === "profile") {
             setProfileForm({
@@ -30,23 +36,35 @@ const TransporterDashboard = ({ activeTab }) => {
                 capacity: user.profile?.capacity || 0
             });
         }
-    }, [activeTab]);
+    }, [activeTab, availableOrdersPage, myDeliveriesPage]);
 
-    const fetchAvailableOrders = async () => {
+    const fetchAvailableOrders = async (page = 1) => {
         try {
-            const res = await api.get("market/deliveries/available_orders/");
-            setAvailableOrders(res.data);
+            const res = await api.get(`market/deliveries/available_orders/?page=${page}`);
+            if (res.data.results) {
+                setAvailableOrders(res.data.results);
+                setAvailableOrdersCount(res.data.count);
+            } else {
+                setAvailableOrders(res.data);
+                setAvailableOrdersCount(res.data.length);
+            }
         } catch (err) {
             console.error("Error fetching available orders:", err);
         }
     };
 
-    const fetchMyDeliveries = async (statusFilter = null) => {
+    const fetchMyDeliveries = async (statusFilter = null, page = 1) => {
         try {
-            let url = "market/deliveries/";
-            if (statusFilter) url += `?status=${statusFilter}`;
+            let url = `market/deliveries/?page=${page}`;
+            if (statusFilter) url += `&status=${statusFilter}`;
             const res = await api.get(url);
-            setMyDeliveries(res.data);
+            if (res.data.results) {
+                setMyDeliveries(res.data.results);
+                setMyDeliveriesCount(res.data.count);
+            } else {
+                setMyDeliveries(res.data);
+                setMyDeliveriesCount(res.data.length);
+            }
         } catch (err) {
             console.error("Error fetching deliveries:", err);
         }
@@ -256,6 +274,12 @@ const TransporterDashboard = ({ activeTab }) => {
                             <p className="empty-state">No requests available at the moment.</p>
                         )}
                     </div>
+                    <Pagination 
+                        currentPage={availableOrdersPage}
+                        totalCount={availableOrdersCount}
+                        pageSize={10}
+                        onPageChange={setAvailableOrdersPage}
+                    />
                 </div>
 
                 {selectedOrder && (
@@ -345,6 +369,12 @@ const TransporterDashboard = ({ activeTab }) => {
                     </table>
                     {history.length === 0 && <p className="empty-state">No history found.</p>}
                 </div>
+                <Pagination 
+                    currentPage={myDeliveriesPage}
+                    totalCount={myDeliveriesCount}
+                    pageSize={10}
+                    onPageChange={setMyDeliveriesPage}
+                />
             </div>
         );
     }

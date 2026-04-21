@@ -12,6 +12,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
 
   const farmerItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
+    { key: "farms", label: "My Farms", icon: <LayoutGrid size={18} /> },
     { key: "products", label: "My Products", icon: <Package size={18} /> },
     { key: "orders", label: "My Orders", icon: <ShoppingCart size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
@@ -98,13 +99,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
           </button>
         ))}
       </nav>
-
-      <div className="sidebar-footer">
-        <button className="sidebar-logout" onClick={logoutUser}>
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
-      </div>
     </aside>
   );
 };

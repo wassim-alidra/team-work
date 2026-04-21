@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import api from "../../api/axios";
-import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell } from "lucide-react";
+import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/dashboard.css";
+import Pagination from "../common/Pagination";
 
 const BuyerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
+    const [productsCount, setProductsCount] = useState(0);
+    const [productsPage, setProductsPage] = useState(1);
+
     const [myOrders, setMyOrders] = useState([]);
+    const [myOrdersCount, setMyOrdersCount] = useState(0);
+    const [myOrdersPage, setMyOrdersPage] = useState(1);
+
     const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState({
         total_orders: 0,
@@ -19,27 +26,34 @@ const BuyerDashboard = ({ activeTab }) => {
 
     useEffect(() => {
         if (activeTab === "notifications") fetchNotifications();
-        fetchMyOrders();
+        fetchMyOrders(myOrdersPage);
         fetchStats();
         // Load cart from local storage
         const savedCart = localStorage.getItem("buyer_cart");
         if (savedCart) setCart(JSON.parse(savedCart));
-    }, [activeTab]);
+    }, [activeTab, myOrdersPage]);
 
     useEffect(() => {
-        if (activeTab === "products" || activeTab === "dashboard") fetchProducts();
-    }, [activeTab, filters]);
+        if (activeTab === "products" || activeTab === "dashboard") fetchProducts(productsPage);
+    }, [activeTab, filters, productsPage]);
 
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (page = 1) => {
         try {
             let url = "market/products/";
             const params = new URLSearchParams();
             if (filters.search) params.append("search", filters.search);
-            if (params.toString()) url += `?${params.toString()}`;
+            params.append("page", page);
+            url += `?${params.toString()}`;
             
             const res = await api.get(url);
-            setProducts(res.data);
+            if (res.data.results) {
+                setProducts(res.data.results);
+                setProductsCount(res.data.count);
+            } else {
+                setProducts(res.data);
+                setProductsCount(res.data.length);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -48,16 +62,23 @@ const BuyerDashboard = ({ activeTab }) => {
     const fetchNotifications = async () => {
         try {
             const res = await api.get("market/notifications/");
-            setNotifications(res.data);
+            const data = res.data.results || res.data;
+            setNotifications(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
         }
     };
 
-    const fetchMyOrders = async () => {
+    const fetchMyOrders = async (page = 1) => {
         try {
-            const res = await api.get("market/orders/");
-            setMyOrders(res.data);
+            const res = await api.get(`market/orders/?page=${page}`);
+            if (res.data.results) {
+                setMyOrders(res.data.results);
+                setMyOrdersCount(res.data.count);
+            } else {
+                setMyOrders(res.data);
+                setMyOrdersCount(res.data.length);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -268,6 +289,12 @@ const BuyerDashboard = ({ activeTab }) => {
                     ))}
                     {products.length === 0 && <p className="empty-state">No products found matching your filters.</p>}
                 </div>
+                <Pagination 
+                    currentPage={productsPage}
+                    totalCount={productsCount}
+                    pageSize={10}
+                    onPageChange={setProductsPage}
+                />
             </div>
         );
     }
@@ -365,6 +392,12 @@ const BuyerDashboard = ({ activeTab }) => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination 
+                    currentPage={myOrdersPage}
+                    totalCount={myOrdersCount}
+                    pageSize={10}
+                    onPageChange={setMyOrdersPage}
+                />
             </div>
         );
     }

@@ -34,6 +34,8 @@ class ProductSerializer(serializers.ModelSerializer):
     description = serializers.ReadOnlyField()
     catalog_name = serializers.SerializerMethodField()
     catalog_unit = serializers.ReadOnlyField(source='catalog.unit')
+    farm_name = serializers.CharField(source='farm.name', read_only=True)
+    farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
     
     class Meta:
         model = Product
@@ -50,8 +52,14 @@ class OrderSerializer(serializers.ModelSerializer):
     delivery_status = serializers.SerializerMethodField()
     transporter_name = serializers.SerializerMethodField()
     product_unit = serializers.ReadOnlyField(source='product.catalog.unit')
-    farmer_wilaya = serializers.CharField(source='product.farmer.wilaya', read_only=True)
+    farmer_wilaya = serializers.SerializerMethodField()
     buyer_wilaya = serializers.CharField(source='buyer.wilaya', read_only=True)
+
+    def get_farmer_wilaya(self, obj):
+        # Use the farm's wilaya if available, otherwise the farmer's registered wilaya
+        if obj.product and obj.product.farm:
+            return obj.product.farm.wilaya
+        return obj.product.farmer.wilaya if obj.product and obj.product.farmer else None
 
     class Meta:
         model = Order

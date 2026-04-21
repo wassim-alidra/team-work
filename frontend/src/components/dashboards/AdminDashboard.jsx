@@ -1,15 +1,25 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
-import { Users, Home, AlertCircle, Bell, TrendingUp, Package, ShoppingCart, CheckCircle, Plus, MoreVertical, Pencil, Trash2, Clock, Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout, Eye, EyeOff, Calendar, User } from "lucide-react";
+import { Users, Home, AlertCircle, Bell, TrendingUp, Package, ShoppingCart, CheckCircle, Plus, MoreVertical, Pencil, Trash2, Clock, Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout, Eye, EyeOff, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/dashboard.css";
+import Pagination from "../common/Pagination";
 
 const AdminDashboard = ({ activeTab }) => {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
+    const [usersCount, setUsersCount] = useState(0);
+    const [usersPage, setUsersPage] = useState(1);
+
     const [complaints, setComplaints] = useState([]);
+    const [complaintsCount, setComplaintsCount] = useState(0);
+    const [complaintsPage, setComplaintsPage] = useState(1);
+
     const [catalog, setCatalog] = useState([]);
+    const [catalogCount, setCatalogCount] = useState(0);
+    const [catalogPage, setCatalogPage] = useState(1);
+
     const [notifMessage, setNotifMessage] = useState("");
     const [notifTarget, setNotifTarget] = useState("all");
     const [catalogForm, setCatalogForm] = useState({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg" });
@@ -40,17 +50,18 @@ const AdminDashboard = ({ activeTab }) => {
 
     useEffect(() => {
         if (activeTab === "dashboard") fetchStats();
-        if (activeTab === "users") fetchUsers();
-        if (activeTab === "complaints") fetchComplaints();
-        if (activeTab === "catalog") { fetchCatalog(); fetchCategories(); }
+        if (activeTab === "users") fetchUsers(usersPage);
+        if (activeTab === "complaints") fetchComplaints(complaintsPage);
+        if (activeTab === "catalog") { fetchCatalog(null, null, catalogPage); fetchCategories(); }
         if (activeTab === "categories") fetchCategories();
-    }, [activeTab]);
+    }, [activeTab, usersPage, complaintsPage, catalogPage]);
 
     const fetchCategories = async () => {
         setCategoryLoading(true);
         try {
             const res = await api.get("market/categories/");
-            setCategories(res.data);
+            const data = res.data.results || res.data;
+            setCategories(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Error fetching categories:", err);
             alert("Failed to load categories.");
@@ -68,10 +79,17 @@ const AdminDashboard = ({ activeTab }) => {
         }
     };
 
-    const fetchUsers = async () => {
+    const fetchUsers = async (page = 1) => {
         try {
-            const res = await api.get("market/users-list/");
-            setUsers(res.data);
+            const res = await api.get(`market/users-list/?page=${page}`);
+            // If backend is paginated, it returns { count, results }
+            if (res.data.results) {
+                setUsers(res.data.results);
+                setUsersCount(res.data.count);
+            } else {
+                setUsers(res.data);
+                setUsersCount(res.data.length);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -108,10 +126,16 @@ const AdminDashboard = ({ activeTab }) => {
         }
     };
 
-    const fetchComplaints = async () => {
+    const fetchComplaints = async (page = 1) => {
         try {
-            const res = await api.get("market/complaints/");
-            setComplaints(res.data);
+            const res = await api.get(`market/complaints/?page=${page}`);
+            if (res.data.results) {
+                setComplaints(res.data.results);
+                setComplaintsCount(res.data.count);
+            } else {
+                setComplaints(res.data);
+                setComplaintsCount(res.data.length);
+            }
         } catch (err) {
             console.error(err);
         }
@@ -135,7 +159,7 @@ const AdminDashboard = ({ activeTab }) => {
         }
     };
 
-    const fetchCatalog = async (categoryId = null, search = null) => {
+    const fetchCatalog = async (categoryId = null, search = null, page = 1) => {
         // Use provided values or current state
         const finalCategory = categoryId !== null ? categoryId : catalogFilter;
         const finalSearch = search !== null ? search : searchQuery;
@@ -144,12 +168,19 @@ const AdminDashboard = ({ activeTab }) => {
             let params = [];
             if (finalCategory && finalCategory !== "all") params.push(`category=${finalCategory}`);
             if (finalSearch) params.push(`search=${encodeURIComponent(finalSearch)}`);
+            params.push(`page=${page}`);
             
             let url = "market/catalog/";
             if (params.length > 0) url += "?" + params.join("&");
             
             const res = await api.get(url);
-            setCatalog(res.data);
+            if (res.data.results) {
+                setCatalog(res.data.results);
+                setCatalogCount(res.data.count);
+            } else {
+                setCatalog(res.data);
+                setCatalogCount(res.data.length);
+            }
         } catch (err) {
             console.error("Error fetching catalog:", err);
         }
@@ -322,6 +353,12 @@ const AdminDashboard = ({ activeTab }) => {
                         </tbody>
                     </table>
                 </div>
+                <Pagination 
+                    currentPage={usersPage}
+                    totalCount={usersCount}
+                    pageSize={10}
+                    onPageChange={setUsersPage}
+                />
 
                 {/* User Details Modal */}
                 {selectedUser && (
@@ -411,6 +448,12 @@ const AdminDashboard = ({ activeTab }) => {
                     ))}
                     {complaints.length === 0 && <p className="empty-text">No complaints found.</p>}
                 </div>
+                <Pagination 
+                    currentPage={complaintsPage}
+                    totalCount={complaintsCount}
+                    pageSize={10}
+                    onPageChange={setComplaintsPage}
+                />
             </div>
         );
     }
@@ -577,6 +620,12 @@ const AdminDashboard = ({ activeTab }) => {
                         </table>
                         {catalog.length === 0 && <p className="empty-text">No products found.</p>}
                     </div>
+                    <Pagination 
+                        currentPage={catalogPage}
+                        totalCount={catalogCount}
+                        pageSize={10}
+                        onPageChange={setCatalogPage}
+                    />
                 </div>
 
                 {/* Add/Edit Price Modal (Small Window Style) */}

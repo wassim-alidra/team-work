@@ -3,8 +3,12 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 from .models import FarmerProfile, BuyerProfile, TransporterProfile
+from farms.models import Farm
+import json
 
 User = get_user_model()
+
+from farms.serializers import FarmSerializer
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,11 +53,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     driving_license_file = serializers.FileField(required=False)
     car_license_file = serializers.FileField(required=False)
 
+    # Multiple farms support
+    farms_data = serializers.CharField(required=False, write_only=True)
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password', 'role', 'wilaya', 'farm_name', 'location', 
                   'company_name', 'vehicle_type', 'license_plate', 'capacity',
-                  'farmer_card_file', 'commercial_register_file', 'driving_license_file', 'car_license_file')
+                  'farmer_card_file', 'commercial_register_file', 'driving_license_file', 'car_license_file',
+                  'farms_data')
 
     def create(self, validated_data):
         role = validated_data.get('role')
@@ -61,7 +69,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         profile_keys = ['farm_name', 'location', 'company_name', 'vehicle_type', 'license_plate', 'capacity',
                         'farmer_card_file', 'commercial_register_file', 'driving_license_file', 'car_license_file']
         profile_data = {k: v for k, v in validated_data.items() if k in profile_keys}
-        user_data = {k: v for k, v in validated_data.items() if k not in profile_keys and k != 'role'}
+        user_data = {k: v for k, v in validated_data.items() if k not in profile_keys and k != 'role' and k != 'farms_data'}
         
         user_data['role'] = role
         user = User.objects.create_user(**user_data)
@@ -73,6 +81,36 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 location=profile_data.get('location', ''),
                 farmer_card_file=profile_data.get('farmer_card_file')
             )
+            
+            # Handle Farms
+            farms_json = validated_data.get('farms_data')
+            if farms_json:
+                try:
+                    farms = json.loads(farms_json)
+                    for farm_item in farms[:5]: # Max 5 farms
+                        Farm.objects.create(
+                            farmer=user,
+                            name=farm_item.get('name'),
+                            wilaya=farm_item.get('wilaya'),
+                            location=farm_item.get('location', '')
+                        )
+                except (json.JSONDecodeError, TypeError):
+                    # If parsing fails, at least create the default farm from legacy fields if any
+                    if profile_data.get('farm_name'):
+                        Farm.objects.create(
+                            farmer=user,
+                            name=profile_data.get('farm_name'),
+                            wilaya=user.wilaya,
+                            location=profile_data.get('location', '')
+                        )
+            elif profile_data.get('farm_name'):
+                # Single farm fallback
+                Farm.objects.create(
+                    farmer=user,
+                    name=profile_data.get('farm_name'),
+                    wilaya=user.wilaya,
+                    location=profile_data.get('location', '')
+                )
         elif role == User.Role.BUYER:
             BuyerProfile.objects.create(
                 user=user,

@@ -15,6 +15,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -61,7 +62,7 @@ class PriceHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = PriceHistory.objects.all()
+        queryset = PriceHistory.objects.all().order_by('-id')
         product_id = self.request.query_params.get('product')
         if product_id:
             queryset = queryset.filter(product_id=product_id)
@@ -103,6 +104,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         if self.request.user.role != User.Role.FARMER:
              raise permissions.PermissionDenied("Only farmers can add products.")
+        
+        farm = serializer.validated_data.get('farm')
+        if farm and farm.farmer != self.request.user:
+            raise ValidationError({"farm": "You can only list products for your own farms."})
+            
         self._validate_price(serializer)
         serializer.save(farmer=self.request.user)
 
@@ -143,7 +149,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         })
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.all().order_by('-id')
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -219,7 +225,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         })
 
 class DeliveryViewSet(viewsets.ModelViewSet):
-    queryset = Delivery.objects.all()
+    queryset = Delivery.objects.all().order_by('-id')
     serializer_class = DeliverySerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -260,8 +266,13 @@ class DeliveryViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def available_orders(self, request):
         """List orders ready for delivery assignment"""
-        orders = Order.objects.filter(status='ACCEPTED', delivery__isnull=True)
-        serializer = OrderSerializer(orders, many=True)
+        queryset = Order.objects.filter(status='ACCEPTED', delivery__isnull=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+             serializer = OrderSerializer(page, many=True)
+             return self.get_paginated_response(serializer.data)
+        
+        serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
@@ -280,7 +291,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         })
 
 class ComplaintViewSet(viewsets.ModelViewSet):
-    queryset = Complaint.objects.all()
+    queryset = Complaint.objects.all().order_by('-id')
     serializer_class = ComplaintSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -297,9 +308,10 @@ class ComplaintViewSet(viewsets.ModelViewSet):
             raise ValidationError({"detail": str(e)})
 
 class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().order_by('-id')
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         return Notification.objects.filter(recipient=self.request.user)

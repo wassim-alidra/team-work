@@ -1,4 +1,4 @@
-from rest_framework import permissions, status, generics
+from rest_framework import permissions, status, generics, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
@@ -10,6 +10,8 @@ from .serializers import (
     CustomTokenObtainPairSerializer,
     TransporterProfileSerializer,
 )
+from farms.serializers import FarmSerializer
+from farms.models import Farm
 
 User = get_user_model()
 
@@ -18,6 +20,10 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
+
+
+
+
 
 
 class CurrentUserView(APIView):
@@ -31,7 +37,8 @@ class CurrentUserView(APIView):
             data['profile'] = {
                 'id': request.user.farmer_profile.id,
                 'farm_name': request.user.farmer_profile.farm_name,
-                'location': request.user.farmer_profile.location
+                'location': request.user.farmer_profile.location,
+                'farms': FarmSerializer(request.user.farms.all(), many=True).data
             }
 
         elif request.user.role == User.Role.BUYER and hasattr(request.user, 'buyer_profile'):

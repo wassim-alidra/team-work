@@ -36,7 +36,9 @@ const Register = () => {
         farmer_card_file: null,
         commercial_register_file: null,
         driving_license_file: null,
-        car_license_file: null
+        car_license_file: null,
+        // Additional farms (up to 4 more, 1st is mandatory via main fields)
+        additional_farms: []
     });
 
     const navigate = useNavigate();
@@ -49,12 +51,39 @@ const Register = () => {
         setFormData({ ...formData, [e.target.name]: e.target.files[0] });
     };
 
+    const addFarm = () => {
+        if (formData.additional_farms.length < 4) {
+            setFormData({
+                ...formData,
+                additional_farms: [...formData.additional_farms, { name: '', wilaya: '', location: '' }]
+            });
+        }
+    };
+
+    const removeFarm = (index) => {
+        const newFarms = [...formData.additional_farms];
+        newFarms.splice(index, 1);
+        setFormData({ ...formData, additional_farms: newFarms });
+    };
+
+    const handleFarmChange = (index, field, value) => {
+        const newFarms = [...formData.additional_farms];
+        newFarms[index][field] = value;
+        setFormData({ ...formData, additional_farms: newFarms });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
         const data = new FormData();
         for (const key in formData) {
-            if (formData[key] !== null && formData[key] !== '') {
+            if (key === 'additional_farms') {
+                const allFarms = [
+                    { name: formData.farm_name, wilaya: formData.wilaya, location: formData.location },
+                    ...formData.additional_farms
+                ].filter(f => f.name && f.wilaya);
+                data.append('farms_data', JSON.stringify(allFarms));
+            } else if (formData[key] !== null && formData[key] !== '') {
                 data.append(key, formData[key]);
             }
         }
@@ -78,7 +107,8 @@ const Register = () => {
     };
 
     return (
-        <div className="auth-container fade-in" style={{ maxWidth: '550px' }}>
+        <div className="auth-page-wrapper">
+            <div className="auth-container fade-in" style={{ maxWidth: '550px' }}>
             <div className="glass-panel">
                 <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Create Account</h2>
                 <p className="auth-subtitle">Join AgriGov Market to start trading today</p>
@@ -137,6 +167,43 @@ const Register = () => {
                                 <label className="auth-form-label">Farmer Card (PDF)</label>
                                 <input type="file" name="farmer_card_file" accept=".pdf" onChange={handleFileChange} required />
                             </div>
+
+                            {/* Additional Farms Section */}
+                            <div className="additional-farms-section">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#374151' }}>Additional Farms (Optional, Max 5 total)</h4>
+                                    {formData.additional_farms.length < 4 && (
+                                        <button type="button" onClick={addFarm} className="btn-add-farm" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
+                                            + Add Farm
+                                        </button>
+                                    )}
+                                </div>
+                                
+                                {formData.additional_farms.map((farm, index) => (
+                                    <div key={index} className="farm-entry fade-in" style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.5)', position: 'relative' }}>
+                                        <button type="button" onClick={() => removeFarm(index)} style={{ position: 'absolute', top: '5px', right: '10px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.5rem' }}>
+                                            <div>
+                                                <label className="auth-form-label">Farm Name</label>
+                                                <input type="text" placeholder="Second Farm Name" value={farm.name} onChange={(e) => handleFarmChange(index, 'name', e.target.value)} required />
+                                            </div>
+                                            <div>
+                                                <label className="auth-form-label">Wilaya</label>
+                                                <select value={farm.wilaya} onChange={(e) => handleFarmChange(index, 'wilaya', e.target.value)} required>
+                                                    <option value="">-- Choose Wilaya --</option>
+                                                    {ALGERIA_WILAYAS.map(w => (
+                                                        <option key={w.id} value={w.name}>{w.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="auth-form-label">Location (Optional)</label>
+                                            <input type="text" placeholder="Specific location" value={farm.location} onChange={(e) => handleFarmChange(index, 'location', e.target.value)} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
 
@@ -190,7 +257,8 @@ const Register = () => {
                 </p>
             </div>
         </div>
-    );
+    </div>
+);
 };
 
 export default Register;

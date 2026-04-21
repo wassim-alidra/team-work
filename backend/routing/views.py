@@ -55,24 +55,50 @@ WILAYA_COORDS = {
     "Aïn Témouchent": (35.2978, -1.1400),
     "Ghardaïa": (32.4908, 3.6736),
     "Relizane": (35.7378, 0.5556),
+    # Accented and non-accented aliases for common wilayas
+    "Bejaia": (36.7525, 5.0560),
+    "Bechar": (31.6238, -2.2162),
+    "Setif": (36.1911, 5.4131),
+    "Saida": (34.8300, 0.1500),
+    "Medea": (36.2639, 2.7539),
+    "Bordj Bou Arreridj": (36.0700, 4.7600),
+    "Boumerdes": (36.7622, 3.4778),
+    "Ain Defla": (36.2542, 1.9658),
+    "Naama": (33.2667, -0.3167),
+    "Ain Temouchent": (35.2978, -1.1400),
 }
 
+import unicodedata
+
+def strip_accents(s):
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                  if unicodedata.category(c) != 'Mn')
+
 def get_coords_by_name(name):
-    """Case-insensitive wilaya coordinate lookup."""
+    """Accented and case-insensitive wilaya coordinate lookup."""
     if not name:
         return None
-    normalized = name.strip()
-    # Direct match
-    if normalized in WILAYA_COORDS:
-        return WILAYA_COORDS[normalized]
-    # Case-insensitive match
+    
+    normalized = name.strip().lower()
+    normalized_clean = strip_accents(normalized)
+    
+    # 1. Direct or Case-insensitive match on keys
     for key, val in WILAYA_COORDS.items():
-        if key.lower() == normalized.lower():
+        if key.lower() == normalized:
             return val
-    # Partial match
+            
+    # 2. Match after stripping accents from both
     for key, val in WILAYA_COORDS.items():
-        if normalized.lower() in key.lower() or key.lower() in normalized.lower():
+        if strip_accents(key.lower()) == normalized_clean:
             return val
+            
+    # 3. Partial match (original fallback)
+    for key, val in WILAYA_COORDS.items():
+        key_low = key.lower()
+        key_clean = strip_accents(key_low)
+        if normalized_clean in key_clean or key_clean in normalized_clean:
+            return val
+            
     return None
 
 

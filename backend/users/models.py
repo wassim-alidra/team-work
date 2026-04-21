@@ -23,14 +23,17 @@ class User(AbstractUser):
             self.role = self.Role.ADMIN
         return super().save(*args, **kwargs)
 
+
+
 class FarmerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='farmer_profile')
-    farm_name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255)
+    # legacy fields, will be replaced by Farm model
+    farm_name = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     farmer_card_file = models.FileField(upload_to='documents/farmers/', null=True, blank=True)
     
     def __str__(self):
-        return f"{self.user.username} - {self.farm_name}"
+        return f"{self.user.username}'s Farmer Profile"
 
 class BuyerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_profile')
