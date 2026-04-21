@@ -823,6 +823,33 @@ const FarmerDashboard = ({ activeTab }) => {
             </div>
         );
     }
+    if (activeTab === "complaints") {
+        return (
+            <div className="glass-panel animate-in max-600">
+                <div className="section-header">
+                    <h2>Submit a Complaint</h2>
+                    <p>Report issues with orders or delivery quality</p>
+                </div>
+                <form className="complaint-form" onSubmit={handleSubmitComplaint}>
+                    <div className="form-group">
+                        <label>Reason for Complaint (Subject)</label>
+                        <input name="subject" placeholder="Summary of the issue" required />
+                    </div>
+                    <div className="form-group">
+                        <label>Details</label>
+                        <textarea name="message" rows="4" placeholder="Briefly describe the issue..." required></textarea>
+                    </div>
+                    <div className="form-group">
+                        <label>Order ID (Optional)</label>
+                        <input name="orderId" type="text" placeholder="e.g. #15" />
+                    </div>
+                    <button type="submit" className="btn-danger" disabled={loading}>
+                        {loading ? "Reporting..." : "Report Issue"}
+                    </button>
+                </form>
+            </div>
+        );
+    }
 
     return null;
 };

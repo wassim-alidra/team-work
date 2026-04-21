@@ -1,0 +1,460 @@
+/* ===== TRANSPORTER MODERN DASHBOARD FULL PROTOTYPE THEME ===== */
+
+.agrigov-transporter-dashboard {
+  --primary-green: #1D9E75;
+  --light-green: #EAF3DE;
+  --light-green-alt: #C0DD97;
+  --text-green: #27500A;
+  --bg-color: #f5f7fb;
+  --card-bg: #ffffff;
+  --blue: #378ADD;
+  --light-blue: #E6F1FB;
+  --amber: #854F0B;
+  --light-amber: #FAEEDA;
+  
+  --font-family-base: "Inter", "Roboto", "Helvetica Neue", sans-serif;
+  
+  font-family: var(--font-family-base);
+  background-color: var(--bg-color);
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Typography Overrides */
+.agrigov-transporter-dashboard * {
+  font-weight: 400;
+}
+
+.agrigov-transporter-dashboard h1,
+.agrigov-transporter-dashboard h2,
+.agrigov-transporter-dashboard h3,
+.agrigov-transporter-dashboard strong,
+.agrigov-transporter-dashboard b {
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Animations */
+.t-fade-in {
+  animation: tFadeIn 0.3s ease-out forwards;
+}
+
+@keyframes tFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Nav Pills / Filters */
+.t-filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.t-filter-pills {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.t-filter-pill {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.t-filter-pill.active {
+  background: var(--light-green);
+  color: var(--text-green);
+  border-color: var(--primary-green);
+}
+
+.t-search-bar {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  gap: 0.5rem;
+  min-width: 250px;
+}
+
+.t-search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+/* Base Card Style */
+.agrigov-transporter-dashboard .t-card {
+  background: var(--card-bg);
+  border: 0.5px solid #e5e7eb;
+  border-radius: 16px; /* lg radius */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.t-card-hoverable:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Top Stats Grid */
+.agrigov-transporter-dashboard .t-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.agrigov-transporter-dashboard .t-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 16px;
+  border: 0.5px solid rgba(0,0,0,0.05);
+  background: white;
+}
+
+.t-stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.t-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Colors strictly mapped to palette */
+.t-stat-icon-green { background: var(--light-green); color: var(--primary-green); }
+.t-stat-icon-blue { background: var(--light-blue); color: var(--blue); }
+.t-stat-icon-amber { background: var(--light-amber); color: var(--amber); }
+
+.t-stat-title {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.t-stat-value {
+  font-size: 1.7rem;
+  font-weight: 500;
+  margin: 0;
+  color: #111827;
+}
+
+.t-stat-delta {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+.t-delta-up { color: var(--primary-green); }
+
+/* Custom Action Buttons */
+.t-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+}
+
+.t-btn-primary {
+  background: var(--primary-green);
+  color: white;
+}
+
+.t-btn-primary:hover {
+  background: #147c5b;
+}
+
+.t-btn-outline {
+  background: transparent;
+  color: var(--primary-green);
+  border: 0.5px solid var(--primary-green);
+}
+
+.t-btn-outline:hover {
+  background: var(--light-green);
+}
+
+.t-btn-danger-outline {
+  background: transparent;
+  color: #ef4444;
+  border: 0.5px solid #ef4444;
+}
+
+/* List Items */
+.t-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.t-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 0.5px solid #e5e7eb;
+}
+
+/* Chips / Badges */
+.t-chip {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.t-chip-blue { background: var(--light-blue); color: var(--blue); }
+.t-chip-green { background: var(--light-green); color: var(--text-green); }
+.t-chip-amber { background: var(--light-amber); color: var(--amber); }
+
+/* Timeline & Route Tracking */
+.t-route-visualizer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 0 10px;
+}
+
+.t-route-line {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: #e5e7eb;
+  z-index: 1;
+}
+
+.t-route-progress {
+  position: absolute;
+  top: 50%;
+  left: 20px;
+  height: 2px;
+  background: var(--primary-green);
+  z-index: 1;
+}
+
+.t-route-node {
+  background: white;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.t-node-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  background: white;
+}
+
+.t-node-dot.active {
+  border-color: var(--primary-green);
+  background: var(--primary-green);
+  box-shadow: 0 0 0 4px rgba(29, 158, 117, 0.2);
+}
+
+.t-truck-icon {
+  background: white;
+  padding: 4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary-green);
+  color: var(--primary-green);
+  z-index: 3;
+}
+
+/* Performance Stats Grid */
+.t-perf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.t-perf-box {
+  background: #f9fafb;
+  border: 0.5px solid #e5e7eb;
+  padding: 1rem;
+  border-radius: 12px;
+}
+
+.t-perf-bar-bg {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.t-perf-bar {
+  height: 100%;
+}
+
+.t-perf-bar.green { background: var(--primary-green); }
+.t-perf-bar.blue { background: var(--blue); }
+
+/* Forms */
+.t-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.t-form-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.t-form-group input, .t-form-group select {
+  padding: 0.75rem 1rem;
+  border: 0.5px solid #d1d5db;
+  border-radius: 8px;
+  outline: none;
+}
+
+.t-form-group input:focus, .t-form-group select:focus {
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 2px rgba(29, 158, 117, 0.1);
+}
+
+/* History Table */
+.t-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.t-table th {
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.t-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9rem;
+}
+
+/* Toast Simulation */
+.t-toast-container {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+}
+
+.t-toast {
+  background: #111827;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  animation: tToastSlide 0.3s ease-out forwards;
+}
+
+@keyframes tToastSlide {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.t-toast-icon {
+  color: var(--primary-green);
+}
+
+/* Profile Right Panel */
+.t-profile-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.t-summary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.t-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+/* Sidebar Overrides */
+.transporter-sidebar-active {
+  background: var(--light-green) !important;
+  color: var(--text-green) !important;
+  font-weight: 500;
+}
+.transporter-sidebar-active svg {
+  color: var(--primary-green) !important;
+}
+
+/* Dashboard explicit 2/3 - 1/3 and 1/2 - 1/2 grids */
+.t-grid-66-33 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+.t-grid-50-50 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .t-grid-66-33, .t-grid-50-50, .t-profile-layout, .t-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

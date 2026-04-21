@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
 
-const Topbar = ({ user }) => {
+const Topbar = ({ user, activeTab }) => {
   const { logoutUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -15,6 +15,17 @@ const Topbar = ({ user }) => {
     TRANSPORTER: "Transporter",
     ADMIN: "Admin",
   };
+
+  const pageTitles = {
+    dashboard: { title: "Dashboard", subtitle: "Overview of your transport operations" },
+    requests: { title: "Delivery Requests", subtitle: "Find and accept new missions" },
+    status: { title: "Active Deliveries", subtitle: "Update the status of your current trips" },
+    history: { title: "Delivery History", subtitle: "Review your completed missions" },
+    earnings: { title: "My Earnings", subtitle: "Track your income and performance" },
+    profile: { title: "My Profile", subtitle: "Manage your vehicle and personal details" }
+  };
+
+  const currentHeader = pageTitles[activeTab] || { title: "Dashboard", subtitle: `Welcome back, ${user?.username}` };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,8 +53,10 @@ const Topbar = ({ user }) => {
   return (
     <header className="dashboard-topbar">
       <div className="topbar-left">
-        <h1>Dashboard</h1>
-        <p>Welcome back, {user?.username}</p>
+        <h1>{currentHeader.title}</h1>
+        <p style={{ color: "#6b7280", fontSize: "0.85rem", marginTop: "4px" }}>
+            {currentHeader.subtitle}
+        </p>
       </div>
 
       <div className="topbar-right">

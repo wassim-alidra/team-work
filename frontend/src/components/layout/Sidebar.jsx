@@ -95,7 +95,9 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
             onClick={() => setActiveTab(item.key)}
           >
             <span className="sidebar-icon">{item.icon}</span>
-            <span>{item.label}</span>
+            <span style={{flex: 1}}>{item.label}</span>
+            
+           
           </button>
         ))}
       </nav>

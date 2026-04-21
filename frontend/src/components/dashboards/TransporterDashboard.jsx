@@ -1,101 +1,115 @@
-import { useEffect, useState, useContext } from "react";
-import api from "../../api/axios";
-import { Truck, ClipboardList, CheckCircle, DollarSign, Save, Package, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useContext, useEffect } from "react";
+import { Truck, CheckCircle, DollarSign, Save, Package, MapPin, ChevronRight, Check } from "lucide-react";
 import AuthContext from "../../context/AuthContext";
+import api from "../../api/axios";
 import RouteMapModal from "./RouteMapModal";
 import "../../styles/dashboard.css";
-import Pagination from "../common/Pagination";
+import "../../styles/transporter-dashboard.css";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
+import Pagination from "../common/Pagination"; // Keep if needed for real backend, or adapt it.
 
-const TransporterDashboard = ({ activeTab }) => {
+const TransporterDashboard = ({ activeTab, setActiveTab }) => {
     const { user, setUser } = useContext(AuthContext);
+    
+    // ---------- REAL API STATE ----------
     const [availableOrders, setAvailableOrders] = useState([]);
-    const [availableOrdersCount, setAvailableOrdersCount] = useState(0);
-    const [availableOrdersPage, setAvailableOrdersPage] = useState(1);
-
     const [myDeliveries, setMyDeliveries] = useState([]);
-    const [myDeliveriesCount, setMyDeliveriesCount] = useState(0);
-    const [myDeliveriesPage, setMyDeliveriesPage] = useState(1);
     const [earningsData, setEarningsData] = useState({ total_earnings: 0, completed_count: 0, history: [] });
+    
     const [profileForm, setProfileForm] = useState({
-        vehicle_type: "",
-        license_plate: "",
-        capacity: 0
+        name: user?.username || "Transporter",
+        phone: user?.profile?.phone || "",
+        vehicle_type: user?.profile?.vehicle_type || "",
+        license_plate: user?.profile?.license_plate || "",
+        capacity: user?.profile?.capacity || 0
     });
-    const [loading, setLoading] = useState(false);
+
     const [selectedOrder, setSelectedOrder] = useState(null);
+    const [toasts, setToasts] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    useEffect(() => {
-        if (activeTab === "dashboard" || activeTab === "requests") fetchAvailableOrders(availableOrdersPage);
-        if (activeTab === "dashboard" || activeTab === "status") fetchMyDeliveries(null, myDeliveriesPage);
-        if (activeTab === "history") fetchMyDeliveries("DELIVERED", myDeliveriesPage);
-        if (activeTab === "earnings") fetchEarnings();
-        if (activeTab === "profile") {
-            setProfileForm({
-                vehicle_type: user.profile?.vehicle_type || "",
-                license_plate: user.profile?.license_plate || "",
-                capacity: user.profile?.capacity || 0
-            });
-        }
-    }, [activeTab, availableOrdersPage, myDeliveriesPage]);
+    // Filter states
+    const [requestFilter, setRequestFilter] = useState("All");
+    const [requestSearch, setRequestSearch] = useState("");
 
-    const fetchAvailableOrders = async (page = 1) => {
+    // ---------- HELPER LOGIC ----------
+    const showToast = (message) => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, message }]);
+        setTimeout(() => {
+            setToasts(prev => prev.filter(t => t.id !== id));
+        }, 3000);
+    };
+
+    // ---------- API CALLS ----------
+    const fetchAvailableOrders = async () => {
         try {
-            const res = await api.get(`market/deliveries/available_orders/?page=${page}`);
-            if (res.data.results) {
-                setAvailableOrders(res.data.results);
-                setAvailableOrdersCount(res.data.count);
-            } else {
-                setAvailableOrders(res.data);
-                setAvailableOrdersCount(res.data.length);
-            }
+            const res = await api.get(`market/deliveries/available_orders/`);
+            setAvailableOrders(res.data.results || res.data || []);
         } catch (err) {
             console.error("Error fetching available orders:", err);
         }
     };
 
-    const fetchMyDeliveries = async (statusFilter = null, page = 1) => {
+    const fetchMyDeliveries = async () => {
         try {
-            let url = `market/deliveries/?page=${page}`;
-            if (statusFilter) url += `&status=${statusFilter}`;
-            const res = await api.get(url);
-            if (res.data.results) {
-                setMyDeliveries(res.data.results);
-                setMyDeliveriesCount(res.data.count);
-            } else {
-                setMyDeliveries(res.data);
-                setMyDeliveriesCount(res.data.length);
-            }
+            const res = await api.get(`market/deliveries/`);
+            setMyDeliveries(res.data.results || res.data || []);
         } catch (err) {
-            console.error("Error fetching deliveries:", err);
+            console.error("Error fetching my deliveries:", err);
         }
     };
 
     const fetchEarnings = async () => {
         try {
             const res = await api.get("market/deliveries/earnings/");
-            setEarningsData(res.data);
+            setEarningsData(res.data || { total_earnings: 0, completed_count: 0, history: [] });
         } catch (err) {
             console.error("Error fetching earnings:", err);
         }
     };
 
-    const handleAccept = async (orderId) => {
+    useEffect(() => {
+        if (activeTab === "dashboard" || activeTab === "requests") fetchAvailableOrders();
+        if (activeTab === "dashboard" || activeTab === "status" || activeTab === "history") fetchMyDeliveries();
+        if (activeTab === "dashboard" || activeTab === "earnings") fetchEarnings();
+        if (activeTab === "profile") {
+            setProfileForm(prev => ({
+                ...prev,
+                vehicle_type: user?.profile?.vehicle_type || "",
+                license_plate: user?.profile?.license_plate || "",
+                capacity: user?.profile?.capacity || 0
+            }));
+        }
+    }, [activeTab]);
+
+    // ---------- MUTATIONS ----------
+    const handleAccept = async (order) => {
         try {
-            await api.post("market/deliveries/", { order: orderId });
-            alert("Delivery accepted!");
+            await api.post("market/deliveries/", { order: order.id });
+            showToast(`Order #${order.id} Accepted successfully!`);
+            if(selectedOrder) setSelectedOrder(null);
             fetchAvailableOrders();
+            fetchMyDeliveries();
         } catch (err) {
-            alert("Error accepting delivery");
+            alert("Error accepting delivery. Please try again.");
+            console.error(err);
         }
     };
 
-    const handleUpdateStatus = async (deliveryId, status) => {
+    const handleUpdateStatus = async (deliveryId, newStatus) => {
         try {
-            await api.patch(`market/deliveries/${deliveryId}/`, { status });
+            await api.patch(`market/deliveries/${deliveryId}/`, { status: newStatus });
+            if (newStatus === "DELIVERED") {
+                showToast("Delivery successfully marked as Delivered!");
+                fetchEarnings(); 
+            } else {
+                showToast(`Status updated to ${newStatus}`);
+            }
             fetchMyDeliveries();
-            if (status === "DELIVERED") fetchEarnings();
         } catch (err) {
             alert("Error updating status");
+            console.error(err);
         }
     };
 
@@ -103,363 +117,569 @@ const TransporterDashboard = ({ activeTab }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await api.patch("users/me/", profileForm);
+            const payload = {
+                vehicle_type: profileForm.vehicle_type,
+                license_plate: profileForm.license_plate,
+                capacity: parseFloat(profileForm.capacity)
+            };
+            const res = await api.patch("users/me/", payload);
             setUser({ ...user, profile: { ...user.profile, ...res.data } });
-            alert("Profile updated successfully!");
+            showToast("Profile saved successfully!");
         } catch (err) {
             alert("Error updating profile");
+            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
-    // ─────────────────── DASHBOARD TAB ───────────────────
-    if (activeTab === "dashboard") {
-        const stats = [
-            { label: "Available", value: availableOrders.length, icon: <ClipboardList />, color: "blue" },
-            { label: "Active", value: myDeliveries.filter(d => d.status !== "DELIVERED").length, icon: <Truck />, color: "green" },
-            { label: "Completed", value: myDeliveries.filter(d => d.status === "DELIVERED").length, icon: <CheckCircle />, color: "purple" },
-            { label: "Earnings", value: `${earningsData.total_earnings || 0} DA`, icon: <DollarSign />, color: "yellow" }
-        ];
+    // ---------- COMPUTED STATS MODULES ----------
+    const activeDeveliriesList = myDeliveries.filter(d => d.status !== "DELIVERED");
+    
+    // Fallbacks if dates aren't cleanly available
+    const todayStr = new Date().toDateString();
+    const historyDeliveries = myDeliveries.filter(d => d.status === "DELIVERED");
+    const completedToday = historyDeliveries.filter(d => new Date(d.delivery_date || d.updated_at).toDateString() === todayStr).length;
 
-        return (
-            <>
-                <div className="transporter-home">
-                    <div className="stats-grid">
-                        {stats.map((s, i) => (
-                            <div key={i} className={`stat-card stat-${s.color}`}>
-                                <div className="stat-icon">{s.icon}</div>
-                                <div className="stat-info">
-                                    <h3>{s.value}</h3>
-                                    <p>{s.label}</p>
+    // Derived Weekly Earnings (approximation if backend doesn't provide exact weekly filter)
+    const earningsThisWeek = earningsData.recent_week_earnings || historyDeliveries
+        .filter(d => new Date(d.delivery_date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
+        .reduce((sum, d) => sum + parseFloat(d.delivery_fee || 0), 0);
+
+    // Derived Weekly Chart (aggregate deliveries by Day)
+    const getWeeklyData = () => {
+        const days = { "Mon": 0, "Tue": 0, "Wed": 0, "Thu": 0, "Fri": 0, "Sat": 0, "Sun": 0 };
+        historyDeliveries.forEach(d => {
+            if (d.delivery_date) {
+                const dayName = new Date(d.delivery_date).toLocaleDateString("en-US", { weekday: 'short' });
+                if (days[dayName] !== undefined) days[dayName] += 1;
+            }
+        });
+        return Object.keys(days).map(key => ({ name: key, val: days[key] }));
+    };
+    const weeklyData = getWeeklyData();
+
+    // Derived Donut Chart (aggregate available orders by product name)
+    const getDonutData = () => {
+        const counts = {};
+        availableOrders.forEach(o => {
+            const prodName = o.product_name || "Other";
+            counts[prodName] = (counts[prodName] || 0) + 1;
+        });
+        
+        let sortedData = Object.keys(counts)
+            .map(k => ({ name: k, value: counts[k] }))
+            .sort((a, b) => b.value - a.value);
+        
+        if (sortedData.length > 5) {
+            const top5 = sortedData.slice(0, 5);
+            const othersValue = sortedData.slice(5).reduce((sum, item) => sum + item.value, 0);
+            if (othersValue > 0) {
+                top5.push({ name: "Other", value: othersValue });
+            }
+            sortedData = top5;
+        }
+
+        return sortedData.length > 0 ? sortedData : [{ name: "No data", value: 1 }];
+    };
+    const donutData = getDonutData();
+    const COLORS = ["#1D9E75", "#F59E0B", "#10B981", "#3B82F6"];
+
+    // Render Sub-Tabs
+    const renderDashboard = () => (
+        <div className="t-fade-in">
+            {/* TOP STATS */}
+            <div className="t-stats-grid">
+                <div className="t-stat-card">
+                    <div className="t-stat-header">
+                        <div className="t-stat-icon t-stat-bg-green"><Package size={20} className="t-delta-up"/></div>
+                    </div>
+                    <h3 className="t-stat-value">{availableOrders.length}</h3>
+                    <p className="t-stat-title">Available orders</p>
+                </div>
+            
+                <div className="t-stat-card">
+                    <div className="t-stat-header">
+                        <div className="t-stat-icon t-stat-bg-blue"><Truck size={20} className="t-stat-icon-blue"/></div>
+                    </div>
+                    <h3 className="t-stat-value">{activeDeveliriesList.length}</h3>
+                    <p className="t-stat-title">Active deliveries</p>
+                </div>
+                
+                <div className="t-stat-card">
+                    <div className="t-stat-header">
+                        <div className="t-stat-icon t-stat-bg-green"><CheckCircle size={20} className="t-delta-up"/></div>
+                    </div>
+                    <h3 className="t-stat-value">{completedToday}</h3>
+                    <p className="t-stat-title">Completed today</p>
+                </div>
+
+                <div className="t-stat-card">
+                    <div className="t-stat-header">
+                        <div className="t-stat-icon t-stat-bg-amber"><DollarSign size={20} className="t-stat-icon-amber"/></div>
+                    </div>
+                    <h3 className="t-stat-value">{earningsThisWeek} DZD</h3>
+                    <p className="t-stat-title">Earnings this week</p>
+                </div>
+            </div>
+
+            {/* CHARTS SECTION */}
+            <div className="t-grid-66-33" style={{marginTop: '1.5rem'}}>
+                <div className="t-card">
+                    <div className="t-stat-header" style={{marginBottom: '1rem'}}>
+                        <h3 className="t-item-title">Weekly Deliveries</h3>
+                    </div>
+                    <div style={{width: '100%', height: 200}}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6B7280' }} />
+                                <RechartsTooltip cursor={{ fill: '#F3F4F6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                                <Bar dataKey="val" fill="#C0DD97" radius={[4, 4, 0, 0]} barSize={24}>
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <div className="t-card">
+                    <div className="t-stat-header" style={{marginBottom: '1rem'}}>
+                        <h3 className="t-item-title">Available Order Categories</h3>
+                    </div>
+                    <div style={{height: 200}}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie data={donutData} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={2} dataKey="value">
+                                    {donutData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                    ))}
+                                </Pie>
+                                <RechartsTooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} />
+                                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px' }}/>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            </div>
+
+            {/* LOWER SECTION */}
+            <div className="t-grid-50-50" style={{marginTop: '1.5rem'}}>
+                <div className="t-card">
+                    <div className="t-stat-header">
+                        <h3 className="t-item-title">Ready for Pickup</h3>
+                        <button className="t-btn t-btn-outline" onClick={() => setActiveTab("requests")}>View All <ChevronRight size={14}/></button>
+                    </div>
+                    <div className="t-list">
+                        {availableOrders.length === 0 ? (
+                            <p style={{ color: '#6b7280', fontSize: '0.85rem', padding: '1rem' }}>No orders currently matching.</p>
+                        ) : availableOrders.slice(0, 3).map((order) => (
+                            <div key={order.id} className="t-list-item">
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{fontWeight: 500}}>{order.product_name}</span>
+                                        <span className="t-chip t-chip-green">#{order.id}</span>
+                                    </div>
+                                    <span style={{fontSize: '0.8rem', color: '#6b7280'}}>{order.farmer_wilaya || "N/A"} → {order.buyer_wilaya || "N/A"} • {order.quantity}kg</span>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <button className="t-btn t-btn-outline" onClick={() => setSelectedOrder(order)}><MapPin size={14} /> View</button>
+                                    
                                 </div>
                             </div>
                         ))}
                     </div>
-
-                    <div className="dashboard-sections">
-                        <div className="glass-panel">
-                            <div className="panel-header">
-                                <h3>Ready for Pickup</h3>
-                                <button className="text-btn" onClick={() => fetchAvailableOrders()}>Refresh</button>
-                            </div>
-                            {availableOrders.length === 0 ? (
-                                <p className="empty-text">No delivery requests available.</p>
-                            ) : (
-                                <div className="mini-list">
-                                    {availableOrders.slice(0, 3).map(o => (
-                                        <div key={o.id} className="mini-item">
-                                            <div className="item-main">
-                                                <strong>Order #{o.id}</strong>
-                                                <span>{o.product_name}</span>
-                                            </div>
-                                            <div style={{ display: "flex", gap: 6 }}>
-                                                <button
-                                                    className="btn-sm"
-                                                    style={{
-                                                        display: "flex", alignItems: "center", gap: 4,
-                                                        background: "rgba(59,130,246,0.15)",
-                                                        border: "1px solid rgba(59,130,246,0.4)",
-                                                        color: "#93c5fd"
-                                                    }}
-                                                    onClick={() => setSelectedOrder(o)}
-                                                >
-                                                    <MapPin size={13} /> View
-                                                </button>
-                                                <button className="btn-sm" onClick={() => handleAccept(o.id)}>Accept</button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="glass-panel">
-                            <div className="panel-header">
-                                <h3>Active Deliveries</h3>
-                            </div>
-                            {myDeliveries.filter(d => d.status !== "DELIVERED").length === 0 ? (
-                                <p className="empty-text">No active missions.</p>
-                            ) : (
-                                <div className="mini-list">
-                                    {myDeliveries.filter(d => d.status !== "DELIVERED").slice(0, 3).map(d => (
-                                        <div key={d.id} className="mini-item">
-                                            <div className="item-main">
-                                                <strong>Delivery #{d.id}</strong>
-                                                <span className={`status-pill ${d.status.toLowerCase()}`}>{d.status}</span>
-                                            </div>
-                                            <Truck size={16} color="#6b7280" />
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
                 </div>
 
-                {selectedOrder && (
-                    <RouteMapModal
-                        order={selectedOrder}
-                        onClose={() => setSelectedOrder(null)}
-                        onAccept={async (orderId) => { await handleAccept(orderId); setSelectedOrder(null); }}
-                    />
-                )}
-            </>
-        );
-    }
-
-    // ─────────────────── REQUESTS TAB ───────────────────
-    if (activeTab === "requests") {
-        return (
-            <>
-                <div className="glass-panel">
-                    <div className="section-header">
-                        <h2>Available Delivery Requests</h2>
-                        <p>Missions waiting for a transporter</p>
+                <div className="t-card">
+                    <div className="t-stat-header">
+                        <h3 className="t-item-title">Active Delivery</h3>
+                        <button className="t-btn t-btn-outline" onClick={() => setActiveTab("status")}>View All <ChevronRight size={14}/></button>
                     </div>
-                    <div className="grid-list">
-                        {availableOrders.map(o => (
-                            <div key={o.id} className="card-item animate-in">
-                                <div className="card-badge">Available</div>
-                                <div className="card-content">
-                                    <h3>Order #{o.id}</h3>
-                                    <div className="detail-row">
-                                        <Package size={16} />
-                                        <span>{o.product_name} — {o.quantity} kg</span>
-                                    </div>
-                                    <div className="detail-row" style={{ marginTop: 4 }}>
-                                        <span style={{ fontSize: "0.78rem", color: "#9ca3af" }}>Value:</span>
-                                        <span style={{ fontSize: "0.78rem", color: "#facc15", fontWeight: 600 }}>{o.total_price} DA</span>
-                                    </div>
-                                    <div className="route-flow" style={{ marginTop: 10 }}>
-                                        <div className="node">
-                                            <div className="dot green"></div>
-                                            <span style={{ fontSize: "0.75rem" }}>{o.farmer_wilaya || "Farmer"}</span>
-                                        </div>
-                                        <div className="line"></div>
-                                        <div className="node">
-                                            <div className="dot blue"></div>
-                                            <span style={{ fontSize: "0.75rem" }}>{o.buyer_wilaya || "Buyer"}</span>
-                                        </div>
+                    
+                    {activeDeveliriesList.length > 0 ? (() => { 
+                        const d = activeDeveliriesList[0];
+                        const progress = d.status === "IN_TRANSIT" ? 65 : 25;
+                        return (
+                        <>
+                            <div className="t-route-visualizer" style={{marginTop: '2rem'}}>
+                                <div className="t-route-line"></div>
+                                <div className="t-route-progress" style={{width: `${progress}%`}}></div>
+                                
+                                <div className="t-route-node">
+                                    <span style={{fontSize: '0.75rem', color: '#6b7280', position: 'absolute', top: '-20px', whiteSpace: 'nowrap'}}>Farmer</span>
+                                    <div className="t-node-dot active"></div>
+                                </div>
+                                <div className="t-truck-icon" style={{position: 'absolute', left: `calc(${progress}% + 10px)`, transform: 'translateX(-50%)'}}>
+                                    <Truck size={16} />
+                                </div>
+                                <div className="t-route-node">
+                                    <span style={{fontSize: '0.75rem', color: '#6b7280', position: 'absolute', top: '-20px', whiteSpace: 'nowrap'}}>Buyer</span>
+                                    <div className="t-node-dot"></div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', color: '#6b7280', marginTop: '5px' }}>
+                                <span>Departed</span>
+                                <span style={{ color: '#1D9E75', fontWeight: '500' }}>In Progress</span>
+                                <span>Destination</span>
+                            </div>
+
+                            <h3 className="t-item-title" style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>Delivery Info</h3>
+                            <div className="t-perf-grid">
+                                <div className="t-perf-box">
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <span style={{fontSize: '0.8rem', color: '#6b7280'}}>Total weight</span>
+                                        <span style={{fontSize: '0.85rem', fontWeight: 500, color: 'var(--primary-green)'}}>{d.quantity || d.order_quantity || d.order?.quantity || d.order_details?.quantity || 0} KG</span>
                                     </div>
                                 </div>
-                                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                                    <button
-                                        className="btn-primary"
+                                <div className="t-perf-box">
+                                    <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                        <span style={{fontSize: '0.8rem', color: '#6b7280'}}>Total distance</span>
+                                        <span style={{fontSize: '0.85rem', fontWeight: 500, color: 'var(--blue)'}}>{d.distance_km || d.distance || d.total_distance || d.order?.distance_km || d.order_details?.distance_km || 0} KM</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {(() => {
+                                let nextStatus = "IN_TRANSIT";
+                                let btnText = "Start Delivery";
+                                let disabled = false;
+
+                                if (d.status === "IN_TRANSIT") {
+                                    nextStatus = "DELIVERED";
+                                    btnText = "Mark as Delivered";
+                                } else if (d.status === "DELIVERED") {
+                                    disabled = true;
+                                    btnText = "Completed";
+                                    nextStatus = "DELIVERED";
+                                }
+
+                                return (
+                                    <button 
+                                        className="t-btn t-btn-primary" 
                                         style={{
-                                            flex: 1, display: "flex", alignItems: "center",
-                                            justifyContent: "center", gap: 6,
-                                            background: "linear-gradient(135deg,#1d4ed8,#1e40af)",
-                                            boxShadow: "0 4px 12px rgba(29,78,216,0.3)"
-                                        }}
-                                        onClick={() => setSelectedOrder(o)}
+                                            width: '100%', 
+                                            marginTop: '1.5rem', 
+                                            padding: '0.75rem', 
+                                            opacity: disabled ? 0.6 : 1, 
+                                            cursor: disabled ? 'not-allowed' : 'pointer'
+                                        }} 
+                                        onClick={() => !disabled && handleUpdateStatus(d.id, nextStatus)}
+                                        disabled={disabled}
                                     >
-                                        <MapPin size={15} /> View Details
+                                        <CheckCircle size={16} /> {btnText}
                                     </button>
-                                    <button
-                                        className="btn-primary"
-                                        style={{
-                                            flex: 1,
-                                            background: "linear-gradient(135deg,#16a34a,#15803d)",
-                                            boxShadow: "0 4px 12px rgba(22,163,74,0.3)"
-                                        }}
-                                        onClick={() => handleAccept(o.id)}
-                                    >
-                                        ✓ Accept
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        {availableOrders.length === 0 && (
-                            <p className="empty-state">No requests available at the moment.</p>
-                        )}
-                    </div>
-                    <Pagination 
-                        currentPage={availableOrdersPage}
-                        totalCount={availableOrdersCount}
-                        pageSize={10}
-                        onPageChange={setAvailableOrdersPage}
-                    />
+                                );
+                            })()}
+                        </>);
+                    })() : (
+                        <p style={{ color: '#6b7280', fontSize: '0.85rem', padding: '1rem' }}>No active deliveries.</p>
+                    )}
                 </div>
+            </div>
+        </div>
+    );
 
-                {selectedOrder && (
-                    <RouteMapModal
-                        order={selectedOrder}
-                        onClose={() => setSelectedOrder(null)}
-                        onAccept={async (orderId) => { await handleAccept(orderId); setSelectedOrder(null); }}
-                    />
-                )}
-            </>
+    const renderRequests = () => {
+        const filtered = availableOrders.filter(o => 
+            (requestFilter === "All" || (o.category || "Other") === requestFilter) && 
+            ((o.product_name || "").toLowerCase().includes(requestSearch.toLowerCase()) || (o.farmer_wilaya || "").toLowerCase().includes(requestSearch.toLowerCase()) || (o.buyer_wilaya || "").toLowerCase().includes(requestSearch.toLowerCase()))
         );
-    }
 
-    // ─────────────────── STATUS TAB ───────────────────
-    if (activeTab === "status") {
-        const active = myDeliveries.filter(d => d.status !== "DELIVERED");
         return (
-            <div className="glass-panel">
-                <div className="section-header">
-                    <h2>Update Delivery Status</h2>
-                    <p>Manage your active missions</p>
-                </div>
+            <div className="t-fade-in t-card" style={{padding: '1.5rem'}}>
+                
+
                 <div className="grid-list">
-                    {active.map(d => (
-                        <div key={d.id} className="card-item status-card">
-                            <div className="card-header">
-                                <h3>Delivery #{d.id}</h3>
-                                <span className={`status-badge ${d.status.toLowerCase()}`}>{d.status}</span>
+                    {filtered.map(o => (
+                        <div key={o.id} className="card-item t-card-hoverable">
+                            <div className="card-badge" style={{background: 'var(--light-green)', color: 'var(--text-green)'}}>Available</div>
+                            <div className="card-content">
+                                <h3 style={{fontSize: '1.2rem', marginBottom: '8px'}}>Order #{o.id}</h3>
+                                <div style={{display: 'flex', gap: '5px', marginTop: '5px'}}>
+                                    <span className="t-chip t-chip-amber">{o.category || "Uncategorized"}</span>
+                                </div>
+                                <div className="detail-row" style={{marginTop: '1rem'}}>
+                                    <Package size={16} color="#6b7280"/>
+                                    <span style={{fontWeight: 500}}>{o.product_name} — {o.quantity} kg</span>
+                                </div>
+                                <div className="detail-row" style={{ marginTop: 8 }}>
+                                    <span style={{ fontSize: "0.85rem", color: "#6b7280" }}>Transport Fee:</span>
+                                    <span style={{ fontSize: "1rem", color: "var(--amber)", fontWeight: 600 }}>{o.total_price || "N/A"} DZD</span>
+                                </div>
+                                <div className="t-route-visualizer" style={{marginTop: '1.5rem', marginBottom: '0.5rem'}}>
+                                    <div className="t-route-line"></div>
+                                    <div className="t-route-node">
+                                        <div className="t-node-dot active"></div>
+                                        <span style={{ fontSize: "0.75rem", color: "#4b5563" }}>{o.farmer_wilaya || "N/A"}</span>
+                                    </div>
+                                    <div className="t-route-node">
+                                        <div className="t-node-dot"></div>
+                                        <span style={{ fontSize: "0.75rem", color: "#4b5563" }}>{o.buyer_wilaya || "N/A"}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="progress-track">
-                                <div className={`dot ${d.status === "ASSIGNED" || d.status === "IN_TRANSIT" ? "active" : ""}`}></div>
-                                <div className={`line ${d.status === "IN_TRANSIT" ? "active" : ""}`}></div>
-                                <div className={`dot ${d.status === "IN_TRANSIT" ? "active" : ""}`}></div>
-                                <div className="line"></div>
-                                <div className="dot"></div>
-                            </div>
-                            <div className="action-row">
-                                {d.status === "ASSIGNED" ? (
-                                    <button className="btn-secondary" onClick={() => handleUpdateStatus(d.id, "IN_TRANSIT")}>
-                                        Start Transit
-                                    </button>
-                                ) : (
-                                    <button className="btn-success" onClick={() => handleUpdateStatus(d.id, "DELIVERED")}>
-                                        Mark as Delivered
-                                    </button>
-                                )}
+                            <div style={{ display: "flex", gap: 10, marginTop: 15 }}>
+                                <button className="t-btn t-btn-outline" style={{ flex: 1 }} onClick={() => setSelectedOrder(o)}>
+                                    Details
+                                </button>
+                               
                             </div>
                         </div>
                     ))}
-                    {active.length === 0 && <p className="empty-state">No active deliveries to update.</p>}
+                    {filtered.length === 0 && <p style={{color: '#6b7280'}}>No matching requests found.</p>}
                 </div>
             </div>
         );
-    }
+    };
 
-    // ─────────────────── HISTORY TAB ───────────────────
-    if (activeTab === "history") {
-        const history = myDeliveries.filter(d => d.status === "DELIVERED");
-        return (
-            <div className="glass-panel">
-                <div className="section-header">
-                    <h2>Delivery History</h2>
-                    <p>Your completed missions</p>
-                </div>
-                <div className="history-table-container">
-                    <table className="history-table">
-                        <thead>
-                            <tr>
-                                <th>Delivery ID</th>
-                                <th>Order</th>
-                                <th>Date</th>
-                                <th>Fee</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {history.map(d => (
-                                <tr key={d.id}>
-                                    <td>#{d.id}</td>
-                                    <td>Order #{d.order}</td>
-                                    <td>{new Date(d.delivery_date).toLocaleDateString()}</td>
-                                    <td className="earning-text">{d.delivery_fee} DA</td>
-                                    <td><span className="badge-success">Completed</span></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {history.length === 0 && <p className="empty-state">No history found.</p>}
-                </div>
-                <Pagination 
-                    currentPage={myDeliveriesPage}
-                    totalCount={myDeliveriesCount}
-                    pageSize={10}
-                    onPageChange={setMyDeliveriesPage}
-                />
-            </div>
-        );
-    }
-
-    // ─────────────────── EARNINGS TAB ───────────────────
-    if (activeTab === "earnings") {
-        return (
-            <div className="earnings-view">
-                <div className="earnings-summary glass-panel">
-                    <div className="summary-card">
-                        <DollarSign size={32} className="icon-gold" />
-                        <div>
-                            <span>Total Earnings</span>
-                            <h2>{earningsData.total_earnings} DA</h2>
-                        </div>
-                    </div>
-                    <div className="summary-card">
-                        <CheckCircle size={32} className="icon-green" />
-                        <div>
-                            <span>Missions Completed</span>
-                            <h2>{earningsData.completed_count}</h2>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="glass-panel mt-1">
-                    <h3>Recent Payouts</h3>
-                    <div className="mini-list">
-                        {earningsData.history?.map(d => (
-                            <div key={d.id} className="mini-item">
-                                <span>Delivery #{d.id}</span>
-                                <strong className="green-text">+{d.delivery_fee} DA</strong>
+    const renderStatus = () => (
+        <div className="t-fade-in t-card" style={{padding: '1.5rem'}}>
+            <div style={{maxWidth: '800px', margin: '0 auto'}}>
+                {activeDeveliriesList.length === 0 ? (
+                     <p className="empty-text" style={{color: '#6b7280'}}>You have no active deliveries.</p>
+                ) : (
+                    activeDeveliriesList.map(d => (
+                        <div key={d.id} className="t-card" style={{marginBottom: '1.5rem'}}>
+                            <div className="t-stat-header" style={{borderBottom: '1px solid #f3f4f6', paddingBottom: '1rem', marginBottom: '1rem'}}>
+                                <div>
+                                    <h3 style={{fontSize: '1.2rem', marginBottom: '4px'}}>Delivery #{d.id}</h3>
+                                    <span style={{color: '#6b7280', fontSize: '0.9rem'}}>Order #{d.order}</span>
+                                </div>
+                                <span className="t-chip t-chip-blue" style={{fontSize: '0.85rem', padding: '4px 10px'}}>{d.status}</span>
                             </div>
-                        ))}
-                    </div>
+                            
+                            <div className="t-form-group">
+                                {(() => {
+                                    let nextStatus = "IN_TRANSIT";
+                                    let btnText = "Start Delivery";
+                                    let disabled = false;
+
+                                    if (d.status === "IN_TRANSIT") {
+                                        nextStatus = "DELIVERED";
+                                        btnText = "Mark as Delivered";
+                                    } else if (d.status === "DELIVERED") {
+                                        disabled = true;
+                                        btnText = "Completed";
+                                        nextStatus = "DELIVERED";
+                                    } else if (d.status === "CANCELED") {
+                                        disabled = true;
+                                        btnText = "Canceled";
+                                        nextStatus = "CANCELED";
+                                    }
+
+                                    return (
+                                        <button 
+                                            className="t-btn t-btn-primary" 
+                                            style={{
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                opacity: disabled ? 0.6 : 1, 
+                                                cursor: disabled ? 'not-allowed' : 'pointer'
+                                            }} 
+                                            onClick={() => !disabled && handleUpdateStatus(d.id, nextStatus)}
+                                            disabled={disabled}
+                                        >
+                                            <CheckCircle size={16} /> {btnText}
+                                        </button>
+                                    );
+                                })()}
+                            </div>
+
+                            <div style={{position: 'relative', marginTop: '2rem', paddingLeft: '20px'}}>
+                                <div style={{position: 'absolute', left: '26px', top: '10px', bottom: '10px', width: '2px', background: '#e5e7eb'}}></div>
+                                
+                                <div style={{display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '1.5rem', position: 'relative', zIndex: 2}}>
+                                    <div style={{width: '14px', height: '14px', borderRadius: '50%', background: 'var(--primary-green)', marginTop: '4px', border: '2px solid white', boxShadow: '0 0 0 2px var(--primary-green)'}}></div>
+                                    <div>
+                                        <b style={{fontSize: '0.95rem', display: 'block'}}>Order Accepted</b>
+                                        
+                                    </div>
+                                </div>
+                                
+                                <div style={{display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '1.5rem', position: 'relative', zIndex: 2}}>
+                                    <div style={{width: '14px', height: '14px', borderRadius: '50%', background: d.status === 'IN_TRANSIT' ? 'var(--blue)' : '#e5e7eb', marginTop: '4px', border: '2px solid white'}}></div>
+                                    <div>
+                                        <b style={{fontSize: '0.95rem', display: 'block', color: d.status === 'IN_TRANSIT' ? '#111827' : '#9ca3af'}}>In Transit</b>
+                                        
+                                    </div>
+                                </div>
+
+                                <div style={{display: 'flex', gap: '1rem', alignItems: 'flex-start', position: 'relative', zIndex: 2}}>
+                                    <div style={{width: '14px', height: '14px', borderRadius: '50%', background: '#e5e7eb', marginTop: '4px', border: '2px solid white'}}></div>
+                                    <div>
+                                        <b style={{fontSize: '0.95rem', display: 'block', color: '#9ca3af'}}>Delivered</b>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+
+    const renderHistory = () => (
+        <div className="t-fade-in t-card" style={{padding: '1.5rem'}}>
+            
+            <table className="t-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Order Ref</th>
+                        <th>Date</th>
+                        <th>Fee</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {historyDeliveries.map(h => (
+                        <tr key={h.id}>
+                            <td>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.05rem', fontWeight: 500}}>
+                                    <div style={{width: '10px', height: '10px', borderRadius: '50%', background: 'var(--primary-green)'}}></div>
+                                    #{h.id}
+                                </div>
+                            </td>
+                            <td style={{color: '#6b7280'}}>Order #{h.order}</td>
+                            <td style={{color: '#6b7280'}}>{new Date(h.delivery_date || h.updated_at).toLocaleDateString()}</td>
+                            <td style={{fontWeight: 500}}>{h.delivery_fee || "N/A"} DZD</td>
+                            <td><span className="t-chip t-chip-green">{h.status}</span></td>
+                        </tr>
+                    ))}
+                    {historyDeliveries.length === 0 && (
+                        <tr><td colSpan="5" style={{textAlign: 'center', color: '#6b7280'}}>No history found.</td></tr>
+                    )}
+                </tbody>
+            </table>
+        </div>
+    );
+
+    const renderEarnings = () => (
+        <div className="t-fade-in">
+            <div className="t-stats-grid" style={{marginBottom: '1.5rem'}}>
+                <div className="t-stat-card">
+                    <p className="t-stat-title">This Week</p>
+                    <h3 className="t-stat-value">{earningsThisWeek} DA</h3>
+                </div>
+                <div className="t-stat-card">
+                    <p className="t-stat-title">This Month</p>
+                    <h3 className="t-stat-value">{earningsData.total_earnings || 0} DA</h3>
+                </div>
+                <div className="t-stat-card">
+                    <p className="t-stat-title">This Year</p>
+                    <h3 className="t-stat-value">{earningsData.total_earnings || 0} DA</h3>
+                </div>
+                <div className="t-stat-card">
+                    <p className="t-stat-title">Total Deliveries</p>
+                    <h3 className="t-stat-value">{earningsData.completed_count || historyDeliveries.length}</h3>
                 </div>
             </div>
-        );
-    }
 
-    // ─────────────────── PROFILE TAB ───────────────────
-    if (activeTab === "profile") {
-        return (
-            <div className="glass-panel max-600">
-                <div className="section-header">
-                    <h2>Vehicle Profile</h2>
-                    <p>Manage your transport capabilities</p>
-                </div>
-                <form className="profile-form" onSubmit={handleProfileUpdate}>
-                    <div className="form-group">
-                        <label>Vehicle Type</label>
-                        <input
-                            type="text"
-                            value={profileForm.vehicle_type}
-                            onChange={(e) => setProfileForm({ ...profileForm, vehicle_type: e.target.value })}
-                            placeholder="e.g. Refrigerated Truck"
-                        />
+            
+               
+
+               
+                    
+                 
+        </div>
+    );
+
+    const renderProfile = () => (
+        <div className="t-fade-in t-profile-layout">
+            <div className="t-card">
+                <form onSubmit={handleProfileUpdate}>
+                    <div style={{display: 'flex', gap: '1.5rem', alignItems: 'center', marginBottom: '2rem'}}>
+                        <div style={{width: '80px', height: '80px', borderRadius: '50%', background: 'var(--light-green)', color: 'var(--primary-green)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem', fontWeight: 600}}>
+                            {profileForm.name?.charAt(0) || "U"}
+                        </div>
+                        <div>
+                            <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                                <h2 style={{margin: 0, fontSize: '1.5rem'}}>{profileForm.name}</h2>
+                                <span className="t-chip t-chip-blue" style={{display: 'flex', alignItems: 'center', gap: '4px'}}><CheckCircle size={10}/> Verified</span>
+                            </div>
+                            <p style={{color: '#6b7280', margin: '4px 0 0 0'}}>Professional Transporter</p>
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label>License Plate</label>
-                        <input
-                            type="text"
-                            value={profileForm.license_plate}
-                            onChange={(e) => setProfileForm({ ...profileForm, license_plate: e.target.value })}
-                            placeholder="e.g. ABC-1234"
-                        />
+
+                    <div className="t-grid-50-50">
+                        <div className="t-form-group">
+                            <label>Full Name</label>
+                            <input type="text" value={profileForm.name} disabled />
+                        </div>
+                        <div className="t-form-group">
+                            <label>Phone Number</label>
+                            <input type="text" value={profileForm.phone} disabled placeholder="Managed in auth" />
+                        </div>
+                        <div className="t-form-group">
+                            <label>Vehicle Type</label>
+                            <input type="text" value={profileForm.vehicle_type} onChange={e => setProfileForm({...profileForm, vehicle_type: e.target.value})} />
+                        </div>
+                        <div className="t-form-group">
+                            <label>License Plate</label>
+                            <input type="text" value={profileForm.license_plate} onChange={e => setProfileForm({...profileForm, license_plate: e.target.value})} />
+                        </div>
+                        <div className="t-form-group">
+                            <label>Capacity (Kg)</label>
+                            <input type="number" value={profileForm.capacity} onChange={e => setProfileForm({...profileForm, capacity: e.target.value})} />
+                        </div>
                     </div>
-                    <div className="form-group">
-                        <label>Capacity (Tons)</label>
-                        <input
-                            type="number"
-                            step="0.1"
-                            value={profileForm.capacity}
-                            onChange={(e) => setProfileForm({ ...profileForm, capacity: parseFloat(e.target.value) })}
-                        />
+                    
+                    <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: '1rem'}}>
+                        <button type="submit" className="t-btn t-btn-primary" disabled={loading}>
+                            {loading ? "Saving..." : <><Save size={16} /> Save Changes</>}
+                        </button>
                     </div>
-                    <button type="submit" className="btn-primary" disabled={loading}>
-                        {loading ? "Saving..." : <><Save size={18} /> Update Profile</>}
-                    </button>
                 </form>
             </div>
-        );
-    }
 
-    return null;
+            <div className="t-card">
+                <h3 className="t-item-title" style={{marginBottom: '1.5rem'}}>Performance Summary</h3>
+                <div className="t-summary-list">
+                    <div className="t-summary-item">
+                        <span style={{color: '#6b7280'}}>Total Deliveries</span>
+                        <b style={{fontSize: '1.1rem'}}>{earningsData.completed_count || historyDeliveries.length}</b>
+                    </div>
+                    
+                    
+                    <div className="t-summary-item" style={{borderBottom: 'none'}}>
+                        <span style={{color: '#6b7280'}}>Total Earnings</span>
+                        <b style={{fontSize: '1.1rem', color: 'var(--amber)'}}>{earningsData.total_earnings || 0} DZD</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    return (
+        <div className="agrigov-transporter-dashboard">
+            {activeTab === "dashboard" && renderDashboard()}
+            {activeTab === "requests" && renderRequests()}
+            {activeTab === "status" && renderStatus()}
+            {activeTab === "history" && renderHistory()}
+            {activeTab === "earnings" && renderEarnings()}
+            {activeTab === "profile" && renderProfile()}
+
+            {selectedOrder && (
+                <RouteMapModal
+                    order={selectedOrder}
+                    onClose={() => setSelectedOrder(null)}
+                    onAccept={() => handleAccept(selectedOrder)}
+                />
+            )}
+
+            {/* Toasts overlay */}
+            <div className="t-toast-container">
+                {toasts.map(toast => (
+                    <div key={toast.id} className="t-toast">
+                        <CheckCircle size={18} className="t-toast-icon" />
+                        <span>{toast.message}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 };
 
 export default TransporterDashboard;

@@ -121,6 +121,11 @@ class Complaint(models.Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_resolved = models.BooleanField(default=False)
+    
+    category = models.CharField(max_length=50, choices=[('technical', 'Technical Issue'), ('payment', 'Payment'), ('delivery', 'Delivery Issue'), ('product', 'Product Quality'), ('other', 'Other')], default='other')
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('in_review', 'In Review'), ('resolved', 'Resolved'), ('rejected', 'Rejected')], default='pending')
+    admin_reply = models.TextField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.subject}"

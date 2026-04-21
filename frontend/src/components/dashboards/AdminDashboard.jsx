@@ -332,7 +332,7 @@ const AdminDashboard = ({ activeTab }) => {
                                     <td>{u.email}</td>
                                     <td>
                                         {u.approval_status === "pending" ? (
-                                            <span className="status-badge" style={{ backgroundColor: '#fef08a', color: '#854d0e' }}>Pending Approval</span>
+                                            <span className="status-badge" style={{ backgroundColor: '#fef08a', color: '#854d0e' }}>Pending</span>
                                         ) : u.is_active ? (
                                             <span className="status-badge" style={{ backgroundColor: '#d1fae5', color: '#065f46' }}>Active</span>
                                         ) : (
@@ -397,18 +397,17 @@ const AdminDashboard = ({ activeTab }) => {
                             <div className="modal-footer" style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
                                 {!selectedUser.is_deleted && (
                                     <>
-                                        {selectedUser.is_active ? (
+                                        {selectedUser.approval_status === 'pending' ? (
+                                            <button className="btn-success" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#10b981', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('approve_account', selectedUser.id)} disabled={loading}>
+                                                {loading ? "..." : "Approve Account"}
+                                            </button>
+                                        ) : selectedUser.is_active ? (
                                             <button className="btn-danger-outline" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: '1px solid #ef4444', color: '#ef4444', backgroundColor: 'transparent', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('suspend', selectedUser.id)} disabled={loading}>
                                                 {loading ? "..." : "Suspend"}
                                             </button>
                                         ) : (
-                                            <button className="btn-success" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#10b981', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>
+                                            <button className="btn-primary" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#3b82f6', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>
                                                 {loading ? "..." : "Activate"}
-                                            </button>
-                                        )}
-                                        {selectedUser.approval_status === 'pending' && (
-                                            <button className="btn-warning" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#eab308', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('approve_account', selectedUser.id)} disabled={loading}>
-                                                {loading ? "..." : "Approve Account"}
                                             </button>
                                         )}
                                         <button className="btn-danger" style={{ padding: '0.5rem 1rem', borderRadius: '6px', border: 'none', color: '#fff', backgroundColor: '#ef4444', cursor: 'pointer', fontWeight: 500 }} onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>
