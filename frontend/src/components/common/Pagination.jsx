@@ -3,8 +3,10 @@ import { ChevronLeft, ChevronRight, Sprout } from 'lucide-react';
 
 const Pagination = ({ currentPage, totalCount, pageSize, onPageChange }) => {
   const totalPages = Math.ceil(totalCount / pageSize);
+  if (totalCount === 0) return null;
 
-  if (totalPages <= 1) return null;
+  // Removed early return so pagination UI always displays at least page 1
+  // if (totalPages <= 1) return null;
 
   const pages = [];
   const maxVisiblePages = 5;

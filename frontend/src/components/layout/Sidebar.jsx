@@ -24,7 +24,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const buyerItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
     { key: "products", label: "Marketplace", icon: <Package size={18} /> },
-    { key: "cart", label: "My Cart", icon: <ShoppingCart size={18} /> },
+    { key: "cart", label: "Order Validation", icon: <ShoppingCart size={18} /> },
     { key: "orders", label: "My Orders", icon: <Clock size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },

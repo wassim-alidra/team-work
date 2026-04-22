@@ -15,6 +15,7 @@ const TransporterDashboard = ({ activeTab }) => {
     const [myDeliveries, setMyDeliveries] = useState([]);
     const [myDeliveriesCount, setMyDeliveriesCount] = useState(0);
     const [myDeliveriesPage, setMyDeliveriesPage] = useState(1);
+    const [statusPage, setStatusPage] = useState(1);
     const [earningsData, setEarningsData] = useState({ total_earnings: 0, completed_count: 0, history: [] });
     const [profileForm, setProfileForm] = useState({
         vehicle_type: "",
@@ -296,6 +297,7 @@ const TransporterDashboard = ({ activeTab }) => {
     // ─────────────────── STATUS TAB ───────────────────
     if (activeTab === "status") {
         const active = myDeliveries.filter(d => d.status !== "DELIVERED");
+        const paginatedActive = active.slice((statusPage - 1) * 10, statusPage * 10);
         return (
             <div className="glass-panel">
                 <div className="section-header">
@@ -303,7 +305,7 @@ const TransporterDashboard = ({ activeTab }) => {
                     <p>Manage your active missions</p>
                 </div>
                 <div className="grid-list">
-                    {active.map(d => (
+                    {paginatedActive.map(d => (
                         <div key={d.id} className="card-item status-card">
                             <div className="card-header">
                                 <h3>Delivery #{d.id}</h3>
@@ -331,6 +333,14 @@ const TransporterDashboard = ({ activeTab }) => {
                     ))}
                     {active.length === 0 && <p className="empty-state">No active deliveries to update.</p>}
                 </div>
+                {active.length > 0 && (
+                    <Pagination 
+                        currentPage={statusPage}
+                        totalCount={active.length}
+                        pageSize={10}
+                        onPageChange={setStatusPage}
+                    />
+                )}
             </div>
         );
     }

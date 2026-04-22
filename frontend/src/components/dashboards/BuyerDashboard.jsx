@@ -12,6 +12,7 @@ const BuyerDashboard = ({ activeTab }) => {
     const [myOrders, setMyOrders] = useState([]);
     const [myOrdersCount, setMyOrdersCount] = useState(0);
     const [myOrdersPage, setMyOrdersPage] = useState(1);
+    const [trackingPage, setTrackingPage] = useState(1);
 
     const [notifications, setNotifications] = useState([]);
     const [stats, setStats] = useState({
@@ -110,6 +111,25 @@ const BuyerDashboard = ({ activeTab }) => {
     const removeFromCart = () => {
         setCart(null);
         localStorage.removeItem("buyer_cart");
+    };
+
+    const handleUpdateQuantity = (newQty) => {
+        if (!cart) return;
+        if (newQty <= 0) return removeFromCart();
+        
+        // Wait, did we save quantity_available inside cart when adding? Yes, addToCart spreads product: { ...product, quantity, totalPrice }
+        if (newQty > cart.quantity_available) {
+            alert(`Only ${cart.quantity_available} ${cart.catalog_unit || 'kg'} available!`);
+            return;
+        }
+
+        const updatedItem = {
+            ...cart,
+            quantity: newQty,
+            totalPrice: (cart.price_per_kg * newQty).toFixed(2)
+        };
+        setCart(updatedItem);
+        localStorage.setItem("buyer_cart", JSON.stringify(updatedItem));
     };
 
     const handleCheckout = async () => {
@@ -303,7 +323,7 @@ const BuyerDashboard = ({ activeTab }) => {
         return (
             <div className="glass-panel animate-in max-600">
                 <div className="section-header">
-                    <h2><ShoppingCart size={24} /> My Cart</h2>
+                    <h2><ShoppingCart size={24} /> Order Validation</h2>
                     <p>Confirm your selection before placing the order</p>
                 </div>
                 
@@ -314,7 +334,25 @@ const BuyerDashboard = ({ activeTab }) => {
                             <div className="item-text">
                                 <h3>{cart.name || "Unnamed Product"}</h3>
                                 <p>From: {cart.farmer_name}</p>
-                                <div className="checkout-badge">{cart.quantity} {cart.catalog_unit || 'kg'}</div>
+                                <div className="checkout-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', background: 'transparent', color: '#1e293b' }}>
+                                    <button 
+                                        className="btn-sm"
+                                        onClick={() => handleUpdateQuantity(cart.quantity - 1)}
+                                        style={{ padding: '0 8px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}
+                                    >-</button>
+                                    <input 
+                                        type="number" 
+                                        value={cart.quantity}
+                                        onChange={(e) => handleUpdateQuantity(parseFloat(e.target.value) || 0)}
+                                        style={{ width: '50px', textAlign: 'center', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px', fontWeight: 'bold' }}
+                                    />
+                                    <button 
+                                        className="btn-sm"
+                                        onClick={() => handleUpdateQuantity(cart.quantity + 1)}
+                                        style={{ padding: '0 8px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}
+                                    >+</button>
+                                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{cart.catalog_unit || 'kg'}</span>
+                                </div>
                             </div>
                             <button className="btn-delete" onClick={removeFromCart}><Trash2 size={20} /></button>
                         </div>
@@ -404,6 +442,7 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "tracking") {
         const activeTracking = myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
+        const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         return (
             <div className="glass-panel animate-in">
                 <div className="section-header">
@@ -411,7 +450,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     <p>Real-time updates on your fresh produce</p>
                 </div>
                 <div className="grid-list">
-                    {activeTracking.map(o => (
+                    {paginatedTracking.map(o => (
                         <div key={o.id} className="card-item tracking-card">
                             <div className="card-header">
                                 <h3>Order #{o.id}</h3>
@@ -445,6 +484,14 @@ const BuyerDashboard = ({ activeTab }) => {
                         </div>
                     )}
                 </div>
+                {activeTracking.length > 0 && (
+                    <Pagination 
+                        currentPage={trackingPage}
+                        totalCount={activeTracking.length}
+                        pageSize={10}
+                        onPageChange={setTrackingPage}
+                    />
+                )}
             </div>
         );
     }

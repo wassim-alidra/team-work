@@ -73,6 +73,7 @@ const FarmerDashboard = ({ activeTab }) => {
     const [orders, setOrders] = useState([]);
     const [ordersCount, setOrdersCount] = useState(0);
     const [ordersPage, setOrdersPage] = useState(1);
+    const [trackingPage, setTrackingPage] = useState(1);
 
     const [notifications, setNotifications] = useState([]);
     
@@ -640,6 +641,7 @@ const FarmerDashboard = ({ activeTab }) => {
 
     if (activeTab === "tracking") {
         const activeTracking = orders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
+        const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         return (
             <div className="glass-panel animate-in">
                 <div className="section-header">
@@ -647,7 +649,7 @@ const FarmerDashboard = ({ activeTab }) => {
                     <p>Monitor your products en route to buyers</p>
                 </div>
                 <div className="grid-list">
-                    {activeTracking.map(o => (
+                    {paginatedTracking.map(o => (
                         <div key={o.id} className="card-item tracking-card">
                             <div className="card-header">
                                 <h3>Order #{o.id}</h3>
@@ -674,6 +676,14 @@ const FarmerDashboard = ({ activeTab }) => {
                     ))}
                     {activeTracking.length === 0 && <p className="empty-state">No active deliveries to track.</p>}
                 </div>
+                {activeTracking.length > 0 && (
+                    <Pagination 
+                        currentPage={trackingPage}
+                        totalCount={activeTracking.length}
+                        pageSize={10}
+                        onPageChange={setTrackingPage}
+                    />
+                )}
             </div>
         );
     }

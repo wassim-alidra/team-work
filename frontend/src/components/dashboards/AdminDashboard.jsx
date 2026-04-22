@@ -325,7 +325,9 @@ const AdminDashboard = ({ activeTab }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {users.filter(u => !u.is_deleted).map(u => (
+                            {users.filter(u => !u.is_deleted)
+                                .slice((usersPage - 1) * 10, usersPage * 10)
+                                .map(u => (
                                 <tr key={u.id}>
                                     <td><strong>{u.username}</strong></td>
                                     <td><span className={`role-pill role-${u.role.toLowerCase()}`}>{u.role}</span></td>

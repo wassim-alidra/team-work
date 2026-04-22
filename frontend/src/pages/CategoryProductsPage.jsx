@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { ArrowLeft, Search, Package, TrendingUp, AlertCircle, Loader2 } from "lucide-react";
+import Pagination from "../components/common/Pagination";
 
 /**
  * CategoryProductsPage component to show products (catalog items) belonging to an admin category.
@@ -13,15 +14,17 @@ const CategoryProductsPage = () => {
     
     const [category, setCategory] = useState(null);
     const [products, setProducts] = useState([]);
+    const [productsCount, setProductsCount] = useState(0);
+    const [productsPage, setProductsPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchData();
-    }, [id]);
+        fetchData(productsPage);
+    }, [id, productsPage]);
 
-    const fetchData = async () => {
+    const fetchData = async (page = 1) => {
         setLoading(true);
         try {
             // Fetch category details
@@ -29,8 +32,14 @@ const CategoryProductsPage = () => {
             setCategory(catRes.data);
 
             // Fetch catalog items for this category
-            const prodRes = await api.get(`market/catalog/?category=${id}`);
-            setProducts(prodRes.data);
+            const prodRes = await api.get(`market/catalog/?category=${id}&page=${page}`);
+            if (prodRes.data.results) {
+                setProducts(prodRes.data.results);
+                setProductsCount(prodRes.data.count);
+            } else {
+                setProducts(prodRes.data);
+                setProductsCount(prodRes.data.length);
+            }
         } catch (err) {
             console.error("Error fetching category products:", err);
             setError("Failed to load products. Please try again later.");
@@ -136,6 +145,12 @@ const CategoryProductsPage = () => {
                         ))}
                     </div>
                 )}
+                <Pagination 
+                    currentPage={productsPage}
+                    totalCount={productsCount}
+                    pageSize={10}
+                    onPageChange={setProductsPage}
+                />
             </div>
 
             <style>{`
