@@ -22,6 +22,7 @@ class ProductCatalog(models.Model):
     unit = models.CharField(max_length=20, default="kg")
     min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Minimum price per unit (DA)")
     max_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Maximum price per unit (DA)")
+    image = models.ImageField(upload_to='catalog_images/', null=True, blank=True)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_catalog_items')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

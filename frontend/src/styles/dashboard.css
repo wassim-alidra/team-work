@@ -768,18 +768,20 @@
     font-weight: 600;
 }
 
+/* Standardized Product Image Container */
 .product-icon-box {
-    width: 60px;
-    height: 60px;
+    width: 100% !important;
+    height: 180px !important;
     background: #f9fafb;
     border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #2f8f3a;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
 }
 
 .product-info h3 {
@@ -1891,4 +1893,96 @@
   line-height: 38px;
   margin: 0 3px 6px;
   text-align: center;
+}
+/* Product Background Image Enhancements */
+.product-card-banner, .catalog-product-image {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    background: #f1f5f9;
+}
+
+.product-card-banner img, .catalog-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card-item:hover .product-card-banner img, 
+.product-card-saas:hover .catalog-product-image img {
+    transform: scale(1.05);
+}
+
+.product-with-image {
+    padding: 0 !important;
+}
+
+.product-with-image .card-content {
+    padding: 1.5rem;
+}
+
+.product-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+.mini-item-card .item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Marketplace Highlights Layout Fix */
+.grid-list-mini {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.mini-item-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    transition: all 0.2s ease;
+}
+
+.mini-item-card:hover {
+    border-color: #2f8f3a;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.item-img {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 12px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #2f8f3a;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-icon-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }

@@ -116,6 +116,11 @@ const CategoryProductsPage = () => {
                     <div className="product-grid">
                         {filteredProducts.map(product => (
                             <div key={product.id} className="product-card-saas glass-panel group">
+                                {product.image && (
+                                    <div className="catalog-product-image">
+                                        <img src={product.image} alt={product.name} />
+                                    </div>
+                                )}
                                 <div className="card-content">
                                     <div className="meta-row">
                                         <div className="product-type-badge">Official Listing</div>

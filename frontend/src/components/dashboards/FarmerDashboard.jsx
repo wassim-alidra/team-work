@@ -439,6 +439,11 @@ const FarmerDashboard = ({ activeTab }) => {
                             <h3>Quick Add Product</h3>
                             <Plus size={20} color="#6b7280" />
                         </div>
+                        {selectedCatalogItem?.image && (
+                            <div style={{ marginBottom: '1rem', width: '100%', height: '100px', borderRadius: '8px', overflow: 'hidden' }}>
+                                <img src={selectedCatalogItem.image} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                        )}
                         <form className="mini-form" onSubmit={handleAddProduct}>
                             <select name="catalog" value={formData.catalog} onChange={handleChange} required>
                                 <option value="">Select Product Type</option>
@@ -555,7 +560,12 @@ const FarmerDashboard = ({ activeTab }) => {
                     <h3>Current Inventory</h3>
                     <div className="grid-list">
                         {products.map(p => (
-                            <div key={p.id} className="card-item animate-in">
+                            <div key={p.id} className="card-item animate-in product-with-image">
+                                {p.catalog_image && (
+                                    <div className="product-card-banner">
+                                        <img src={p.catalog_image} alt={p.name} />
+                                    </div>
+                                )}
                                 <div className="card-content">
                                     <div style={{display:'flex', justifyContent:'space-between', alignItems:'start'}}>
                                         <h3>{p.name || "Unnamed Product"}</h3>

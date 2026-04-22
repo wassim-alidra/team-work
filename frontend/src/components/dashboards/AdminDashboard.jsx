@@ -22,7 +22,7 @@ const AdminDashboard = ({ activeTab }) => {
 
     const [notifMessage, setNotifMessage] = useState("");
     const [notifTarget, setNotifTarget] = useState("all");
-    const [catalogForm, setCatalogForm] = useState({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg" });
+    const [catalogForm, setCatalogForm] = useState({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg", image: null });
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null); // For Category card edit
     const [selectedCatalogItem, setSelectedCatalogItem] = useState(null); // For Catalog item edit
@@ -210,16 +210,24 @@ const AdminDashboard = ({ activeTab }) => {
 
         setLoading(true);
         try {
+            const formData = new FormData();
+            Object.keys(catalogForm).forEach(key => {
+                if (catalogForm[key] !== null && catalogForm[key] !== undefined && catalogForm[key] !== "") {
+                    if (key === 'image' && !(catalogForm[key] instanceof File)) return; // don't send string URLs back to image field
+                    formData.append(key, catalogForm[key]);
+                }
+            });
+
             if (selectedCatalogItem) {
-                await api.patch(`market/catalog/${selectedCatalogItem.id}/`, catalogForm);
+                await api.patch(`market/catalog/${selectedCatalogItem.id}/`, formData, { headers: { "Content-Type": "multipart/form-data" } });
                 alert("Official price updated successfully!");
             } else {
-                await api.post("market/catalog/", catalogForm);
+                await api.post("market/catalog/", formData, { headers: { "Content-Type": "multipart/form-data" } });
                 alert("New product added to official price list!");
             }
             
             // Success cleanup
-            setCatalogForm({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg" });
+            setCatalogForm({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg", image: null });
             setSelectedCatalogItem(null);
             setShowAddModal(false);
             
@@ -479,7 +487,8 @@ const AdminDashboard = ({ activeTab }) => {
                                     min_price: "", 
                                     max_price: "", 
                                     category: (catalogFilter !== "all") ? catalogFilter : "", 
-                                    unit: "kg" 
+                                    unit: "kg",
+                                    image: null
                                 }); 
                                 setSelectedCatalogItem(null); 
                                 setShowAddModal(true); 
@@ -548,9 +557,9 @@ const AdminDashboard = ({ activeTab }) => {
                                             <div className="product-cell">
                                                 <div 
                                                     className="product-avatar" 
-                                                    style={{ backgroundColor: item.category_color || "#f1f5f9", color: item.category_color ? "#fff" : "#64748b" }}
+                                                    style={{ backgroundColor: item.category_color || "#f1f5f9", color: item.category_color ? "#fff" : "#64748b", overflow: 'hidden' }}
                                                 >
-                                                    {item.name.charAt(0).toUpperCase()}
+                                                    {item.image ? <img src={item.image} alt={item.name} style={{width:'100%', height:'100%', objectFit:'cover'}} /> : item.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <strong>{item.name}</strong>
                                             </div>
@@ -590,7 +599,8 @@ const AdminDashboard = ({ activeTab }) => {
                                                             min_price: item.min_price, 
                                                             max_price: item.max_price, 
                                                             category: item.category, 
-                                                            unit: item.unit 
+                                                            unit: item.unit,
+                                                            image: null
                                                         }); 
                                                         setShowAddModal(true); 
                                                     }}
@@ -713,6 +723,20 @@ const AdminDashboard = ({ activeTab }) => {
                                         onChange={e => setCatalogForm({...catalogForm, description: e.target.value})} 
                                         placeholder="Optional internal notes..."
                                     ></textarea>
+                                </div>
+                                <div className="form-group-compact mt-2">
+                                    <label>Product Background Image</label>
+                                    <input 
+                                        type="file" 
+                                        accept="image/*"
+                                        onChange={e => setCatalogForm({...catalogForm, image: e.target.files[0]})} 
+                                    />
+                                    {selectedCatalogItem?.image && !catalogForm.image && (
+                                        <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <img src={selectedCatalogItem.image} alt="current" style={{ height: '40px', borderRadius: '4px' }} />
+                                            <span style={{ fontSize: '0.8rem', color: '#64748b' }}> Current Background</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -907,8 +931,11 @@ const AdminDashboard = ({ activeTab }) => {
                         background: white;
                         width: 100%;
                         max-width: 440px;
+                        max-height: 90vh;
                         border-radius: 20px;
                         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                        display: flex;
+                        flex-direction: column;
                         overflow: hidden;
                     }
                     .modal-header-small {
@@ -950,7 +977,14 @@ const AdminDashboard = ({ activeTab }) => {
                     }
                     .close-btn-round:hover { background: #e2e8f0; color: #1e293b; }
 
-                    .modal-body-small { padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+                    .modal-body-small { 
+                        padding: 1.5rem; 
+                        display: flex; 
+                        flex-direction: column; 
+                        gap: 0.75rem; 
+                        overflow-y: auto; 
+                        flex: 1;
+                    }
                     .form-group-compact { display: flex; flex-direction: column; gap: 0.4rem; }
                     .form-group-compact label { font-size: 0.85rem; font-weight: 600; color: #475569; }
                     .form-group-compact input, .form-group-compact select, .form-group-compact textarea {
@@ -965,7 +999,7 @@ const AdminDashboard = ({ activeTab }) => {
                         border-color: #2f8f3a;
                         box-shadow: 0 0 0 3px rgba(47, 143, 58, 0.1);
                     }
-                    .form-row-compact { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+                    .form-row-compact { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
                     .modal-footer-small {
                         padding: 1.25rem 1.5rem;
                         background: #f8fafc;

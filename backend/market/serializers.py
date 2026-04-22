@@ -34,6 +34,7 @@ class ProductSerializer(serializers.ModelSerializer):
     description = serializers.ReadOnlyField()
     catalog_name = serializers.SerializerMethodField()
     catalog_unit = serializers.ReadOnlyField(source='catalog.unit')
+    catalog_image = serializers.SerializerMethodField()
     farm_name = serializers.CharField(source='farm.name', read_only=True)
     farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
     
@@ -44,6 +45,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def get_catalog_name(self, obj):
         return obj.catalog.name if obj.catalog else "Uncategorized"
+
+    def get_catalog_image(self, obj):
+        if obj.catalog and obj.catalog.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.catalog.image.url)
+            return obj.catalog.image.url
+        return None
 
 class OrderSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)

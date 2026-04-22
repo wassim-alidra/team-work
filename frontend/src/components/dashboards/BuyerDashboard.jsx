@@ -243,7 +243,9 @@ const BuyerDashboard = ({ activeTab }) => {
                         <div className="grid-list-mini">
                             {products.slice(0, 4).map(p => (
                                 <div key={p.id} className="mini-item-card">
-                                    <div className="item-img">{p.name?.[0] || 'P'}</div>
+                                    <div className="item-img">
+                                        {p.catalog_image ? <img src={p.catalog_image} alt={p.name} style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'8px'}} /> : (p.name?.[0] || 'P')}
+                                    </div>
                                     <div className="item-details">
                                         <strong>{p.name || "Unnamed Product"}</strong>
                                         <span>{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</span>
@@ -297,7 +299,9 @@ const BuyerDashboard = ({ activeTab }) => {
                 <div className="product-marketplace-grid mt-2">
                     {products.map(p => (
                         <div key={p.id} className="product-card-premium">
-                            <div className="product-icon-box">{p.name?.[0] || 'P'}</div>
+                            <div className="product-icon-box">
+                                {p.catalog_image ? <img src={p.catalog_image} alt={p.name} className="product-card-img" /> : (p.name?.[0] || 'P')}
+                            </div>
                             <div className="product-info">
                                 <h3>{p.name || "Unnamed Product"}</h3>
                                 <p className="farmer-name">By {p.farmer_name}</p>
