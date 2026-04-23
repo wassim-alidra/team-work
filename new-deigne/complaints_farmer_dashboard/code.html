@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgriMarket Central - Complaints</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#8aa38f",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#092012",
+                        "surface-tint": "#45645e",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-container": "#316e52",
+                        "secondary-fixed": "#b1f0ce",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#abcec5",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c1c8c5",
+                        "on-surface": "#191c1d",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "secondary-container": "#aeeecb",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#c7eae1",
+                        "primary-container": "#1a3a34",
+                        "surface-dim": "#d9dadb",
+                        "surface-container-low": "#f3f4f5",
+                        "surface": "#f8f9fa",
+                        "on-primary-fixed-variant": "#2d4d46",
+                        "background": "#f8f9fa",
+                        "secondary": "#2c694e",
+                        "primary": "#02241f",
+                        "on-background": "#191c1d",
+                        "secondary-fixed-dim": "#95d4b3",
+                        "on-primary-fixed": "#00201b",
+                        "tertiary-fixed": "#cee9d3",
+                        "on-primary-container": "#83a49c",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#354c3b",
+                        "surface-bright": "#f8f9fa",
+                        "primary-fixed-dim": "#abcec5",
+                        "on-surface-variant": "#414846",
+                        "tertiary-container": "#23392a",
+                        "on-secondary-fixed-variant": "#0e5138",
+                        "surface-container": "#edeeef",
+                        "tertiary-fixed-dim": "#b3cdb7",
+                        "tertiary": "#0d2315",
+                        "outline": "#717976",
+                        "on-secondary-fixed": "#002114",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "container-max": "1280px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "80px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "h3": ["Public Sans"],
+                        "h1": ["Public Sans"],
+                        "body-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h2": ["Public Sans"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "h3": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "h1": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["16px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased selection:bg-primary selection:text-on-primary">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full flex items-center justify-between px-6 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 z-50 shadow-sm dark:shadow-none font-['Public_Sans'] antialiased">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-emerald-700 dark:text-emerald-400 text-3xl">agriculture</span>
+<span class="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-100">AgriMarket Central</span>
+</div>
+<div class="flex items-center gap-sm">
+<button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="fixed left-0 top-16 bottom-0 z-40 overflow-y-auto h-screen w-64 border-r hidden md:flex flex-col bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-['Public_Sans'] text-sm font-medium">
+<div class="p-lg flex flex-col items-center border-b border-slate-200 dark:border-slate-800">
+<div class="w-16 h-16 rounded-full bg-surface-container-high mb-sm overflow-hidden border-2 border-emerald-100">
+<img alt="Ministerial User Portrait" class="w-full h-full object-cover" data-alt="professional portrait of a middle-aged man in a tailored suit against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa24WgZSX3YU1laTwXX_m868honU5FzntmnBwoU6CpWzuDAsj_i7yb9KSlxVm8VWo_f-JVQLCUVENhYQ7sHa7SzzWOOx9Oo2yc8Sx84ngtB_uMOJZkrl6JJo861GWHFLL4yd_ZzxYKmq3sD5M8beD3W8ugUP1B0KoJ7iayLNt98ZGmwhb8fI90axItdAMTzDOvfHyxBYspYxPOns8BmRbxhVuybQJK3k6hWn-MlWf_LpAFnxlCRrnY0QmPD_AHrRmTB79hzmoTy-U"/>
+</div>
+<span class="text-emerald-900 dark:text-emerald-100 font-semibold">Platform Admin</span>
+<span class="text-xs text-slate-500 dark:text-slate-400 mb-sm">Ministerial Oversight</span>
+<div class="bg-secondary-fixed text-on-secondary-fixed px-sm py-xs rounded-full text-xs flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                Verified Status
+            </div>
+</div>
+<ul class="flex flex-col py-md flex-grow">
+<li>
+<a class="flex items-center gap-sm text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-sm text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                    Inventory
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-sm text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+                    Logistics
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-sm text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">storefront</span>
+                    Marketplace
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-sm text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+</li>
+</ul>
+<div class="border-t border-slate-200 dark:border-slate-800 py-md">
+<ul>
+<li>
+<a class="flex items-center gap-sm text-emerald-700 dark:text-emerald-400 border-l-4 border-emerald-700 dark:border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 py-3 px-4 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                        Support
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-sm text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+                        Logout
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full h-20 z-50 flex justify-around items-center px-4 pb-safe bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(26,58,52,0.08)] rounded-t-2xl md:hidden font-['Public_Sans'] text-[10px] font-bold uppercase tracking-wider">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">agriculture</span>
+            My Farm
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">shopping_cart</span>
+            Orders
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 w-16 h-14 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+            Profile
+        </a>
+</nav>
+<!-- Main Content Canvas -->
+<main class="pt-16 md:pl-64 pb-20 md:pb-0 min-h-screen">
+<div class="max-w-container-max mx-auto px-gutter py-xl">
+<!-- Page Header -->
+<div class="mb-xl">
+<h1 class="font-h1 text-h1 text-primary mb-sm">Support &amp; Disputes</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                    Submit new complaints or track the resolution status of existing issues. Our support team prioritizes fair and timely mediation.
+                </p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: File a Complaint Form -->
+<div class="lg:col-span-5 flex flex-col gap-gutter">
+<section class="bg-surface-container-lowest rounded-xl p-lg border border-surface-container-high relative overflow-hidden">
+<!-- Decorative top accent -->
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary-fixed"></div>
+<div class="flex items-center gap-sm mb-lg">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">edit_document</span>
+</div>
+<h2 class="font-h3 text-h3 text-primary">File a New Complaint</h2>
+</div>
+<form class="flex flex-col gap-md">
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-xs" for="category">Issue Category</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-DEFAULT px-md py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" id="category">
+<option disabled="" selected="" value="">Select a category</option>
+<option value="logistics">Logistics &amp; Delivery Delay</option>
+<option value="quality">Product Quality Dispute</option>
+<option value="payment">Payment &amp; Invoicing</option>
+<option value="platform">Platform Technical Issue</option>
+</select>
+</div>
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-xs" for="description">Detailed Description</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/50 rounded-DEFAULT px-md py-sm font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none placeholder-outline" id="description" placeholder="Provide specific details about your issue..." rows="4"></textarea>
+</div>
+<div>
+<label class="font-label-caps text-label-caps text-on-surface-variant block mb-xs">Supporting Documents</label>
+<div class="border-2 border-dashed border-outline-variant/40 bg-surface-container-low rounded-lg p-lg text-center cursor-pointer hover:bg-surface-container transition-colors duration-200">
+<span class="material-symbols-outlined text-outline text-3xl mb-xs">cloud_upload</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-xs">Drag and drop files here or click to browse</p>
+<p class="font-label-caps text-label-caps text-outline">JPG, PNG, PDF up to 10MB</p>
+</div>
+</div>
+<button class="mt-sm bg-primary text-on-primary font-button text-button py-sm px-lg rounded-lg hover:bg-surface-tint transition-colors duration-200 flex items-center justify-center gap-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                                Submit Complaint
+                            </button>
+</form>
+</section>
+</div>
+<!-- Right Column: My Complaints List -->
+<div class="lg:col-span-7 flex flex-col gap-gutter">
+<section class="bg-surface-container-lowest rounded-xl p-lg border border-surface-container-high h-full">
+<div class="flex items-center justify-between mb-lg">
+<h2 class="font-h3 text-h3 text-primary">My Complaints</h2>
+<button class="text-secondary font-label-caps text-label-caps hover:text-primary transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                                Filter
+                            </button>
+</div>
+<div class="flex flex-col gap-md">
+<!-- Dispute Card: Under Investigation -->
+<div class="border border-surface-container-high rounded-lg p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline mb-xs">ID: #CMP-2023-089</span>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface">Late Delivery - Order #4492</h3>
+</div>
+<div class="bg-tertiary-container text-on-tertiary-container px-sm py-xs rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">pending</span>
+<span class="font-label-caps text-label-caps">Under Investigation</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md line-clamp-2">
+                                    The transport assigned to pick up the grain harvest was delayed by 48 hours without prior notification, risking exposure to recent rainfall.
+                                </p>
+<div class="flex items-center justify-between border-t border-surface-variant pt-sm">
+<span class="font-body-sm text-body-sm text-outline">Submitted: Oct 12, 2023</span>
+<button class="text-secondary font-button text-button hover:underline text-sm">View Details</button>
+</div>
+</div>
+<!-- Dispute Card: Open -->
+<div class="border border-surface-container-high rounded-lg p-md hover:bg-surface-container-low transition-colors duration-200">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline mb-xs">ID: #CMP-2023-094</span>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface">Discrepancy in Weight Measurement</h3>
+</div>
+<div class="bg-surface-variant text-on-surface-variant px-sm py-xs rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">radio_button_unchecked</span>
+<span class="font-label-caps text-label-caps">Open</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md line-clamp-2">
+                                    Upon arrival at the regional silo, the registered weight was 5% lower than the farm's certified scale output. Requesting recalibration check.
+                                </p>
+<div class="flex items-center justify-between border-t border-surface-variant pt-sm">
+<span class="font-body-sm text-body-sm text-outline">Submitted: Oct 15, 2023</span>
+<button class="text-secondary font-button text-button hover:underline text-sm">View Details</button>
+</div>
+</div>
+<!-- Dispute Card: Resolved -->
+<div class="border border-surface-container-high rounded-lg p-md bg-surface opacity-80">
+<div class="flex justify-between items-start mb-sm">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-outline mb-xs">ID: #CMP-2023-041</span>
+<h3 class="font-body-lg text-body-lg font-medium text-on-surface">Payment Processing Delay</h3>
+</div>
+<div class="bg-secondary-fixed text-on-secondary-fixed px-sm py-xs rounded-full flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span class="font-label-caps text-label-caps">Resolved</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md line-clamp-2">
+                                    The automated payment for lot #102 was flagged by the banking gateway. The issue has been manually cleared and funds dispersed.
+                                </p>
+<div class="flex items-center justify-between border-t border-surface-variant pt-sm">
+<span class="font-body-sm text-body-sm text-outline">Closed: Sep 28, 2023</span>
+<button class="text-secondary font-button text-button hover:underline text-sm">View Resolution</button>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

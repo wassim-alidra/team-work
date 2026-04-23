@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Track Delivery - AgriMarket Central</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#8aa38f",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#092012",
+                        "surface-tint": "#45645e",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-container": "#316e52",
+                        "secondary-fixed": "#b1f0ce",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#abcec5",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c1c8c5",
+                        "on-surface": "#191c1d",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "secondary-container": "#aeeecb",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#c7eae1",
+                        "primary-container": "#1a3a34",
+                        "surface-dim": "#d9dadb",
+                        "surface-container-low": "#f3f4f5",
+                        "surface": "#f8f9fa",
+                        "on-primary-fixed-variant": "#2d4d46",
+                        "background": "#f8f9fa",
+                        "secondary": "#2c694e",
+                        "primary": "#02241f",
+                        "on-background": "#191c1d",
+                        "secondary-fixed-dim": "#95d4b3",
+                        "on-primary-fixed": "#00201b",
+                        "tertiary-fixed": "#cee9d3",
+                        "on-primary-container": "#83a49c",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#354c3b",
+                        "surface-bright": "#f8f9fa",
+                        "primary-fixed-dim": "#abcec5",
+                        "on-surface-variant": "#414846",
+                        "tertiary-container": "#23392a",
+                        "on-secondary-fixed-variant": "#0e5138",
+                        "surface-container": "#edeeef",
+                        "tertiary-fixed-dim": "#b3cdb7",
+                        "tertiary": "#0d2315",
+                        "outline": "#717976",
+                        "on-secondary-fixed": "#002114",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "container-max": "1280px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "80px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "h3": ["Public Sans"],
+                        "h1": ["Public Sans"],
+                        "body-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h2": ["Public Sans"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "h3": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "h1": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["16px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full flex items-center justify-between px-6 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md font-['Public_Sans'] antialiased border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none z-50">
+<div class="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-100">
+            AgriMarket Central
+        </div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 cursor-pointer active:scale-95 p-2 rounded-full" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 cursor-pointer active:scale-95 p-2 rounded-full" data-icon="help_outline">help_outline</span>
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 cursor-pointer active:scale-95 p-2 rounded-full" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="h-screen w-64 border-r hidden md:flex flex-col bg-slate-50 dark:bg-slate-950 font-['Public_Sans'] text-sm font-medium border-slate-200 dark:border-slate-800 fixed left-0 top-16 bottom-0 z-40 overflow-y-auto">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+<img alt="Ministerial User Portrait" class="w-12 h-12 rounded-full mb-3 object-cover" data-alt="professional headshot of a government official in a suit against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyCziPLfWTI_5lZAEJ_mmOo12W6Qrho8ITWuO2nzJkbFvyj3DOl5YgezYxQXQN-cyJdHfg0J5abDjUqou3wUpiZS-JaVDsGRVSWJGlkn6f1ZrpZgD78aGtuErRcD45r45s-vuw5X6KTz14gmyG89-HWrnmfDQPKXK5VUbVGhCu2-dp4o6thCl4AV5ZfOj_pwQy-nEb34AUVvxIH2XglGb3_A-I_0y_SSU6mvHpHSAlOENxhWDrBmwOtqpCCaCEG32zveYxDhN9688"/>
+<h2 class="text-emerald-700 dark:text-emerald-400 font-bold">Platform Admin</h2>
+<p class="text-slate-500 text-xs mt-1">Ministerial Oversight</p>
+<div class="mt-3 inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 rounded text-xs">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+                Verified Status
+            </div>
+</div>
+<div class="flex-1 py-4 flex flex-col gap-1">
+<a class="text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+            </a>
+<a class="text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span> Inventory
+            </a>
+<!-- Active State -->
+<a class="text-emerald-700 dark:text-emerald-400 border-l-4 border-emerald-700 dark:border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 py-3 px-4 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping" style="font-variation-settings: 'FILL' 1;">local_shipping</span> Logistics
+            </a>
+<a class="text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="storefront">storefront</span> Marketplace
+            </a>
+<a class="text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+            </a>
+</div>
+<div class="border-t border-slate-200 dark:border-slate-800 py-4 flex flex-col gap-1">
+<a class="text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span> Support
+            </a>
+<a class="text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span> Logout
+            </a>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full h-20 z-50 flex justify-around items-center px-4 pb-safe bg-white dark:bg-slate-900 font-['Public_Sans'] text-[10px] font-bold uppercase tracking-wider border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(26,58,52,0.08)] rounded-t-2xl md:hidden">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 p-2 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="home">home</span> Home
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 p-2 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="agriculture">agriculture</span> My Farm
+        </a>
+<!-- Active State -->
+<a class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-100 rounded-xl px-4 py-1 scale-100 active:scale-90 transition-transform duration-100" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="shopping_cart" style="font-variation-settings: 'FILL' 1;">shopping_cart</span> Orders
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 active:bg-slate-100 dark:active:bg-slate-800 scale-100 active:scale-90 transition-transform duration-100 p-2 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]" data-icon="person">person</span> Profile
+        </a>
+</nav>
+<!-- Main Content Area -->
+<main class="pt-[64px] pb-[80px] md:pl-64 md:pb-0 min-h-screen flex flex-col lg:flex-row bg-surface">
+<!-- Map View Area (Left/Top) -->
+<section class="flex-1 relative min-h-[512px] lg:min-h-screen bg-surface-container-low border-b lg:border-b-0 lg:border-r border-outline-variant overflow-hidden">
+<!-- Simulated Map Background -->
+<img class="absolute inset-0 w-full h-full object-cover opacity-80" data-alt="aerial satellite view of agricultural fields and connecting roads on a clear day" data-location="Agricultural Region Route" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8-29DsM7J9uk15a7sJop-8zSvOGJmSezVhFtT9dV1fR33FAWYVkPTwz1lWcE0Hl6sYXUsZ9Z-44YM4PsXZ8WlsQ-BWHVa4QNBhzzw06BNgM9JPrU2ulDH2qqfWuU3oub3VD9Pb17mRw8DeI85Ro1UoF5JB8GehUpSK7dy4c6h10rlseJKqJURYXY8eGe_nF1XKno4mJ-Z0fM3zO9VUe6JB0Arqv60wYTU-wMZkxYx3A_l9cxIhg0ND7dKkpLDEXKcy8lrUzH2yCA"/>
+<!-- Map Overlay UI -->
+<div class="absolute top-lg left-lg right-lg flex justify-between items-start pointer-events-none">
+<div class="bg-surface-container-lowest/90 backdrop-blur-md rounded-lg p-md shadow-sm border border-outline-variant/30 pointer-events-auto">
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-xs">Current Mission</p>
+<h1 class="font-h3 text-h3 text-on-surface">Route #TRK-9824</h1>
+</div>
+<div class="bg-primary text-on-primary rounded-full px-lg py-sm shadow-md flex items-center gap-sm pointer-events-auto">
+<span class="material-symbols-outlined text-[20px]" data-icon="timer">timer</span>
+<span class="font-body-md text-body-md font-medium">ETA: 45 Mins</span>
+</div>
+</div>
+<!-- Conceptual Route Markers (Center of screen roughly) -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center">
+<div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
+<div class="w-6 h-6 bg-primary text-on-primary rounded-full flex items-center justify-center shadow-lg pointer-events-auto">
+<span class="material-symbols-outlined text-[16px]" data-icon="local_shipping" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Delivery Timeline Panel (Right/Bottom) -->
+<aside class="w-full lg:w-[420px] bg-surface-container-lowest flex flex-col h-full lg:h-[calc(100vh-64px)] overflow-y-auto">
+<!-- Header Status -->
+<div class="p-lg border-b border-outline-variant/50">
+<div class="flex justify-between items-center mb-md">
+<span class="inline-flex items-center gap-xs px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-[14px]" data-icon="local_shipping" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+                        In Transit
+                    </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Updated 2 mins ago</span>
+</div>
+<h2 class="font-h2 text-h2 text-on-surface mb-xs">Delivery to Hub B</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Order #ORD-773-XYZ</p>
+</div>
+<!-- Driver Info Card -->
+<div class="p-lg border-b border-outline-variant/50">
+<p class="font-label-caps text-label-caps text-outline mb-sm">Assigned Driver</p>
+<div class="flex items-center gap-md bg-surface p-md rounded-xl border border-outline-variant/30">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-[24px] text-on-surface-variant" data-icon="person">person</span>
+</div>
+<div class="flex-1">
+<p class="font-body-lg text-body-lg font-medium text-on-surface">Samuel O.</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Heavy Truck • KXY 123</p>
+</div>
+<button class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-primary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="call">call</span>
+</button>
+</div>
+</div>
+<!-- Stepper Timeline -->
+<div class="p-lg flex-1">
+<p class="font-label-caps text-label-caps text-outline mb-md">Delivery Progress</p>
+<div class="relative ml-xs">
+<!-- Vertical Line connecting steps -->
+<div class="absolute left-[15px] top-4 bottom-8 w-[2px] bg-surface-variant z-0"></div>
+<div class="absolute left-[15px] top-4 h-[50%] w-[2px] bg-primary z-0"></div> <!-- Active Progress -->
+<!-- Step 1: Confirmed -->
+<div class="relative z-10 flex gap-md mb-xl">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-medium text-on-surface">Order Confirmed</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">08:00 AM • Farm Origin</p>
+</div>
+</div>
+<!-- Step 2: Picked Up -->
+<div class="relative z-10 flex gap-md mb-xl">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[16px]" data-icon="check" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div>
+<p class="font-body-md text-body-md font-medium text-on-surface">Cargo Loaded</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">09:15 AM • Verification ID: V-442</p>
+</div>
+</div>
+<!-- Step 3: In Transit (Active) -->
+<div class="relative z-10 flex gap-md mb-xl">
+<div class="w-8 h-8 rounded-full border-2 border-primary bg-surface-container-lowest text-primary flex items-center justify-center shrink-0 shadow-sm ring-4 ring-primary/10">
+<span class="material-symbols-outlined text-[18px]" data-icon="local_shipping" style="font-variation-settings: 'FILL' 1;">local_shipping</span>
+</div>
+<div>
+<p class="font-body-lg text-body-lg font-semibold text-primary">In Transit to Hub</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Currently on Route 42</p>
+</div>
+</div>
+<!-- Step 4: Delivered (Pending) -->
+<div class="relative z-10 flex gap-md">
+<div class="w-8 h-8 rounded-full border-2 border-outline-variant bg-surface-container-lowest text-outline-variant flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-outline">Delivery at Destination</p>
+<p class="font-body-sm text-body-sm text-outline-variant mt-xs">Estimated 11:30 AM</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Cargo Summary -->
+<div class="p-lg bg-surface-container-low mt-auto">
+<p class="font-label-caps text-label-caps text-outline mb-sm">Cargo Summary</p>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-lowest p-sm rounded border border-outline-variant/30">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Commodity</p>
+<p class="font-body-md text-body-md font-medium text-on-surface">Premium Maize</p>
+</div>
+<div class="bg-surface-container-lowest p-sm rounded border border-outline-variant/30">
+<p class="font-body-sm text-body-sm text-on-surface-variant">Total Weight</p>
+<p class="font-body-md text-body-md font-medium text-on-surface">2.5 Tons</p>
+</div>
+</div>
+</div>
+</aside>
+</main>
+</body></html>

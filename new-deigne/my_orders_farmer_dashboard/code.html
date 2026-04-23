@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Orders - AgriMarket Central</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#8aa38f",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#092012",
+                        "surface-tint": "#45645e",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-secondary-container": "#316e52",
+                        "secondary-fixed": "#b1f0ce",
+                        "on-secondary": "#ffffff",
+                        "surface-container-high": "#e7e8e9",
+                        "inverse-primary": "#abcec5",
+                        "surface-variant": "#e1e3e4",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c1c8c5",
+                        "on-surface": "#191c1d",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "secondary-container": "#aeeecb",
+                        "inverse-on-surface": "#f0f1f2",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#c7eae1",
+                        "primary-container": "#1a3a34",
+                        "surface-dim": "#d9dadb",
+                        "surface-container-low": "#f3f4f5",
+                        "surface": "#f8f9fa",
+                        "on-primary-fixed-variant": "#2d4d46",
+                        "background": "#f8f9fa",
+                        "secondary": "#2c694e",
+                        "primary": "#02241f",
+                        "on-background": "#191c1d",
+                        "secondary-fixed-dim": "#95d4b3",
+                        "on-primary-fixed": "#00201b",
+                        "tertiary-fixed": "#cee9d3",
+                        "on-primary-container": "#83a49c",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#354c3b",
+                        "surface-bright": "#f8f9fa",
+                        "primary-fixed-dim": "#abcec5",
+                        "on-surface-variant": "#414846",
+                        "tertiary-container": "#23392a",
+                        "on-secondary-fixed-variant": "#0e5138",
+                        "surface-container": "#edeeef",
+                        "tertiary-fixed-dim": "#b3cdb7",
+                        "tertiary": "#0d2315",
+                        "outline": "#717976",
+                        "on-secondary-fixed": "#002114",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "xs": "4px",
+                        "base": "8px",
+                        "container-max": "1280px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "lg": "24px",
+                        "xxl": "80px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "h3": ["Public Sans"],
+                        "h1": ["Public Sans"],
+                        "body-lg": ["Inter"],
+                        "button": ["Inter"],
+                        "body-md": ["Inter"],
+                        "h2": ["Public Sans"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "h3": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "h1": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "button": ["16px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.25", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "1.5", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md text-emerald-700 dark:text-emerald-400 font-['Public_Sans'] antialiased border-b border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none fixed top-0 left-0 w-full flex items-center justify-between px-6 h-16 z-50">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight text-emerald-900 dark:text-emerald-100">AgriMarket Central</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 p-2 rounded-full" data-icon="search">search</span>
+<span class="material-symbols-outlined cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 p-2 rounded-full" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 p-2 rounded-full" data-icon="help_outline">help_outline</span>
+<span class="material-symbols-outlined cursor-pointer active:scale-95 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors duration-200 p-2 rounded-full" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<!-- SideNavBar (Desktop) -->
+<nav class="bg-slate-50 dark:bg-slate-950 text-emerald-700 dark:text-emerald-400 font-['Public_Sans'] text-sm font-medium border-r border-slate-200 dark:border-slate-800 h-screen w-64 hidden md:flex flex-col fixed left-0 top-16 bottom-0 z-40 overflow-y-auto">
+<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold">
+                    PA
+                </div>
+<div>
+<div class="font-bold text-on-surface">Platform Admin</div>
+<div class="text-xs text-slate-500">Ministerial Oversight</div>
+</div>
+</div>
+<div class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-semibold mt-2">
+<span class="material-symbols-outlined text-[14px]">verified</span>
+                Verified Status
+            </div>
+</div>
+<div class="flex flex-col py-4 flex-grow gap-1">
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">local_shipping</span>
+                Logistics
+            </a>
+<a class="flex items-center gap-3 text-emerald-700 dark:text-emerald-400 border-l-4 border-emerald-700 dark:border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 py-3 px-4 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">storefront</span>
+                Marketplace
+            </a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="border-t border-slate-200 dark:border-slate-800 py-4 mt-auto">
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 text-slate-600 dark:text-slate-400 py-3 px-4 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-emerald-600 transition-all duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</div>
+</nav>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 font-['Public_Sans'] text-[10px] font-bold uppercase tracking-wider border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(26,58,52,0.08)] docked full-width bottom-0 rounded-t-2xl md:hidden fixed left-0 w-full h-20 z-50 flex justify-around items-center px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 scale-100 active:scale-90 transition-transform duration-100 active:bg-slate-100 dark:active:bg-slate-800 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 scale-100 active:scale-90 transition-transform duration-100 active:bg-slate-100 dark:active:bg-slate-800 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">agriculture</span>
+            My Farm
+        </a>
+<a class="flex flex-col items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-800 dark:text-emerald-100 rounded-xl px-4 py-1 scale-100 active:scale-90 transition-transform duration-100 active:bg-slate-100 dark:active:bg-slate-800" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+            Orders
+        </a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 scale-100 active:scale-90 transition-transform duration-100 active:bg-slate-100 dark:active:bg-slate-800 p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+            Profile
+        </a>
+</nav>
+<!-- Main Content -->
+<main class="pt-[80px] pb-[100px] md:pl-[256px] md:pb-[40px] min-h-screen">
+<div class="max-w-container-max mx-auto px-lg lg:px-gutter">
+<!-- Page Header & Filters -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-xl">
+<div>
+<h1 class="font-h1 text-h1 text-on-surface mb-2">My Orders</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage and track your marketplace transactions.</p>
+</div>
+<div class="flex flex-wrap items-center gap-2">
+<button class="bg-primary-container text-on-primary-container font-button text-button px-4 py-2 rounded-full border border-transparent shadow-sm">
+                        All Orders
+                    </button>
+<button class="bg-surface-container-lowest text-on-surface-variant font-button text-button px-4 py-2 rounded-full border border-outline-variant hover:bg-surface-container-low transition-colors">
+                        Pending
+                    </button>
+<button class="bg-surface-container-lowest text-on-surface-variant font-button text-button px-4 py-2 rounded-full border border-outline-variant hover:bg-surface-container-low transition-colors">
+                        Processing
+                    </button>
+<button class="bg-surface-container-lowest text-on-surface-variant font-button text-button px-4 py-2 rounded-full border border-outline-variant hover:bg-surface-container-low transition-colors">
+                        Completed
+                    </button>
+</div>
+</div>
+<!-- Orders List -->
+<div class="flex flex-col gap-md">
+<!-- Order Card 1: Processing -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-[0_4px_20px_rgba(26,58,52,0.03)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.06)] transition-shadow duration-300">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+<div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- ID & Date -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Order ID</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold mb-2">#ORD-2023-8942</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                    Oct 24, 2023
+                                </div>
+</div>
+<!-- Buyer & Product -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Buyer</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold mb-2">National Grain Silos Ltd.</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                                    Grade A Winter Wheat (50 Tons)
+                                </div>
+</div>
+<!-- Amount & Status -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Total Amount</div>
+<div class="font-h3 text-h3 text-primary mb-2">$14,500.00</div>
+<div class="inline-flex items-center gap-1.5 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-[14px]">autorenew</span>
+                                    Processing
+                                </div>
+</div>
+</div>
+<!-- Action -->
+<div class="flex-shrink-0 lg:border-l lg:border-outline-variant/30 lg:pl-6 pt-4 lg:pt-0 border-t border-outline-variant/30 mt-4 lg:mt-0 flex justify-end">
+<button class="bg-primary text-on-primary font-button text-button px-6 py-3 rounded-lg hover:bg-secondary transition-colors w-full lg:w-auto text-center shadow-sm">
+                                View Details
+                            </button>
+</div>
+</div>
+</div>
+<!-- Order Card 2: Pending -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-[0_4px_20px_rgba(26,58,52,0.03)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.06)] transition-shadow duration-300">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+<div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- ID & Date -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Order ID</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold mb-2">#ORD-2023-8941</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                    Oct 23, 2023
+                                </div>
+</div>
+<!-- Buyer & Product -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Buyer</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold mb-2">Metro Fresh Distributors</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                                    Organic Roma Tomatoes (500 kg)
+                                </div>
+</div>
+<!-- Amount & Status -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Total Amount</div>
+<div class="font-h3 text-h3 text-primary mb-2">$1,250.00</div>
+<div class="inline-flex items-center gap-1.5 bg-surface-container-highest text-on-surface-variant px-3 py-1 rounded-full font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                    Pending Approval
+                                </div>
+</div>
+</div>
+<!-- Action -->
+<div class="flex-shrink-0 lg:border-l lg:border-outline-variant/30 lg:pl-6 pt-4 lg:pt-0 border-t border-outline-variant/30 mt-4 lg:mt-0 flex justify-end">
+<button class="bg-primary text-on-primary font-button text-button px-6 py-3 rounded-lg hover:bg-secondary transition-colors w-full lg:w-auto text-center shadow-sm">
+                                View Details
+                            </button>
+</div>
+</div>
+</div>
+<!-- Order Card 3: Completed -->
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/30 shadow-[0_4px_20px_rgba(26,58,52,0.03)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.06)] transition-shadow duration-300 opacity-80">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+<div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- ID & Date -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Order ID</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold mb-2">#ORD-2023-8890</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">calendar_today</span>
+                                    Oct 15, 2023
+                                </div>
+</div>
+<!-- Buyer & Product -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Buyer</div>
+<div class="font-body-md text-body-md text-on-surface font-semibold mb-2">State Provisions Coop</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">
+                                    Soybeans - Bulk (120 Tons)
+                                </div>
+</div>
+<!-- Amount & Status -->
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Total Amount</div>
+<div class="font-h3 text-h3 text-primary mb-2">$42,000.00</div>
+<div class="inline-flex items-center gap-1.5 bg-primary-container text-on-primary-container px-3 py-1 rounded-full font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                    Completed
+                                </div>
+</div>
+</div>
+<!-- Action -->
+<div class="flex-shrink-0 lg:border-l lg:border-outline-variant/30 lg:pl-6 pt-4 lg:pt-0 border-t border-outline-variant/30 mt-4 lg:mt-0 flex justify-end">
+<button class="bg-surface-container-high text-on-surface font-button text-button px-6 py-3 rounded-lg hover:bg-surface-container-highest transition-colors w-full lg:w-auto text-center">
+                                View Receipt
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination (Placeholder) -->
+<div class="mt-xl flex items-center justify-between border-t border-outline-variant/30 pt-6">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 1-3 of 24 orders</span>
+<div class="flex gap-2">
+<button class="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

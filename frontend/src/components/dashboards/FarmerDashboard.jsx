@@ -330,174 +330,196 @@ const FarmerDashboard = ({ activeTab }) => {
         ];
 
         return (
-            <div className="farmer-dashboard-home animate-in">
-                {/* Weather & Location Section */}
-                <div className="weather-header-section glass-panel mb-2">
-                    <div className="weather-top-row">
-                        <div className="location-info">
-                            <div className="location-label">
-                                <Truck size={18} color="#2f8f3a" />
-                                <span>Farm Location:</span>
-                            </div>
-                            <select 
-                                className="wilaya-select"
-                                value={selectedWilaya.id}
-                                onChange={(e) => {
-                                    const w = ALGERIA_WILAYAS.find(wilaya => String(wilaya.id) === String(e.target.value));
-                                    setSelectedWilaya(w);
-                                }}
-                            >
-                                {ALGERIA_WILAYAS.map(w => (
-                                    <option key={w.id} value={w.id}>{w.name}</option>
-                                ))}
-                            </select>
+            <div className="animate-in pb-20 md:pb-0 font-body-md antialiased text-on-background w-full">
+                <div className="mb-xl">
+                    <h1 className="font-h1 text-h1 text-on-background mb-2">Farmer Dashboard</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant">Welcome back. Here is the latest overview of your farm's operations.</p>
+                </div>
+
+                {/* Bento Grid Layout */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-xl">
+                    {/* Climate Widget */}
+                    <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md flex flex-col justify-between relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 opacity-10">
+                            <span className="material-symbols-outlined text-[150px]">partly_cloudy_day</span>
                         </div>
-                        <div className="weather-status">
+                        <div className="flex items-center justify-between mb-md z-10">
+                            <h2 className="font-h3 text-h3 text-on-surface">Climate Widget</h2>
+                            <span className="material-symbols-outlined text-primary">thermostat</span>
+                        </div>
+                        <div className="z-10">
                             {loadingWeather ? (
-                                <span className="text-muted">Syncing climate data...</span>
+                                <div className="text-sm text-on-surface-variant">Syncing climate data...</div>
                             ) : (
-                                <span className="text-muted">Last updated: {weatherData?.last_updated || '--'}</span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="weather-grid mt-1">
-                        {/* Current Weather */}
-                        <div className="weather-card-mini">
-                            <div className="w-card-header">
-                                <Plus size={18} color="#2f8f3a" />
-                                <h4>Current Weather</h4>
-                            </div>
-                            {loadingWeather ? <div className="skeleton-line"></div> : (
-                                <div className="w-card-body">
-                                    <div className="w-main-temp">
-                                        <span className="temp-val">{weatherData?.weather.temp}°C</span>
-                                        <span className="temp-desc">{weatherData?.weather.description}</span>
+                                <>
+                                    <div className="flex items-end gap-3 mb-4">
+                                        <span className="text-5xl font-bold text-primary">{weatherData?.weather?.temp || '24'}°</span>
+                                        <span className="text-xl text-on-surface-variant mb-1">C</span>
+                                        <span className="text-sm text-on-surface-variant ml-2 mb-2">{weatherData?.weather?.description || 'Partly Cloudy'}</span>
                                     </div>
-                                    <div className="w-details">
-                                        <span>Humidity: <strong>{weatherData?.weather.humidity}%</strong></span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Irrigation & Soil */}
-                        <div className="weather-card-mini">
-                            <div className="w-card-header">
-                                <AlertCircle size={18} color="#f59e0b" />
-                                <h4>Soil & Irrigation</h4>
-                            </div>
-                            {loadingWeather ? <div className="skeleton-line"></div> : (
-                                <div className="w-card-body">
-                                    <div className={`recommendation-badge ${weatherData?.soil.is_needed ? 'needed' : 'optimal'}`}>
-                                        {weatherData?.soil.irrigation_recommendation}
-                                    </div>
-                                    <div className="w-details">
-                                        <span>Soil Moisture: <strong>{(weatherData?.soil.moisture * 100).toFixed(0)}%</strong></span>
-                                        <span>Surface Temp: <strong>{weatherData?.soil.surface_temp}°C</strong></span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* 3-Day Forecast */}
-                        <div className="weather-card-mini span-2-tablet">
-                            <div className="w-card-header">
-                                <Clock size={18} color="#3b82f6" />
-                                <h4>3-Day Forecast</h4>
-                            </div>
-                            <div className="forecast-mini-list">
-                                {loadingWeather ? [1,2,3].map(i => <div key={i} className="skeleton-line-sm"></div>) : (
-                                    weatherData?.forecast.map((f, i) => (
-                                        <div key={i} className="forecast-mini-item">
-                                            <span className="f-day">{f.day}</span>
-                                            <span className="f-desc">{f.desc}</span>
-                                            <span className="f-temp">{f.temp}°C</span>
+                                    <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                                        <div className="bg-surface p-2 rounded-lg">
+                                            <div className="text-on-surface-variant text-xs mb-1">Humidity</div>
+                                            <div className="font-semibold text-primary">{weatherData?.weather?.humidity || '65'}%</div>
                                         </div>
-                                    ))
-                                )}
+                                        <div className="bg-surface p-2 rounded-lg">
+                                            <div className="text-on-surface-variant text-xs mb-1">Wind</div>
+                                            <div className="font-semibold text-primary">12 km/h</div>
+                                        </div>
+                                        <div className="bg-surface p-2 rounded-lg">
+                                            <div className="text-on-surface-variant text-xs mb-1">Rain Chance</div>
+                                            <div className="font-semibold text-primary">20%</div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Soil Advisor */}
+                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md flex flex-col justify-between">
+                        <div className="flex items-center justify-between mb-md">
+                            <h2 className="font-h3 text-h3 text-on-surface">Soil Advisor</h2>
+                            {weatherData?.soil && (
+                                <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${weatherData.soil.is_needed ? 'bg-error-container text-on-error-container' : 'bg-secondary-container text-on-secondary-container'}`}>
+                                    <span className="material-symbols-outlined text-sm">{weatherData.soil.is_needed ? 'warning' : 'water_drop'}</span> 
+                                    {weatherData.soil.irrigation_recommendation}
+                                </div>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+                            {/* Sensor 1 */}
+                            <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
+                                    <span className="material-symbols-outlined">grass</span>
+                                </div>
+                                <div>
+                                    <div className="font-label-caps text-label-caps text-outline uppercase">Field Moisture</div>
+                                    <div className="font-bold text-primary">Moisture: {weatherData?.soil ? (weatherData.soil.moisture * 100).toFixed(0) : '42'}%</div>
+                                    <div className="text-xs text-on-surface-variant">Status: {weatherData?.soil?.is_needed ? 'Low' : 'Optimal'}</div>
+                                </div>
+                            </div>
+                            {/* Sensor 2 */}
+                            <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
+                                    <span className="material-symbols-outlined">device_thermostat</span>
+                                </div>
+                                <div>
+                                    <div className="font-label-caps text-label-caps text-outline uppercase">Surface Temp</div>
+                                    <div className="font-bold text-primary">Temp: {weatherData?.soil?.surface_temp || '22'}°C</div>
+                                    <div className="text-xs text-on-surface-variant">Status: Stable</div>
+                                </div>
+                            </div>
+                            {/* Sensor 3 (Placeholder as per design) */}
+                            <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
+                                    <span className="material-symbols-outlined">eco</span>
+                                </div>
+                                <div>
+                                    <div className="font-label-caps text-label-caps text-outline uppercase">Soil Health</div>
+                                    <div className="font-bold text-primary">Index: 85/100</div>
+                                    <div className="text-xs text-on-surface-variant">Status: Excellent</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="stats-grid">
-                    {statCards.map((s, i) => (
-                        <div key={i} className={`stat-card stat-${s.color}`}>
-                            <div className="stat-icon">{s.icon}</div>
-                            <div className="stat-info">
-                                <h3>{s.value}</h3>
-                                <p>{s.label}</p>
-                            </div>
+                    {/* Farm Manager */}
+                    <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
+                        <div className="flex items-center justify-between mb-md">
+                            <h2 className="font-h3 text-h3 text-on-surface">Farm Manager</h2>
+                            <button className="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-lg hover:bg-tertiary transition-colors flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">add</span> New Location
+                            </button>
                         </div>
-                    ))}
-                </div>
+                        <div className="space-y-3">
+                            {farms.length > 0 ? farms.slice(0, 3).map(farm => (
+                                <div key={farm.id} className="flex items-center justify-between p-3 bg-surface rounded-lg border border-outline-variant hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-md bg-primary-fixed flex items-center justify-center text-on-primary-container">
+                                            <span className="material-symbols-outlined">agriculture</span>
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-on-surface">{farm.name}</div>
+                                            <div className="text-xs text-on-surface-variant">{farm.wilaya} • {farm.location || "Registered"}</div>
+                                        </div>
+                                    </div>
+                                    <span className="material-symbols-outlined text-outline">chevron_right</span>
+                                </div>
+                            )) : (
+                                <p className="text-sm text-on-surface-variant">No farms added yet.</p>
+                            )}
+                        </div>
+                    </div>
 
-                <div className="dashboard-sections">
-                    <div className="glass-panel">
-                        <div className="panel-header">
-                            <h3>Quick Add Product</h3>
-                            <Plus size={20} color="#6b7280" />
+                    {/* Sales Manager */}
+                    <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
+                        <div className="flex items-center justify-between mb-md">
+                            <h2 className="font-h3 text-h3 text-on-surface">Sales Manager</h2>
+                            <span className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All Orders</span>
                         </div>
-                        {selectedCatalogItem?.image && (
-                            <div style={{ marginBottom: '1rem', width: '100%', height: '100px', borderRadius: '8px', overflow: 'hidden' }}>
-                                <img src={selectedCatalogItem.image} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                        )}
-                        <form className="mini-form" onSubmit={handleAddProduct}>
-                            <select name="catalog" value={formData.catalog} onChange={handleChange} required>
-                                <option value="">Select Product Type</option>
-                                {catalog.map(c => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
-                            </select>
-                            <select name="farm" value={formData.farm} onChange={handleChange} required>
-                                <option value="">Select Farm</option>
-                                {farms.map(f => (
-                                    <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>
-                                ))}
-                            </select>
-                            <div className="form-row">
-                                <div style={{display:'flex', flexDirection:'column', gap:'4px'}}>
-                                    <input
-                                        type="number" name="price_per_kg"
-                                        value={formData.price_per_kg} onChange={handleChange}
-                                        placeholder="Price /kg"
-                                        min={selectedCatalogItem?.min_price ?? undefined}
-                                        max={selectedCatalogItem?.max_price ?? undefined}
-                                        required
-                                    />
-                                    {selectedCatalogItem?.min_price && selectedCatalogItem?.max_price && (
-                                        <small style={{color:'#6b7280', fontSize:'0.75rem'}}>
-                                            Allowed: {selectedCatalogItem.min_price} – {selectedCatalogItem.max_price} DA / {selectedCatalogItem.unit || 'kg'}
-                                        </small>
+                        <div className="space-y-4">
+                            {orders.filter(o => o.status === 'PENDING').length > 0 ? orders.filter(o => o.status === 'PENDING').slice(0, 2).map(o => (
+                                <div key={o.id} className="border-b border-surface-variant pb-4 last:border-0 last:pb-0">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div>
+                                            <div className="font-bold text-on-surface">Order #{o.id} - {o.product_name}</div>
+                                            <div className="text-sm text-on-surface-variant">Buyer: {o.buyer_name}</div>
+                                        </div>
+                                        <div className="font-bold text-primary">{o.total_price} DA</div>
+                                    </div>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')} className="bg-primary text-on-primary font-button text-sm px-3 py-1.5 rounded flex-1 hover:bg-tertiary transition-colors">Accept</button>
+                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="bg-surface-variant text-on-surface-variant font-button text-sm px-3 py-1.5 rounded flex-1 hover:bg-surface-dim transition-colors">Reject</button>
+                                    </div>
+                                </div>
+                            )) : (
+                                <p className="text-sm text-on-surface-variant">No pending orders.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Inventory Control */}
+                    <div className="col-span-1 md:col-span-12 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
+                        <div className="flex items-center justify-between mb-md">
+                            <h2 className="font-h3 text-h3 text-on-surface">Inventory Control & Marketplace</h2>
+                            <button className="bg-secondary text-on-secondary font-button text-button px-4 py-2 rounded-lg hover:bg-secondary-fixed hover:text-on-secondary-container transition-colors flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">publish</span> Publish Listing
+                            </button>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-outline-variant">
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Product</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Quantity</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Market Price</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Status</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {products.length > 0 ? products.slice(0, 5).map(p => (
+                                        <tr key={p.id} className="border-b border-surface-variant hover:bg-surface transition-colors">
+                                            <td className="py-3 px-4 font-medium text-on-surface">{p.name || "Unnamed Product"}</td>
+                                            <td className="py-3 px-4 text-on-surface-variant">{p.quantity_available} kg</td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="font-semibold text-primary">{p.price_per_kg} DA/kg</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className="inline-block bg-secondary-fixed text-on-secondary-container px-2 py-1 rounded text-xs font-semibold">Published</span>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <button onClick={() => handleDeleteProduct(p.id)} className="text-primary hover:underline text-sm font-medium">Delete</button>
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr><td colSpan="5" className="py-3 px-4 text-sm text-on-surface-variant">No products in inventory.</td></tr>
                                     )}
-                                </div>
-                                <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Qty (${selectedCatalogItem?.unit || 'kg'})`} required />
-                            </div>
-                            <button type="submit" className="btn-primary" disabled={loading}>{loading ? "Adding..." : "Add Product"}</button>
-                        </form>
-                    </div>
-
-                    <div className="glass-panel">
-                        <div className="panel-header">
-                            <h3>Pending Sales</h3>
-                            <Clock size={20} color="#f59e0b" />
-                        </div>
-                        <div className="mini-list">
-                            {orders.filter(o => o.status === 'PENDING').slice(0, 3).map(o => (
-                                <div key={o.id} className="mini-item">
-                                    <div className="item-main">
-                                        <strong>{o.product_name || "Product"}</strong>
-                                        <span>{o.quantity}kg • {o.total_price} DA</span>
-                                    </div>
-                                    <div className="flex-gap-sm">
-                                        <button className="btn-sm" onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')}>Accept</button>
-                                        <button className="btn-sm btn-outline" onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')}>Reject</button>
-                                    </div>
-                                </div>
-                            ))}
-                            {orders.filter(o => o.status === 'PENDING').length === 0 && <p className="empty-text">No pending orders.</p>}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -507,144 +529,152 @@ const FarmerDashboard = ({ activeTab }) => {
 
     if (activeTab === "products") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Manage My Products</h2>
-                    <p>Add new products or update existing inventory</p>
+            <div className="animate-in w-full pb-20 md:pb-0">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
+                    <div>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">My Products</h1>
+                        <p className="font-body-md text-body-md text-on-surface-variant">Manage your inventory, pricing, and availability.</p>
+                    </div>
                 </div>
 
-                <form className="expanded-form" onSubmit={handleAddProduct}>
-                    <div className="grid-form">
-                        <div className="form-group span-2">
-                            <label>Product Type (From Official List)</label>
-                            <select name="catalog" value={formData.catalog} onChange={handleChange} required>
+                {/* Form Section */}
+                <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] mb-lg">
+                    <h3 className="font-h3 text-h3 text-on-surface mb-4">Add New Product</h3>
+                    <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleAddProduct}>
+                        <div className="col-span-1 md:col-span-2">
+                            <label className="block text-sm font-medium text-on-surface mb-1">Product Type (From Official List)</label>
+                            <select name="catalog" value={formData.catalog} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
                                 <option value="">-- Choose a product type --</option>
-                                {catalog.map(c => (
-                                    <option key={c.id} value={c.id}>{c.name}</option>
-                                ))}
+                                {catalog.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                             </select>
                         </div>
-                        <div className="form-group span-2">
-                            <label>Origin Farm</label>
-                            <select name="farm" value={formData.farm} onChange={handleChange} required>
+                        <div className="col-span-1 md:col-span-2">
+                            <label className="block text-sm font-medium text-on-surface mb-1">Origin Farm</label>
+                            <select name="farm" value={formData.farm} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
                                 <option value="">-- Select Farm --</option>
-                                {farms.map(f => (
-                                    <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>
-                                ))}
+                                {farms.map(f => <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>)}
                             </select>
                         </div>
-                        <div className="form-group">
-                            <label>Price per Kg (DA)</label>
-                            <input
-                                type="number" name="price_per_kg"
-                                value={formData.price_per_kg} onChange={handleChange}
-                                placeholder="0.00" required
-                                min={selectedCatalogItem?.min_price ?? undefined}
-                                max={selectedCatalogItem?.max_price ?? undefined}
-                            />
+                        <div>
+                            <label className="block text-sm font-medium text-on-surface mb-1">Price per Kg (DA)</label>
+                            <input type="number" name="price_per_kg" value={formData.price_per_kg} onChange={handleChange} placeholder="0.00" required min={selectedCatalogItem?.min_price ?? undefined} max={selectedCatalogItem?.max_price ?? undefined} className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
                             {selectedCatalogItem?.min_price && selectedCatalogItem?.max_price && (
-                                <small className="price-hint">
-                                    💰 Allowed range: <strong>{selectedCatalogItem.min_price}</strong> to <strong>{selectedCatalogItem.max_price}</strong> DA / {selectedCatalogItem.unit || 'kg'}
+                                <small className="text-xs text-on-surface-variant block mt-1">
+                                    Allowed range: {selectedCatalogItem.min_price} to {selectedCatalogItem.max_price} DA
                                 </small>
                             )}
                         </div>
-                        <div className="form-group">
-                            <label>Available Quantity (kg)</label>
-                            <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required />
+                        <div>
+                            <label className="block text-sm font-medium text-on-surface mb-1">Available Quantity</label>
+                            <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
                         </div>
-                    </div>
-                    <button type="submit" className="btn-primary mt-1" disabled={loading}>{loading ? "Publishing..." : "Add Product to Market"}</button>
-                </form>
+                        <div className="col-span-1 md:col-span-2 mt-2">
+                            <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>{loading ? "Publishing..." : "Add Product to Market"}</button>
+                        </div>
+                    </form>
+                </div>
 
-                <div className="inventory-list mt-2">
-                    <h3>Current Inventory</h3>
-                    <div className="grid-list">
+                {/* Inventory Data Grid */}
+                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
+                    <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
+                        <div className="col-span-4">Product Details</div>
+                        <div className="col-span-2">Quantity</div>
+                        <div className="col-span-3">Market Price</div>
+                        <div className="col-span-2">Status</div>
+                        <div className="col-span-1 text-right">Actions</div>
+                    </div>
+                    <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
                         {products.map(p => (
-                            <div key={p.id} className="card-item animate-in product-with-image">
-                                {p.catalog_image && (
-                                    <div className="product-card-banner">
-                                        <img src={p.catalog_image} alt={p.name} />
+                            <div key={p.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
+                                <div className="md:col-span-4 flex items-center gap-md">
+                                    <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
+                                        {p.catalog_image ? <img src={p.catalog_image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-outline">inventory_2</span>}
                                     </div>
-                                )}
-                                <div className="card-content">
-                                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'start'}}>
-                                        <h3>{p.name || "Unnamed Product"}</h3>
-                                        <span className="source-farm-tag" style={{fontSize:'0.7rem', padding:'2px 8px', background:'#f3f4f6', borderRadius:'12px', color:'#374151'}}>
-                                            📍 {p.farm_name || "Unknown Farm"}
-                                        </span>
-                                    </div>
-                                    <p className="p-desc">{p.description || "No description available"}</p>
-                                    <div className="product-meta">
-                                        <strong>{p.price_per_kg} DA/kg</strong>
-                                        <span>{p.quantity_available}kg left</span>
+                                    <div>
+                                        <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
+                                        <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
                                     </div>
                                 </div>
-                                <button className="btn-danger-outline full-width" onClick={() => handleDeleteProduct(p.id)}>Remove Product</button>
+                                <div className="md:col-span-2 flex md:block justify-between items-center">
+                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Quantity</span>
+                                    <span className="font-body-md text-body-md text-on-surface">{p.quantity_available} kg</span>
+                                </div>
+                                <div className="md:col-span-3 flex md:block justify-between items-center">
+                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Price</span>
+                                    <span className="font-body-md text-body-md text-on-surface font-medium">{p.price_per_kg} DA / kg</span>
+                                </div>
+                                <div className="md:col-span-2 flex md:block justify-between items-center">
+                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Status</span>
+                                    <span className="inline-flex bg-primary-container text-on-primary-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
+                                        Published
+                                    </span>
+                                </div>
+                                <div className="md:col-span-1 flex justify-end gap-sm md:gap-xs border-t md:border-none pt-4 md:pt-0 mt-2 md:mt-0 border-outline-variant/20">
+                                    <button onClick={() => handleDeleteProduct(p.id)} className="text-outline hover:text-error transition-colors p-1" title="Delete">
+                                        <span className="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
                             </div>
                         ))}
+                        {products.length === 0 && <p className="p-4 text-center text-on-surface-variant text-sm">No products added yet.</p>}
                     </div>
                 </div>
-                <Pagination 
-                    currentPage={productsPage}
-                    totalCount={productsCount}
-                    pageSize={10}
-                    onPageChange={setProductsPage}
-                />
+                <Pagination currentPage={productsPage} totalCount={productsCount} pageSize={10} onPageChange={setProductsPage} />
             </div>
         );
     }
 
     if (activeTab === "orders") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Orders & Sales</h2>
-                    <p>Track incoming buyer requests</p>
+            <div className="animate-in w-full pb-20 md:pb-0">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
+                    <div>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">Orders & Sales</h1>
+                        <p className="font-body-md text-body-md text-on-surface-variant">Track incoming buyer requests</p>
+                    </div>
                 </div>
-                <div className="history-table-container">
-                    <table className="history-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Product</th>
-                                <th>Quantity</th>
-                                <th>Total Price</th>
-                                <th>Customer</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map(o => (
-                                <tr key={o.id}>
-                                    <td>#{o.id}</td>
-                                    <td>{o.product_name}</td>
-                                    <td>{o.quantity}kg</td>
-                                    <td>{o.total_price} DA</td>
-                                    <td>{o.buyer_name}</td>
-                                    <td><span className={`status-badge ${o.status.toLowerCase()}`}>{o.status}</span></td>
-                                    <td>
-                                        {o.status === 'PENDING' && (
-                                            <div className="flex-gap-sm">
-                                                <button className="btn-success-sm" onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')}>Accept</button>
-                                                <button className="btn-danger-sm" onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')}>Reject</button>
-                                            </div>
-                                        )}
-                                        {o.status === 'ACCEPTED' && <span className="text-muted">Wait for Transporter</span>}
-                                        {o.status === 'DELIVERED' && <CheckCircle size={16} color="#059669" />}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {orders.length === 0 && <p className="empty-state">No orders yet.</p>}
+
+                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
+                    <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
+                        <div className="col-span-2">Order ID</div>
+                        <div className="col-span-3">Product</div>
+                        <div className="col-span-2">Quantity</div>
+                        <div className="col-span-2">Total Price</div>
+                        <div className="col-span-2">Status</div>
+                        <div className="col-span-1 text-right">Action</div>
+                    </div>
+                    <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
+                        {orders.map(o => (
+                            <div key={o.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
+                                <div className="md:col-span-2 font-medium text-on-surface">#{o.id}</div>
+                                <div className="md:col-span-3">
+                                    <div className="font-bold text-on-surface">{o.product_name}</div>
+                                    <div className="text-xs text-on-surface-variant">{o.buyer_name}</div>
+                                </div>
+                                <div className="md:col-span-2 text-on-surface">{o.quantity}kg</div>
+                                <div className="md:col-span-2 font-medium text-primary">{o.total_price} DA</div>
+                                <div className="md:col-span-2">
+                                    <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface-variant' : o.status === 'ACCEPTED' || o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-error-container text-on-error-container'}`}>
+                                        {o.status}
+                                    </span>
+                                </div>
+                                <div className="md:col-span-1 flex justify-end gap-sm">
+                                    {o.status === 'PENDING' && (
+                                        <>
+                                            <button onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')} className="text-primary hover:text-on-primary-fixed-variant p-1" title="Accept"><span className="material-symbols-outlined">check_circle</span></button>
+                                            <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="text-error hover:text-on-error-container p-1" title="Reject"><span className="material-symbols-outlined">cancel</span></button>
+                                        </>
+                                    )}
+                                    {o.status === 'ACCEPTED' && <span className="text-xs text-on-surface-variant">Wait for Transporter</span>}
+                                    {o.status === 'DELIVERED' && <span className="material-symbols-outlined text-primary">check_circle</span>}
+                                </div>
+                            </div>
+                        ))}
+                        {orders.length === 0 && <p className="p-4 text-center text-on-surface-variant text-sm">No orders yet.</p>}
+                    </div>
                 </div>
-                <Pagination 
-                    currentPage={ordersPage}
-                    totalCount={ordersCount}
-                    pageSize={10}
-                    onPageChange={setOrdersPage}
-                />
+                <Pagination currentPage={ordersPage} totalCount={ordersCount} pageSize={10} onPageChange={setOrdersPage} />
             </div>
         );
     }
@@ -653,115 +683,121 @@ const FarmerDashboard = ({ activeTab }) => {
         const activeTracking = orders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Delivery Tracking</h2>
-                    <p>Monitor your products en route to buyers</p>
+            <div className="animate-in w-full pb-20 md:pb-0">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
+                    <div>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">Delivery Tracking</h1>
+                        <p className="font-body-md text-body-md text-on-surface-variant">Monitor your products en route to buyers</p>
+                    </div>
                 </div>
-                <div className="grid-list">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {paginatedTracking.map(o => (
-                        <div key={o.id} className="card-item tracking-card">
-                            <div className="card-header">
-                                <h3>Order #{o.id}</h3>
-                                <span className={`status-badge ${o.status.toLowerCase()}`}>{o.status}</span>
+                        <div key={o.id} className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
+                            <div className="flex justify-between items-center mb-4 pb-2 border-b border-outline-variant/30">
+                                <h3 className="font-bold text-primary">Order #{o.id}</h3>
+                                <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] uppercase tracking-wider ${o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-secondary-container text-on-secondary-container'}`}>{o.status}</span>
                             </div>
-                            <div className="tracking-info">
-                                <div className="info-row">
-                                    <Truck size={18} />
-                                    <span>Transporter: {o.transporter_name || "Assigning..."}</span>
+                            <div className="space-y-3 mb-6 text-sm text-on-surface">
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-outline">local_shipping</span>
+                                    <span>Transporter: <strong>{o.transporter_name || "Assigning..."}</strong></span>
                                 </div>
-                                <div className="info-row">
-                                    <Clock size={18} />
-                                    <span>Delivery Status: {o.delivery_status || "Pending Pickup"}</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="material-symbols-outlined text-outline">schedule</span>
+                                    <span>Status: <strong>{o.delivery_status || "Pending Pickup"}</strong></span>
                                 </div>
                             </div>
-                            <div className="progress-track-container">
-                                <div className="track-step active">Accepted</div>
-                                <div className={`track-line ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'active' : ''}`}></div>
-                                <div className={`track-step ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'active' : ''}`}>In Transit</div>
-                                <div className={`track-line ${o.status === 'DELIVERED' ? 'active' : ''}`}></div>
-                                <div className={`track-step ${o.status === 'DELIVERED' ? 'active' : ''}`}>Delivered</div>
+                            {/* Progress bar */}
+                            <div className="flex justify-between items-center relative w-full pt-2">
+                                <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container -z-10 -translate-y-1/2"></div>
+                                <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${o.status === 'DELIVERED' ? 'w-full' : o.status === 'IN_TRANSIT' ? 'w-1/2' : 'w-0'}`}></div>
+                                
+                                <div className="flex flex-col items-center">
+                                    <div className="w-4 h-4 rounded-full bg-primary border-4 border-surface-container-lowest"></div>
+                                    <span className="text-[10px] mt-1 font-semibold text-primary">Accepted</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'text-primary' : 'text-outline'}`}>In Transit</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${o.status === 'DELIVERED' ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${o.status === 'DELIVERED' ? 'text-primary' : 'text-outline'}`}>Delivered</span>
+                                </div>
                             </div>
                         </div>
                     ))}
-                    {activeTracking.length === 0 && <p className="empty-state">No active deliveries to track.</p>}
+                    {activeTracking.length === 0 && <div className="col-span-full p-4 text-center text-on-surface-variant">No active deliveries to track.</div>}
                 </div>
-                {activeTracking.length > 0 && (
-                    <Pagination 
-                        currentPage={trackingPage}
-                        totalCount={activeTracking.length}
-                        pageSize={10}
-                        onPageChange={setTrackingPage}
-                    />
-                )}
+                {activeTracking.length > 0 && <Pagination currentPage={trackingPage} totalCount={activeTracking.length} pageSize={10} onPageChange={setTrackingPage} />}
             </div>
         );
     }
 
     if (activeTab === "prices") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2><FileText size={24} /> Official Market Prices</h2>
-                    <p>Price ranges set by the Ministry of Agriculture</p>
+            <div className="animate-in w-full pb-20 md:pb-0">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
+                    <div>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs flex items-center gap-2"><span className="material-symbols-outlined">receipt_long</span> Official Market Prices</h1>
+                        <p className="font-body-md text-body-md text-on-surface-variant">Price ranges set by the Ministry of Agriculture</p>
+                    </div>
                 </div>
+
                 {catalog.length === 0 ? (
-                    <p className="notice-box">
-                        <AlertCircle size={20} />
-                        No official price ranges have been published yet by the Ministry.
-                    </p>
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] text-center text-on-surface-variant flex flex-col items-center gap-2">
+                        <span className="material-symbols-outlined text-4xl text-outline">info</span>
+                        <p>No official price ranges have been published yet by the Ministry.</p>
+                    </div>
                 ) : (
-                    <table className="price-table">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Description</th>
-                                <th>Min Price (DA)</th>
-                                <th>Max Price (DA)</th>
-                                <th>Unit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
+                        <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
+                            <div className="col-span-3">Product</div>
+                            <div className="col-span-4">Description</div>
+                            <div className="col-span-2">Min Price</div>
+                            <div className="col-span-2">Max Price</div>
+                            <div className="col-span-1">Unit</div>
+                        </div>
+                        <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
                             {catalog.map(c => (
-                                <tr key={c.id}>
-                                    <td><strong>{c.name}</strong></td>
-                                    <td>{c.description || "—"}</td>
-                                    <td style={{color:'#059669', fontWeight:600}}>{c.min_price ?? "—"}</td>
-                                    <td style={{color:'#dc2626', fontWeight:600}}>{c.max_price ?? "—"}</td>
-                                    <td style={{fontSize:'0.85rem', color:'#64748b'}}>{c.unit || 'kg'}</td>
-                                </tr>
+                                <div key={c.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
+                                    <div className="md:col-span-3 font-bold text-on-surface">{c.name}</div>
+                                    <div className="md:col-span-4 text-on-surface-variant text-sm">{c.description || "—"}</div>
+                                    <div className="md:col-span-2 font-medium text-secondary">{c.min_price ? `${c.min_price} DA` : "—"}</div>
+                                    <div className="md:col-span-2 font-medium text-error">{c.max_price ? `${c.max_price} DA` : "—"}</div>
+                                    <div className="md:col-span-1 text-outline text-sm">{c.unit || 'kg'}</div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
                 )}
-                <Pagination 
-                    currentPage={catalogPage}
-                    totalCount={catalogCount}
-                    pageSize={10}
-                    onPageChange={setCatalogPage}
-                />
+                <Pagination currentPage={catalogPage} totalCount={catalogCount} pageSize={10} onPageChange={setCatalogPage} />
             </div>
         );
     }
 
     if (activeTab === "notifications") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Notifications</h2>
-                    <p>Alerts and updates from the Ministry</p>
+            <div className="animate-in w-full pb-20 md:pb-0">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
+                    <div>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">Notifications</h1>
+                        <p className="font-body-md text-body-md text-on-surface-variant">Alerts and updates from the Ministry</p>
+                    </div>
                 </div>
-                <div className="notifications-list">
+                <div className="space-y-4">
                     {notifications.map(n => (
-                        <div key={n.id} className={`notification-card ${n.is_read ? 'read' : 'unread'}`}>
-                            <div className="notif-icon"><Bell size={20} /></div>
-                            <div className="notif-content">
-                                <p>{n.message}</p>
-                                <span className="timestamp">{new Date(n.created_at).toLocaleString()}</span>
+                        <div key={n.id} className={`bg-surface-container-lowest rounded-xl p-4 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border-l-4 flex gap-4 items-start ${n.is_read ? 'border-outline-variant' : 'border-primary bg-primary-fixed/10'}`}>
+                            <div className={`p-2 rounded-full ${n.is_read ? 'bg-surface text-outline' : 'bg-primary-container text-on-primary-container'}`}>
+                                <span className="material-symbols-outlined">notifications</span>
+                            </div>
+                            <div className="flex-1">
+                                <p className={`text-on-surface ${n.is_read ? '' : 'font-semibold'}`}>{n.message}</p>
+                                <span className="text-xs text-on-surface-variant mt-2 block">{new Date(n.created_at).toLocaleString()}</span>
                             </div>
                         </div>
                     ))}
-                    {notifications.length === 0 && <p className="empty-text">No notifications yet.</p>}
+                    {notifications.length === 0 && <div className="text-center p-8 text-on-surface-variant">No notifications yet.</div>}
                 </div>
             </div>
         );
@@ -769,74 +805,69 @@ const FarmerDashboard = ({ activeTab }) => {
 
     if (activeTab === "farms") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Manage My Farms</h2>
-                    <p>View and add your agriculture locations (Max 5)</p>
+            <div className="animate-in w-full pb-20 md:pb-0">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
+                    <div>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">Manage My Farms</h1>
+                        <p className="font-body-md text-body-md text-on-surface-variant">View and add your agriculture locations (Max 5)</p>
+                    </div>
                 </div>
 
-                <div className="dashboard-sections mb-2">
-                    <div className="glass-panel" style={{flex: 1}}>
-                        <div className="panel-header">
-                            <h3>Add New Farm</h3>
-                            <Plus size={20} color="#6b7280" />
-                        </div>
-                        <form className="mini-form" onSubmit={handleAddFarm}>
-                            <div className="form-group">
-                                <label>Farm Name</label>
-                                <input name="farm_name" placeholder="Name of your farm" required />
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-xl">
+                    <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)]">
+                        <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-outline">add_circle</span> Add New Farm
+                        </h3>
+                        <form className="flex flex-col gap-4" onSubmit={handleAddFarm}>
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Farm Name</label>
+                                <input name="farm_name" placeholder="Name of your farm" required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
                             </div>
-                            <div className="form-row">
-                                <div style={{flex: 1}}>
-                                    <label>Wilaya</label>
-                                    <select name="wilaya" required>
-                                        <option value="">Select Wilaya</option>
-                                        {ALGERIA_WILAYAS.map(w => (
-                                            <option key={w.id} value={w.name}>{w.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div style={{flex: 1}}>
-                                    <label>Location (Optional)</label>
-                                    <input name="location" placeholder="Specific area" />
-                                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Wilaya</label>
+                                <select name="wilaya" required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
+                                    <option value="">Select Wilaya</option>
+                                    {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
+                                </select>
                             </div>
-                            <button type="submit" className="btn-primary" disabled={loading || farms.length >= 5}>
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Location (Optional)</label>
+                                <input name="location" placeholder="Specific area" className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
+                            </div>
+                            <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full hover:bg-tertiary transition-colors disabled:opacity-50 mt-2" disabled={loading || farms.length >= 5}>
                                 {loading ? "Adding..." : farms.length >= 5 ? "Limit Reached" : "Create Farm Profile"}
                             </button>
-                            {farms.length >= 5 && <p style={{color:'#ef4444', fontSize:'0.75rem', marginTop:'8px'}}>You have reached the maximum of 5 farms.</p>}
+                            {farms.length >= 5 && <p className="text-error text-xs mt-1">You have reached the maximum of 5 farms.</p>}
                         </form>
                     </div>
 
-                    <div className="glass-panel" style={{flex: 1.5}}>
-                        <div className="panel-header">
-                            <h3>Active Farms</h3>
-                            <Truck size={20} color="#059669" />
-                        </div>
-                        <div className="mini-list">
+                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)]">
+                        <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-outline">agriculture</span> Active Farms
+                        </h3>
+                        <div className="space-y-3">
                             {farms.map(f => (
-                                <div key={f.id} className="mini-item" style={{alignItems: 'center', padding: '15px'}}>
-                                    <div className="item-main">
-                                        <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                                            <div style={{width:'10px', height:'10px', borderRadius:'50%', background:'#059669'}}></div>
-                                            <strong style={{fontSize:'1.1rem'}}>{f.name}</strong>
+                                <div key={f.id} className="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/30 hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-md bg-primary-fixed flex items-center justify-center text-on-primary-container">
+                                            <span className="material-symbols-outlined">landscape</span>
                                         </div>
-                                        <div style={{marginLeft: '20px', fontSize: '0.85rem', color: '#6b7280'}}>
-                                            Wilaya: {f.wilaya} {f.location && `• ${f.location}`}
+                                        <div>
+                                            <div className="font-bold text-on-surface">{f.name}</div>
+                                            <div className="text-xs text-on-surface-variant">Wilaya: {f.wilaya} {f.location && `• ${f.location}`}</div>
                                         </div>
                                     </div>
                                     <button 
-                                        className="btn-danger-sm btn-outline" 
+                                        className="text-outline hover:text-error transition-colors p-2 disabled:opacity-50" 
                                         onClick={() => handleDeleteFarm(f.id)}
-                                        style={{opacity: farms.length > 1 ? 1 : 0.5}}
                                         disabled={farms.length <= 1}
                                         title={farms.length <= 1 ? "Minimum 1 farm required" : "Delete farm"}
                                     >
-                                        Delete
+                                        <span className="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>
                             ))}
-                            {farms.length === 0 && <p className="empty-text">No farms registered yet.</p>}
+                            {farms.length === 0 && <p className="p-4 text-center text-on-surface-variant text-sm">No farms registered yet.</p>}
                         </div>
                     </div>
                 </div>
