@@ -47,6 +47,9 @@ class ProductSerializer(serializers.ModelSerializer):
             return obj.catalog.image.url
         return None
 
+    def get_catalog_name(self, obj):
+        return obj.catalog.name if obj.catalog else "Unnamed Product"
+
 class OrderSerializer(serializers.ModelSerializer):
     buyer_name = serializers.CharField(source='buyer.username', read_only=True)
     product_name = serializers.CharField(source='product.catalog.name', read_only=True)
@@ -62,6 +65,12 @@ class OrderSerializer(serializers.ModelSerializer):
         if obj.product and obj.product.farm:
             return obj.product.farm.wilaya
         return obj.product.farmer.wilaya if obj.product and obj.product.farmer else None
+
+    def get_delivery_status(self, obj):
+        return obj.delivery.status if hasattr(obj, 'delivery') else "PENDING"
+
+    def get_transporter_name(self, obj):
+        return obj.delivery.transporter.username if hasattr(obj, 'delivery') and obj.delivery.transporter else "N/A"
     class Meta:
         model = Order
         fields = '__all__'

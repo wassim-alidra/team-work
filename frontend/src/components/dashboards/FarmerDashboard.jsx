@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell, ChevronLeft, ChevronRight, Wrench, Calendar, MapPin, Image as ImageIcon } from "lucide-react";
+import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell, ChevronLeft, ChevronRight, Wrench, Calendar, MapPin, Users, Image as ImageIcon } from "lucide-react";
 import "../../styles/dashboard.css";
+import "../../styles/equipment_provider.css";
 import Pagination from "../common/Pagination";
 
 const ALGERIA_WILAYAS = [
@@ -131,7 +132,8 @@ const FarmerDashboard = ({ activeTab }) => {
     const fetchEquipment = async () => {
         try {
             const res = await api.get("market/equipment/");
-            setEquipment(res.data);
+            const data = res.data.results || res.data;
+            setEquipment(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Error fetching equipment:", err);
         }
@@ -156,7 +158,8 @@ const FarmerDashboard = ({ activeTab }) => {
     const fetchEquipmentBookings = async () => {
         try {
             const res = await api.get("market/equipment-bookings/");
-            setEquipmentBookings(res.data);
+            const data = res.data.results || res.data;
+            setEquipmentBookings(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
         }
@@ -937,139 +940,110 @@ const FarmerDashboard = ({ activeTab }) => {
 
     if (activeTab === "equipment") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2><Wrench size={24} style={{ verticalAlign: 'middle', marginRight: '10px' }} /> Agricultural Equipment Rental</h2>
-                    <p>Browse and book machinery for your farm operations</p>
-                </div>
+            <div className="ep-dashboard-container animate-in pb-20 md:pb-0">
+                <header className="flex flex-col md:flex-row md:items-end justify-between mb-lg mt-4">
+                    <div>
+                        <span className="ep-label-caps">Rental Services</span>
+                        <h1 className="ep-h1">Machinery Rental</h1>
+                        <p className="text-on-surface-variant mt-2 max-w-2xl">Access professional agricultural equipment from verified providers.</p>
+                    </div>
+                </header>
 
                 {equipmentBookings.length > 0 && (
-                    <div className="history-table-container mt-2 mb-3">
-                        <h3 className="mb-1">My Rental Requests</h3>
-                        <table className="history-table">
-                            <thead>
-                                <tr>
-                                    <th>Machine</th>
-                                    <th>Provider</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {equipmentBookings.map(b => (
-                                    <tr key={b.id}>
-                                        <td><strong>{b.equipment_name}</strong></td>
-                                        <td>{b.provider_name}</td>
-                                        <td>{new Date(b.created_at).toLocaleDateString()}</td>
-                                        <td><span className={`status-badge ${b.status.toLowerCase()}`}>{b.status}</span></td>
+                    <div className="ep-card mb-xl overflow-hidden">
+                        <div className="flex items-center gap-2 mb-lg">
+                            <h3 className="ep-h3 text-secondary"><Clock size={24} /> My Rental History</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="history-table w-full">
+                                <thead>
+                                    <tr className="border-b border-surface-container-highest">
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Machine</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Provider</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Date</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-surface-container">
+                                    {equipmentBookings.map(b => (
+                                        <tr key={b.id}>
+                                            <td className="py-4 font-bold text-primary">{b.equipment_name}</td>
+                                            <td className="py-4 text-sm">{b.provider_name}</td>
+                                            <td className="py-4 text-sm">{new Date(b.created_at).toLocaleDateString()}</td>
+                                            <td className="py-4"><span className={`status-badge ${b.status.toLowerCase()}`}>{b.status}</span></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
 
-                <div className="inventory-list mt-2">
-                    <h3 className="mb-1">Available Fleet</h3>
-                    <div className="grid-list">
+                <div className="mb-lg">
+                    <h3 className="ep-h3 mb-lg"><Package size={24} className="text-secondary" /> Available Fleet</h3>
+                    <div className="ep-equipment-grid">
                         {equipment.map(e => (
-                            <div key={e.id} className={`card-item animate-in ${!e.is_available ? 'unavailable-card' : ''}`}>
-                                <div className="card-image-box" style={{height: '160px', overflow: 'hidden', background: '#f1f5f9', position: 'relative'}}>
+                            <div key={e.id} className={`ep-equipment-card ${(!e.is_available || e.quantity_available === 0) ? 'opacity-60' : ''}`}>
+                                <div className="ep-card-img-container">
                                     {e.images && e.images.length > 0 ? (
-                                        <img src={e.images[0].image} alt={e.name} style={{width:'100%', height:'100%', objectFit:'cover'}} />
+                                        <img src={e.images[0].image} alt={e.name} className="ep-card-img" />
                                     ) : (
-                                        <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:'100%'}}>
-                                             <ImageIcon size={40} color="#cbd5e1" />
+                                        <div className="flex items-center justify-center bg-surface-container h-full">
+                                             <ImageIcon size={40} className="text-outline-variant" />
                                         </div>
                                     )}
-                                    <div style={{position:'absolute', bottom: '10px', right: '10px', background: 'rgba(255,255,255,0.9)', padding: '4px 8px', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 700, color: '#166534', boxShadow: '0 2px 4px rgba(0,0,0,0.1)'}}>
-                                        {e.price_per_day} DA/day
+                                    <div className="ep-card-badge">
+                                        {e.is_available && e.quantity_available > 0 ? 'Available' : 'Booked Out'}
                                     </div>
                                 </div>
-                                <div className="card-content">
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                        <div>
-                                            <h3>{e.name}</h3>
-                                            <p className="p-type" style={{ fontWeight: 600, color: '#2f8f3a', fontSize: '0.85rem', display:'flex', alignItems:'center', gap:'4px' }}>
-                                                {e.equipment_type} 
-                                                {e.year_of_manufacture && <span>({e.year_of_manufacture})</span>}
-                                            </p>
-                                        </div>
-                                        {e.quantity_available === 0 && e.earliest_return_date ? (
-                                            <span className="status-badge pending" style={{ background: '#fef08a', color: '#854d0e', border: '1px solid #fde047' }}>
-                                                Unavailable until {e.earliest_return_date}
-                                            </span>
-                                        ) : (
-                                            <span className={`status-badge ${e.is_available && e.quantity_available > 0 ? 'approved' : 'pending'}`}>
-                                                {e.is_available && e.quantity_available > 0 ? 'Available' : 'Unavailable'}
-                                            </span>
-                                        )}
-                                    </div>
+                                <div className="ep-card-body">
+                                    <p className="ep-label-caps" style={{fontSize: '10px'}}>{e.equipment_type}</p>
+                                    <h3 className="font-bold text-lg text-primary">{e.name}</h3>
                                     
-                                    <div className="product-meta mt-1" style={{display:'flex', flexDirection:'column', gap:'5px'}}>
-                                        <div className="meta-item">
-                                            <MapPin size={14} /> <span>{e.location || "Location not specified"}</span>
-                                        </div>
-                                        <div className="meta-item">
-                                            <strong>Condition:</strong> <span>{e.condition}</span>
-                                        </div>
-                                        <div className="meta-item">
-                                            <strong>Provider:</strong> <span>{e.provider_name}</span>
-                                        </div>
+                                    <div className="grid grid-cols-2 gap-4 my-4">
+                                        <div className="ep-meta-item"><MapPin size={14} /> <span>{e.location || "Nearby"}</span></div>
+                                        <div className="ep-meta-item"><Package size={14} /> <span>{e.quantity_available} Available</span></div>
+                                        <div className="ep-meta-item col-span-2"><Users size={14} /> <span>Provider: {e.provider_name}</span></div>
                                     </div>
 
-                                    <div className="tech-specs-summary mt-1" style={{display:'flex', flexWrap:'wrap', gap:'6px'}}>
-                                        {e.horsepower && <span className="spec-tag">{e.horsepower}</span>}
-                                        {e.fuel_type && <span className="spec-tag">{e.fuel_type}</span>}
-                                        {e.transmission && <span className="spec-tag">{e.transmission}</span>}
-                                        {e.weight && <span className="spec-tag">{e.weight}</span>}
-                                    </div>
-
-                                    {!e.is_available && e.expected_available_date && (
-                                        <div className="notice-box mt-1" style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', padding: '8px', borderRadius: '6px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                                            <Calendar size={16} />
-                                            <span style={{ fontSize: '0.85rem' }}>Expected back on: <strong>{e.expected_available_date}</strong></span>
+                                    {bookingFormId === e.id ? (
+                                        <div className="bg-surface-container-low p-4 rounded-lg border border-outline-variant/30 space-y-4">
+                                            <div>
+                                                <label className="font-bold text-xs uppercase text-on-surface-variant block mb-1">Quantity</label>
+                                                <input type="number" min="1" max={e.quantity_available} value={bookingData.requested_quantity} onChange={(ev) => setBookingData(p => ({ ...p, requested_quantity: parseInt(ev.target.value) || 1 }))} className="w-full bg-white border border-outline-variant/50 rounded-lg px-3 py-2 text-sm" />
+                                            </div>
+                                            <div>
+                                                <label className="font-bold text-xs uppercase text-on-surface-variant block mb-1">Duration (Days)</label>
+                                                <input type="number" min="1" value={bookingData.rental_days} onChange={(ev) => setBookingData(p => ({ ...p, rental_days: parseInt(ev.target.value) || 1 }))} className="w-full bg-white border border-outline-variant/50 rounded-lg px-3 py-2 text-sm" />
+                                            </div>
+                                            <div className="text-sm font-bold text-primary flex justify-between items-center">
+                                                <span>Estimated Total:</span>
+                                                <span className="text-secondary">{(e.price_per_day * bookingData.requested_quantity * bookingData.rental_days).toLocaleString()} DA</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button className="ep-btn-secondary flex-1 text-xs py-2" onClick={() => handleBookEquipment(e)}>Confirm Request</button>
+                                                <button className="ep-btn-outline text-xs py-2" onClick={() => setBookingFormId(null)}>Cancel</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="ep-card-footer">
+                                            <div>
+                                                <span className="ep-price">{e.price_per_day} DA</span>
+                                                <span className="text-on-surface-variant text-sm">/day</span>
+                                            </div>
+                                            <button
+                                                className={`ep-btn-primary text-xs ${(e.quantity_available === 0 || !e.is_available) ? 'opacity-50 cursor-not-allowed' : 'active:scale-95'}`}
+                                                disabled={e.quantity_available === 0 || !e.is_available}
+                                                onClick={() => { setBookingFormId(e.id); setBookingData({ requested_quantity: 1, rental_days: 1 }); }}
+                                            >
+                                                {e.quantity_available === 0 ? 'Fully Booked' : 'Rent Now'}
+                                            </button>
                                         </div>
                                     )}
                                 </div>
-                                {bookingFormId === e.id ? (
-                                    <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Quantity ({e.quantity_available} available):</label>
-                                            <input type="number" min="1" max={e.quantity_available} value={bookingData.requested_quantity} onChange={(ev) => setBookingData(p => ({ ...p, requested_quantity: parseInt(ev.target.value) || 1 }))} style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569' }}>Rental Duration (Days):</label>
-                                            <input type="number" min="1" value={bookingData.rental_days} onChange={(ev) => setBookingData(p => ({ ...p, rental_days: parseInt(ev.target.value) || 1 }))} style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                                        </div>
-                                        <div style={{ fontSize: '0.9rem', color: '#0f172a' }}>
-                                            Total: <strong style={{color:'#166534'}}>{(e.price_per_day * bookingData.requested_quantity * bookingData.rental_days).toFixed(2)} DA</strong>
-                                        </div>
-                                        <div className="flex-gap-sm mt-1">
-                                            <button className="btn-success-sm full-width" onClick={() => handleBookEquipment(e)}>Confirm</button>
-                                            <button className="btn-danger-outline" style={{padding:'0.5rem 1rem'}} onClick={() => setBookingFormId(null)}>Cancel</button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <button
-                                        className={`btn-primary full-width mt-1 ${(e.quantity_available === 0 || !e.is_available) ? 'disabled' : ''}`}
-                                        disabled={e.quantity_available === 0 || !e.is_available}
-                                        onClick={() => { setBookingFormId(e.id); setBookingData({ requested_quantity: 1, rental_days: 1 }); }}
-                                        style={e.quantity_available === 0 ? {background: '#9ca3af', border: 'none'} : {}}
-                                    >
-                                        {e.quantity_available === 0 ? 'Out of Stock' : (!e.is_available ? 'Currently Unavailable' : 'Inquire Now (Book)')}
-                                    </button>
-                                )}
                             </div>
                         ))}
                     </div>
-                    {equipment.filter(e => e.is_available).length === 0 && equipment.length > 0 && (
-                        <p className="notice-box mt-2">
-                            <AlertCircle size={20} />
-                            All equipment is currently rented out. Please check back later or contact providers for reservations.
-                        </p>
-                    )}
-                    {equipment.length === 0 && <p className="empty-state">No equipment available in your area yet.</p>}
                 </div>
             </div>
         );

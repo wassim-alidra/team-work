@@ -489,6 +489,21 @@ const AdminDashboard = ({ activeTab }) => {
                                     <div><strong className="text-on-surface-variant block mb-1">Status</strong> {selectedUser.is_deleted ? "Deleted" : selectedUser.is_active ? "Active" : "Suspended"}</div>
                                     <div><strong className="text-on-surface-variant block mb-1">Joined Date</strong> {new Date(selectedUser.date_joined).toLocaleDateString()}</div>
                                     {selectedUser.extra_info && <div className="col-span-2"><strong className="text-on-surface-variant block mb-1">Profile Info</strong> {selectedUser.extra_info}</div>}
+                                    
+                                    {selectedUser.documents && selectedUser.documents.length > 0 && (
+                                        <div className="col-span-2">
+                                            <strong className="text-on-surface-variant block mb-2">Verification Documents</strong>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                                {selectedUser.documents.map((doc, idx) => (
+                                                    <a key={idx} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 bg-surface border border-outline-variant/30 rounded-xl hover:bg-surface-container transition-colors group">
+                                                        <span className="material-symbols-outlined text-primary">description</span>
+                                                        <span className="font-body-sm text-body-sm text-on-surface flex-1 truncate">{doc.name}</span>
+                                                        <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             

@@ -414,6 +414,11 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
                     item['documents'].append({'name': 'Driving License', 'url': request.build_absolute_uri(u.transporter_profile.driving_license_file.url)})
                 if u.transporter_profile.car_license_file:
                     item['documents'].append({'name': 'Car License', 'url': request.build_absolute_uri(u.transporter_profile.car_license_file.url)})
+            elif u.role == User.Role.EQUIPMENT_PROVIDER and hasattr(u, 'equipment_provider_profile'):
+                item['extra_info'] = f"Machinery Co: {u.equipment_provider_profile.company_name}"
+                item['documents'] = []
+                if u.equipment_provider_profile.commercial_register_file:
+                    item['documents'].append({'name': 'Business License', 'url': request.build_absolute_uri(u.equipment_provider_profile.commercial_register_file.url)})
             else:
                 item['extra_info'] = ''
                 item['documents'] = []

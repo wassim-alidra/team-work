@@ -20,8 +20,9 @@ class User(AbstractUser):
     ]
     approval_status = models.CharField(max_length=20, choices=APPROVAL_CHOICES, default='pending')
     def save(self, *args, **kwargs):
-        if self.is_superuser:
+        if self.is_superuser or self.role == self.Role.ADMIN:
             self.role = self.Role.ADMIN
+            self.approval_status = 'approved'
         return super().save(*args, **kwargs)
 
 

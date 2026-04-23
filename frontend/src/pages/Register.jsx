@@ -140,17 +140,15 @@ const Register = () => {
                         </select>
                     </div>
 
-                    {(formData.role === 'FARMER' || formData.role === 'BUYER') && (
-                        <div>
-                            <label className="auth-form-label">Select Wilaya</label>
-                            <select name="wilaya" onChange={handleChange} value={formData.wilaya} required>
-                                <option value="">-- Choose your Wilaya --</option>
-                                {ALGERIA_WILAYAS.map(w => (
-                                    <option key={w.id} value={w.name}>{w.id} - {w.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
+                    <div>
+                        <label className="auth-form-label">Select Wilaya</label>
+                        <select name="wilaya" onChange={handleChange} value={formData.wilaya} required>
+                            <option value="">-- Choose your Wilaya --</option>
+                            {ALGERIA_WILAYAS.map(w => (
+                                <option key={w.id} value={w.name}>{w.id} - {w.name}</option>
+                            ))}
+                        </select>
+                    </div>
 
                     {formData.role === 'FARMER' && (
                         <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
@@ -212,7 +210,7 @@ const Register = () => {
                         <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
                             <div>
                                 <label className="auth-form-label">Company Name</label>
-                                <input type="text" name="company_name" placeholder="Your company name" onChange={handleChange} />
+                                <input type="text" name="company_name" placeholder="Your company name" onChange={handleChange} required />
                             </div>
                             <div>
                                 <label className="auth-form-label">Commercial Register (PDF)</label>
@@ -226,15 +224,15 @@ const Register = () => {
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                                 <div>
                                     <label className="auth-form-label">Vehicle Type</label>
-                                    <input type="text" name="vehicle_type" placeholder="e.g. Truck" onChange={handleChange} />
+                                    <input type="text" name="vehicle_type" placeholder="e.g. Truck" onChange={handleChange} required />
                                 </div>
                                 <div>
                                     <label className="auth-form-label">License Plate</label>
-                                    <input type="text" name="license_plate" placeholder="Plate No." onChange={handleChange} />
+                                    <input type="text" name="license_plate" placeholder="Plate No." onChange={handleChange} required />
                                 </div>
                                 <div>
                                     <label className="auth-form-label">Capacity (Tons)</label>
-                                    <input type="number" name="capacity" placeholder="Tons" onChange={handleChange} />
+                                    <input type="number" name="capacity" placeholder="Tons" onChange={handleChange} required />
                                 </div>
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -254,7 +252,7 @@ const Register = () => {
                         <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
                             <div>
                                 <label className="auth-form-label">Company Name</label>
-                                <input type="text" name="company_name" placeholder="Your machinery company" onChange={handleChange} />
+                                <input type="text" name="company_name" placeholder="Your machinery company" onChange={handleChange} required />
                             </div>
                             <div>
                                 <label className="auth-form-label">Business License (PDF)</label>
