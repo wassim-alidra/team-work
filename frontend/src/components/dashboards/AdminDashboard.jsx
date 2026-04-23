@@ -42,6 +42,13 @@ const AdminDashboard = ({ activeTab }) => {
     const [activeMenu, setActiveMenu] = useState(null);
     const [categoryLoading, setCategoryLoading] = useState(false);
 
+    // Farm Approvals State
+    const [pendingFarms, setPendingFarms] = useState([]);
+    const [allFarms, setAllFarms] = useState([]);
+    const [farmTab, setFarmTab] = useState('pending'); // 'pending' | 'approved'
+    const [farmLoading, setFarmLoading] = useState(false);
+    const [selectedFarm, setSelectedFarm] = useState(null);
+
     const getIconComponent = (name, size = 24) => {
         const icons = { Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout };
         const Icon = icons[name] || Leaf;
@@ -49,12 +56,43 @@ const AdminDashboard = ({ activeTab }) => {
     };
 
     useEffect(() => {
-        if (activeTab === "dashboard") fetchStats();
+        if (activeTab === "dashboard") { fetchStats(); fetchAllFarms(); }
         if (activeTab === "users") fetchUsers(usersPage);
         if (activeTab === "complaints") fetchComplaints(complaintsPage);
         if (activeTab === "catalog") { fetchCatalog(null, null, catalogPage); fetchCategories(); }
         if (activeTab === "categories") fetchCategories();
+        if (activeTab === "farm-approvals") fetchAllFarms();
     }, [activeTab, usersPage, complaintsPage, catalogPage]);
+
+    const fetchAllFarms = async () => {
+        setFarmLoading(true);
+        try {
+            const res = await api.get('farms/');
+            const data = res.data.results || res.data;
+            setAllFarms(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error('Error fetching farms:', err);
+        } finally {
+            setFarmLoading(false);
+        }
+    };
+
+    const handleFarmApproval = async (farmId, action) => {
+        const confirmMsg = action === 'approve'
+            ? 'Approve this farm? It will become visible on the platform.'
+            : 'Reject this farm? This will permanently delete the farm registration.';
+        if (!window.confirm(confirmMsg)) return;
+
+        setFarmLoading(true);
+        try {
+            await api.post(`farms/${farmId}/${action}/`);
+            await fetchAllFarms();
+        } catch (err) {
+            alert(err.response?.data?.detail || `Error: could not ${action} farm.`);
+        } finally {
+            setFarmLoading(false);
+        }
+    };
 
     const fetchCategories = async () => {
         setCategoryLoading(true);
@@ -360,20 +398,40 @@ const AdminDashboard = ({ activeTab }) => {
                                     <p className="font-body-sm text-body-sm text-error">Requires attention</p>
                                 </div>
                             </div>
+                            <div className="flex items-start space-x-3">
+                                <div className="mt-1 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0 text-amber-600">
+                                    <span className="material-symbols-outlined text-[16px]">landscape</span>
+                                </div>
+                                <div>
+                                    <p className="font-body-md text-body-md text-on-surface"><span className="font-semibold">{allFarms.filter(f => !f.is_approved).length}</span> Farms Awaiting Approval</p>
+                                    {allFarms.filter(f => !f.is_approved).length > 0 && <p className="font-body-sm text-body-sm text-amber-600">Requires ministerial review</p>}
+                                </div>
+                            </div>
                         </div>
                     </section>
 
                     <section className="md:col-span-1 bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
                         <h3 className="font-h3 text-h3 text-on-surface mb-md">Quick Actions</h3>
                         <div className="space-y-3">
-                            <button className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center">
+                            <button onClick={() => {}} className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center">
                                 Review Users
                                 <ChevronRight size={20} />
                             </button>
-                            <button className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center">
+                            <button onClick={() => {}} className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center">
                                 Update Official Prices
                                 <ChevronRight size={20} />
                             </button>
+                            {allFarms.filter(f => !f.is_approved).length > 0 && (
+                                <button className="w-full text-left font-button text-button bg-amber-50 text-amber-800 border border-amber-200 rounded-lg px-4 py-3 hover:bg-amber-100 transition-colors flex justify-between items-center">
+                                    <span className="flex items-center gap-2">
+                                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                            {allFarms.filter(f => !f.is_approved).length}
+                                        </span>
+                                        Farm Approvals Pending
+                                    </span>
+                                    <ChevronRight size={20} />
+                                </button>
+                            )}
                         </div>
                     </section>
                 </div>
@@ -1157,6 +1215,166 @@ const AdminDashboard = ({ activeTab }) => {
                                 }}>{categoryLoading ? "Saving..." : "Save Changes"}</button>
                             </div>
                         </div>
+                    </div>
+                )}
+            </div>
+        );
+    }
+
+    if (activeTab === "farm-approvals") {
+        const displayedFarms = farmTab === 'pending'
+            ? allFarms.filter(f => !f.is_approved)
+            : allFarms.filter(f => f.is_approved);
+
+        return (
+            <div className="max-w-[1280px] mx-auto animate-in px-6 py-8">
+                <div className="mb-xl">
+                    <h1 className="font-h1 text-h1 text-on-surface mb-2 flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary">agriculture</span>
+                        Farm Approvals
+                    </h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant">Review and approve farmer land registration requests.</p>
+                </div>
+
+                {/* Stats Row */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-md mb-lg">
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-warning-container flex items-center justify-center text-on-warning-container">
+                            <span className="material-symbols-outlined">hourglass_empty</span>
+                        </div>
+                        <div>
+                            <div className="font-h2 text-h2 text-primary">{allFarms.filter(f => !f.is_approved).length}</div>
+                            <div className="font-body-sm text-body-sm text-on-surface-variant">Pending</div>
+                        </div>
+                    </div>
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+                            <span className="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div>
+                            <div className="font-h2 text-h2 text-primary">{allFarms.filter(f => f.is_approved).length}</div>
+                            <div className="font-body-sm text-body-sm text-on-surface-variant">Approved</div>
+                        </div>
+                    </div>
+                    <div className="col-span-2 md:col-span-1 bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30 flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface">
+                            <span className="material-symbols-outlined">landscape</span>
+                        </div>
+                        <div>
+                            <div className="font-h2 text-h2 text-primary">{allFarms.length}</div>
+                            <div className="font-body-sm text-body-sm text-on-surface-variant">Total Farms</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Tab Toggle */}
+                <div className="flex gap-2 mb-md">
+                    <button
+                        onClick={() => setFarmTab('pending')}
+                        className={`px-5 py-2 rounded-full font-button text-button transition-colors flex items-center gap-2 ${
+                            farmTab === 'pending' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-sm">pending</span>
+                        Pending ({allFarms.filter(f => !f.is_approved).length})
+                    </button>
+                    <button
+                        onClick={() => setFarmTab('approved')}
+                        className={`px-5 py-2 rounded-full font-button text-button transition-colors flex items-center gap-2 ${
+                            farmTab === 'approved' ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
+                        }`}
+                    >
+                        <span className="material-symbols-outlined text-sm">verified</span>
+                        Approved ({allFarms.filter(f => f.is_approved).length})
+                    </button>
+                    <button
+                        onClick={fetchAllFarms}
+                        className="ml-auto px-4 py-2 rounded-full bg-surface-container text-on-surface font-button text-button hover:bg-surface-container-high transition-colors flex items-center gap-1"
+                    >
+                        <span className="material-symbols-outlined text-sm">refresh</span>
+                        Refresh
+                    </button>
+                </div>
+
+                {/* Farm Cards Grid */}
+                {farmLoading ? (
+                    <div className="text-center py-12 text-on-surface-variant animate-pulse">Loading farm data...</div>
+                ) : displayedFarms.length === 0 ? (
+                    <div className="bg-surface-container-lowest rounded-xl p-xl text-center border border-outline-variant/30">
+                        <span className="material-symbols-outlined text-5xl text-outline mb-4 block">landscape</span>
+                        <p className="font-body-lg text-body-lg text-on-surface-variant">
+                            {farmTab === 'pending' ? 'No farms awaiting approval.' : 'No approved farms yet.'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+                        {displayedFarms.map(farm => (
+                            <div key={farm.id} className="bg-surface-container-lowest rounded-xl overflow-hidden border border-outline-variant/30 shadow-[0_4px_20px_rgba(26,58,52,0.05)] flex flex-col group">
+                                {/* Farm Image */}
+                                <div className="h-40 bg-surface-container-high relative overflow-hidden">
+                                    {farm.image ? (
+                                        <img src={farm.image} alt={farm.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-outline-variant gap-2">
+                                            <span className="material-symbols-outlined text-5xl">landscape</span>
+                                            <span className="text-xs font-medium">No Photo</span>
+                                        </div>
+                                    )}
+                                    <div className="absolute top-2 left-2">
+                                        {farm.is_approved ? (
+                                            <span className="bg-primary/90 text-white text-[10px] px-2.5 py-1 rounded-full font-bold shadow">✓ Approved</span>
+                                        ) : (
+                                            <span className="bg-amber-500/90 text-white text-[10px] px-2.5 py-1 rounded-full font-bold shadow">⏳ Pending</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Farm Info */}
+                                <div className="p-md flex flex-col flex-1">
+                                    <h3 className="font-bold text-on-surface text-lg mb-1 line-clamp-1">{farm.name}</h3>
+                                    <div className="flex items-center gap-1.5 text-on-surface-variant text-sm mb-1">
+                                        <span className="material-symbols-outlined text-[16px]">map</span>
+                                        <span>{farm.wilaya}</span>
+                                        {farm.location && <span className="text-outline">• {farm.location}</span>}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-on-surface-variant text-sm mb-4">
+                                        <span className="material-symbols-outlined text-[16px]">person</span>
+                                        <span>{farm.farmer_name || `Farmer #${farm.farmer}`}</span>
+                                    </div>
+                                    <div className="text-xs text-outline mb-md">
+                                        Submitted: {new Date(farm.created_at).toLocaleDateString()}
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    {!farm.is_approved && (
+                                        <div className="flex gap-2 mt-auto">
+                                            <button
+                                                onClick={() => handleFarmApproval(farm.id, 'approve')}
+                                                disabled={farmLoading}
+                                                className="flex-1 bg-primary text-on-primary font-button text-button py-2 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">check_circle</span>
+                                                Approve
+                                            </button>
+                                            <button
+                                                onClick={() => handleFarmApproval(farm.id, 'reject')}
+                                                disabled={farmLoading}
+                                                className="flex-1 bg-error-container text-on-error-container font-button text-button py-2 rounded-lg hover:bg-error hover:text-on-error transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">cancel</span>
+                                                Reject
+                                            </button>
+                                        </div>
+                                    )}
+                                    {farm.is_approved && (
+                                        <div className="mt-auto pt-2 border-t border-outline-variant/20 flex items-center gap-2 text-sm text-on-surface-variant">
+                                            <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+                                            <span>Approved and active on platform</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>

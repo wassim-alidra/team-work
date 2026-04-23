@@ -76,11 +76,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.role == User.Role.FARMER:
-            # Farmers see all their own products (even legacy ones)
+            # Farmers see all their own products
             queryset = Product.objects.filter(farmer=user)
         else:
-            # Buyers and others only see properly catalogued products
-            queryset = Product.objects.filter(catalog__isnull=False)
+            # Buyers and others only see properly catalogued products from approved farms
+            queryset = Product.objects.filter(catalog__isnull=False, farm__is_approved=True)
 
         search = self.request.query_params.get('search')
         if search:

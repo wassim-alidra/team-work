@@ -103,6 +103,8 @@ const FarmerDashboard = ({ activeTab }) => {
     const [equipmentBookings, setEquipmentBookings] = useState([]);
     const [bookingFormId, setBookingFormId] = useState(null);
     const [bookingData, setBookingData] = useState({ requested_quantity: 1, rental_days: 1 });
+    const [editingFarm, setEditingFarm] = useState(null);
+    const [farmImage, setFarmImage] = useState(null);
 
     // Weather Feature States
     const [weatherData, setWeatherData] = useState(null);
@@ -301,13 +303,54 @@ const FarmerDashboard = ({ activeTab }) => {
         if (!name || !wilaya) return alert("Farm name and wilaya are required.");
 
         setLoading(true);
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("wilaya", wilaya);
+        formData.append("location", location);
+        if (farmImage) {
+            formData.append("image", farmImage);
+        }
+
         try {
-            await api.post("farms/", { name, wilaya, location });
+            await api.post("farms/", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             alert("Farm added successfully!");
             e.target.reset();
+            setFarmImage(null);
             fetchFarms();
         } catch (err) {
             alert(err.response?.data?.detail || "Error adding farm.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdateFarm = async (e) => {
+        e.preventDefault();
+        const name = e.target.farm_name.value;
+        const location = e.target.location.value;
+
+        if (!name) return alert("Farm name is required.");
+
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("location", location);
+        if (farmImage) {
+            formData.append("image", farmImage);
+        }
+
+        try {
+            await api.patch(`farms/${editingFarm.id}/`, formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            alert("Farm updated successfully!");
+            setEditingFarm(null);
+            setFarmImage(null);
+            fetchFarms();
+        } catch (err) {
+            alert(err.response?.data?.detail || "Error updating farm.");
         } finally {
             setLoading(false);
         }
@@ -879,28 +922,78 @@ const FarmerDashboard = ({ activeTab }) => {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-xl">
                     <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)]">
                         <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-outline">add_circle</span> Add New Farm
+                            <span className="material-symbols-outlined text-outline">
+                                {editingFarm ? "edit_location" : "add_circle"}
+                            </span> 
+                            {editingFarm ? "Edit Farm" : "Add New Farm"}
                         </h3>
-                        <form className="flex flex-col gap-4" onSubmit={handleAddFarm}>
+                        <form className="flex flex-col gap-4" onSubmit={editingFarm ? handleUpdateFarm : handleAddFarm}>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Farm Name</label>
-                                <input name="farm_name" placeholder="Name of your farm" required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                <input 
+                                    name="farm_name" 
+                                    defaultValue={editingFarm?.name || ""} 
+                                    key={editingFarm?.id || 'new'}
+                                    placeholder="Name of your farm" 
+                                    required 
+                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" 
+                                />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Wilaya</label>
-                                <select name="wilaya" required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
+                                <select 
+                                    name="wilaya" 
+                                    defaultValue={editingFarm?.wilaya || ""} 
+                                    disabled={!!editingFarm}
+                                    required 
+                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2 disabled:opacity-50"
+                                >
                                     <option value="">Select Wilaya</option>
                                     {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
                                 </select>
+                                {editingFarm && <p className="text-[10px] text-on-surface-variant mt-1">Wilaya cannot be changed after creation.</p>}
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Location (Optional)</label>
-                                <input name="location" placeholder="Specific area" className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                <input 
+                                    name="location" 
+                                    defaultValue={editingFarm?.location || ""} 
+                                    placeholder="Specific area" 
+                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" 
+                                />
                             </div>
-                            <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full hover:bg-tertiary transition-colors disabled:opacity-50 mt-2" disabled={loading || farms.length >= 5}>
-                                {loading ? "Adding..." : farms.length >= 5 ? "Limit Reached" : "Create Farm Profile"}
-                            </button>
-                            {farms.length >= 5 && <p className="text-error text-xs mt-1">You have reached the maximum of 5 farms.</p>}
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Farm Photo</label>
+                                <input 
+                                    type="file" 
+                                    accept="image/*"
+                                    onChange={(e) => setFarmImage(e.target.files[0])}
+                                    className="w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-on-primary hover:file:bg-tertiary transition-all" 
+                                />
+                                {(editingFarm?.image || farmImage) && (
+                                    <div className="mt-2 rounded-lg overflow-hidden h-32 border border-outline-variant">
+                                        <img 
+                                            src={farmImage ? URL.createObjectURL(farmImage) : editingFarm.image} 
+                                            className="w-full h-full object-cover" 
+                                            alt="Farm preview"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex gap-2">
+                                <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg flex-1 hover:bg-tertiary transition-colors disabled:opacity-50 mt-2" disabled={loading || (!editingFarm && farms.length >= 5)}>
+                                    {loading ? (editingFarm ? "Updating..." : "Adding...") : (editingFarm ? "Save Changes" : (farms.length >= 5 ? "Limit Reached" : "Create Farm Profile"))}
+                                </button>
+                                {editingFarm && (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => {setEditingFarm(null); setFarmImage(null);}} 
+                                        className="bg-surface-variant text-on-surface-variant font-button px-4 py-2 rounded-lg hover:bg-surface-dim transition-colors mt-2"
+                                    >
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
                         </form>
                     </div>
 
@@ -908,29 +1001,52 @@ const FarmerDashboard = ({ activeTab }) => {
                         <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined text-outline">agriculture</span> Active Farms
                         </h3>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {farms.map(f => (
-                                <div key={f.id} className="flex items-center justify-between p-4 bg-surface rounded-lg border border-outline-variant/30 hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-md bg-primary-fixed flex items-center justify-center text-on-primary-container">
-                                            <span className="material-symbols-outlined">landscape</span>
+                                <div key={f.id} className="flex flex-col bg-surface rounded-xl border border-outline-variant/30 hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-all overflow-hidden group">
+                                    <div className="h-32 bg-surface-container-high relative overflow-hidden">
+                                        {f.image ? (
+                                            <img src={f.image} className="w-full h-full object-cover" alt={f.name} />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-outline-variant">
+                                                <span className="material-symbols-outlined text-4xl">landscape</span>
+                                            </div>
+                                        )}
+                                        <div className="absolute top-2 left-2">
+                                            {f.is_approved ? (
+                                                <span className="bg-primary/90 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">Approved</span>
+                                            ) : (
+                                                <span className="bg-warning/90 text-on-warning text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm">Pending Approval</span>
+                                            )}
                                         </div>
-                                        <div>
-                                            <div className="font-bold text-on-surface">{f.name}</div>
-                                            <div className="text-xs text-on-surface-variant">Wilaya: {f.wilaya} {f.location && `• ${f.location}`}</div>
+                                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button 
+                                                onClick={() => {setEditingFarm(f); setFarmImage(null);}}
+                                                className="bg-white/90 p-1.5 rounded-full text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
+                                                title="Edit Farm"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">edit</span>
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteFarm(f.id)}
+                                                disabled={farms.length <= 1}
+                                                className="bg-white/90 p-1.5 rounded-full text-error hover:bg-error hover:text-white transition-all shadow-sm disabled:opacity-50"
+                                                title="Delete Farm"
+                                            >
+                                                <span className="material-symbols-outlined text-sm">delete</span>
+                                            </button>
                                         </div>
                                     </div>
-                                    <button 
-                                        className="text-outline hover:text-error transition-colors p-2 disabled:opacity-50" 
-                                        onClick={() => handleDeleteFarm(f.id)}
-                                        disabled={farms.length <= 1}
-                                        title={farms.length <= 1 ? "Minimum 1 farm required" : "Delete farm"}
-                                    >
-                                        <span className="material-symbols-outlined">delete</span>
-                                    </button>
+                                    <div className="p-4">
+                                        <div className="font-bold text-on-surface line-clamp-1">{f.name}</div>
+                                        <div className="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
+                                            <span className="material-symbols-outlined text-[14px]">map</span>
+                                            {f.wilaya} {f.location && `• ${f.location}`}
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
-                            {farms.length === 0 && <p className="p-4 text-center text-on-surface-variant text-sm">No farms registered yet.</p>}
+                            {farms.length === 0 && <p className="col-span-full p-4 text-center text-on-surface-variant text-sm">No farms registered yet.</p>}
                         </div>
                     </div>
                 </div>
