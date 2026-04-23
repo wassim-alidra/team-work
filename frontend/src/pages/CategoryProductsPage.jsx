@@ -53,7 +53,7 @@ const CategoryProductsPage = () => {
     );
 
     return (
-        <DashboardLayout activeTab="categories" setActiveTab={() => navigate("/dashboard")}>
+       <DashboardLayout activeTab="categories">
             <div className="category-products-container animate-fade-in">
                 
                 {/* Header Section */}
@@ -61,7 +61,7 @@ const CategoryProductsPage = () => {
                     <div className="header-left">
                         <button 
                             className="back-btn-modern" 
-                            onClick={() => navigate("/dashboard")}
+                          onClick={() => navigate(-1)}
                         >
                             <ArrowLeft size={18} />
                             <span>Categories</span>
@@ -69,7 +69,7 @@ const CategoryProductsPage = () => {
                         <div className="title-section mt-4">
                             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                                 {loading ? "Loading..." : `${category?.name} Products`}
-                                <span className="cat-count-badge">{filteredProducts.length}</span>
+                                <span className="cat-count-badge">{productsCount}</span>
                             </h1>
                             <p className="text-gray-500 mt-1">Manage official regulated prices and products for this category</p>
                         </div>
@@ -194,7 +194,6 @@ const CategoryProductsPage = () => {
 
                 .cat-count-badge {
                     font-size: 0.9rem;
-                    background: #dcfce7;
                     color: #166534;
                     padding: 0.2rem 0.75rem;
                     border-radius: 20px;

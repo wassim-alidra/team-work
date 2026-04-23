@@ -59,14 +59,22 @@ const BuyerDashboard = ({ activeTab }) => {
             }
             params.append("page", page);
             url += `?${params.toString()}`;
-            
+
             const res = await api.get(url);
-            if (res.data.results) {
+            console.log("API response products:", res.data); // Added for debugging
+
+            if (res.data && res.data.results) {
                 setProducts(res.data.results);
                 setProductsCount(res.data.count);
-            } else {
+                console.log("products array to render:", res.data.results);
+            } else if (Array.isArray(res.data)) {
                 setProducts(res.data);
                 setProductsCount(res.data.length);
+                console.log("products array to render:", res.data);
+            } else {
+                setProducts([]);
+                setProductsCount(0);
+                console.log("products mapping fallback - set empty.");
             }
         } catch (err) {
             console.error(err);
@@ -120,7 +128,7 @@ const BuyerDashboard = ({ activeTab }) => {
     const addToCart = (product) => {
         const qty = prompt(`How many ${product.catalog_unit || 'units'} of ${product.name} would you like?`, "1");
         if (!qty || isNaN(qty) || parseFloat(qty) <= 0) return;
-        
+
         const item = {
             ...product,
             quantity: parseFloat(qty),
@@ -139,7 +147,7 @@ const BuyerDashboard = ({ activeTab }) => {
     const handleUpdateQuantity = (newQty) => {
         if (!cart) return;
         if (newQty <= 0) return removeFromCart();
-        
+
         // Wait, did we save quantity_available inside cart when adding? Yes, addToCart spreads product: { ...product, quantity, totalPrice }
         if (newQty > cart.quantity_available) {
             alert(`Only ${cart.quantity_available} ${cart.catalog_unit || 'kg'} available!`);
@@ -277,9 +285,12 @@ const BuyerDashboard = ({ activeTab }) => {
                                             <p className="font-body-sm text-body-sm text-on-surface-variant">{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</p>
                                         </div>
                                     </div>
-                                    <button className="w-10 h-10 rounded-full bg-surface-container hover:bg-secondary-fixed text-on-surface hover:text-on-secondary-container flex items-center justify-center transition-colors" onClick={() => addToCart(p)}>
-                                        <Package size={20} />
-                                    </button>
+                                  <button
+  onClick={() => addToCart(p)}
+  className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+>
+  <ShoppingCart size={24} color="white" strokeWidth={3} />
+</button>
                                 </div>
                             ))}
                         </div>
@@ -323,25 +334,25 @@ const BuyerDashboard = ({ activeTab }) => {
                             <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Source high-quality agricultural commodities from verified sellers nationwide.</p>
                         </div>
                     </div>
-                    
+
                     <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
                         <div className="relative w-full">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={20} />
-                            <input 
-                                className="w-full pl-12 pr-4 py-4 rounded-lg border-2 border-outline-variant/30 bg-surface focus:outline-none focus:ring-0 focus:border-primary font-body-md text-body-md text-on-surface transition-colors" 
-                                placeholder="Search products..." 
+                            <input
+                                className="w-full pl-12 pr-4 py-4 rounded-lg border-2 border-outline-variant/30 bg-surface focus:outline-none focus:ring-0 focus:border-primary font-body-md text-body-md text-on-surface transition-colors"
+                                placeholder="Search products..."
                                 type="text"
                                 value={filters.search}
-                                onChange={(e) => setFilters({...filters, search: e.target.value})}
+                                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                             />
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1">
                                 <label className="font-label-caps text-label-caps text-on-surface-variant uppercase">Category</label>
-                                <select 
+                                <select
                                     className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-0"
                                     value={filters.category}
-                                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                                    onChange={(e) => setFilters({ ...filters, category: e.target.value })}
                                 >
                                     <option value="all">All Categories</option>
                                     {categories.map(c => (
@@ -351,10 +362,10 @@ const BuyerDashboard = ({ activeTab }) => {
                             </div>
                             <div className="flex flex-col gap-1">
                                 <label className="font-label-caps text-label-caps text-on-surface-variant uppercase">Price Range / kg</label>
-                                <select 
+                                <select
                                     className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-0"
                                     value={filters.priceRange}
-                                    onChange={(e) => setFilters({...filters, priceRange: e.target.value})}
+                                    onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
                                 >
                                     <option value="all">Any Price</option>
                                     <option value="under_100">Under 100 DA</option>
@@ -390,19 +401,19 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <span className="font-h3 text-h3 text-primary">{p.price_per_kg} DA</span>
                                         <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
                                     </div>
-                                    <button 
-                                        onClick={() => addToCart(p)}
-                                        className="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-container flex items-center justify-center hover:bg-secondary-container transition-colors"
-                                    >
-                                        <ShoppingCart size={20} />
-                                    </button>
+                                  <button
+  onClick={() => addToCart(p)}
+  className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+>
+  <ShoppingCart size={24} color="white" strokeWidth={3} />
+</button>
                                 </div>
                             </div>
                         </article>
                     ))}
                     {products.length === 0 && <p className="col-span-full text-center text-on-surface-variant py-8">No products found matching your filters.</p>}
                 </section>
-                <Pagination 
+                <Pagination
                     currentPage={productsPage}
                     totalCount={productsCount}
                     pageSize={10}
@@ -419,7 +430,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     <h1 className="font-h1 text-h1 text-on-surface">Order Validation</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Confirm your selection before placing the order.</p>
                 </div>
-                
+
                 {cart ? (
                     <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6">
                         <div className="flex items-center gap-6 pb-6 border-b border-outline-variant/20">
@@ -434,13 +445,13 @@ const BuyerDashboard = ({ activeTab }) => {
                                 <Trash2 size={24} />
                             </button>
                         </div>
-                        
+
                         <div className="flex items-center justify-between pb-6 border-b border-outline-variant/20">
                             <span className="font-body-lg font-medium text-on-surface">Quantity</span>
                             <div className="flex items-center gap-4 bg-surface-container p-2 rounded-lg">
                                 <button className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-on-surface" onClick={() => handleUpdateQuantity(cart.quantity - 1)}>-</button>
-                                <input 
-                                    type="number" 
+                                <input
+                                    type="number"
                                     className="w-16 text-center bg-transparent border-none focus:ring-0 font-body-lg font-bold"
                                     value={cart.quantity}
                                     onChange={(e) => handleUpdateQuantity(parseFloat(e.target.value) || 0)}
@@ -460,8 +471,8 @@ const BuyerDashboard = ({ activeTab }) => {
                             </div>
                         </div>
 
-                        <button 
-                            className="w-full bg-primary text-on-primary py-4 rounded-xl font-button text-button hover:bg-tertiary transition-colors shadow-sm disabled:opacity-50" 
+                        <button
+                            className="w-full bg-primary text-on-primary py-4 rounded-xl font-button text-button hover:bg-tertiary transition-colors shadow-sm disabled:opacity-50"
                             onClick={handleCheckout}
                             disabled={loading}
                         >
@@ -489,7 +500,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     <h1 className="font-h1 text-h1 text-on-surface">My Purchases</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">History of all your orders</p>
                 </div>
-                
+
                 <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
@@ -511,12 +522,11 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <td className="p-4 font-body-md text-on-surface-variant">{o.quantity} {o.product_unit || 'kg'}</td>
                                         <td className="p-4 font-body-md font-bold text-primary">{o.total_price} DA</td>
                                         <td className="p-4">
-                                            <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${
-                                                o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
-                                                o.status === 'ACCEPTED' || o.status === 'IN_TRANSIT' ? 'bg-secondary-container text-on-secondary-container' :
-                                                o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
-                                                'bg-error-container text-on-error-container'
-                                            }`}>
+                                            <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
+                                                    o.status === 'ACCEPTED' || o.status === 'IN_TRANSIT' ? 'bg-secondary-container text-on-secondary-container' :
+                                                        o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
+                                                            'bg-error-container text-on-error-container'
+                                                }`}>
                                                 {o.status}
                                             </span>
                                         </td>
@@ -534,7 +544,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     </div>
                     {myOrders.length === 0 && <p className="text-center text-outline p-8">No purchases found.</p>}
                 </div>
-                <Pagination 
+                <Pagination
                     currentPage={myOrdersPage}
                     totalCount={myOrdersCount}
                     pageSize={10}
@@ -567,18 +577,18 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <Truck size={16} /> {o.delivery_status || o.status}
                                     </span>
                                 </div>
-                                
+
                                 <div className="mt-6 relative">
                                     <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                        <span className={['ACCEPTED','IN_TRANSIT','DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                        <span className={['IN_TRANSIT','DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                        <span className={['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                        <span className={['IN_TRANSIT', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>In Transit</span>
                                         <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                     </div>
                                     <div className="w-full bg-surface-variant rounded-full h-2 relative">
-                                        <div 
-                                            className="bg-primary h-2 rounded-full transition-all duration-500" 
-                                            style={{ 
-                                                width: o.status === 'DELIVERED' ? '100%' : o.status === 'IN_TRANSIT' ? '50%' : '10%' 
+                                        <div
+                                            className="bg-primary h-2 rounded-full transition-all duration-500"
+                                            style={{
+                                                width: o.status === 'DELIVERED' ? '100%' : o.status === 'IN_TRANSIT' ? '50%' : '10%'
                                             }}
                                         ></div>
                                     </div>
@@ -594,7 +604,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     )}
                 </div>
                 {activeTracking.length > 0 && (
-                    <Pagination 
+                    <Pagination
                         currentPage={trackingPage}
                         totalCount={activeTracking.length}
                         pageSize={10}

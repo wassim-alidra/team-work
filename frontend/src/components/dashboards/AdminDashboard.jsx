@@ -4,6 +4,7 @@ import api from "../../api/axios";
 import { Users, Home, AlertCircle, Bell, TrendingUp, Package, ShoppingCart, CheckCircle, Plus, MoreVertical, Pencil, Trash2, Clock, Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout, Eye, EyeOff, Calendar, User, ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
+import { Search } from "lucide-react";
 
 const AdminDashboard = ({ activeTab }) => {
     const navigate = useNavigate();
@@ -984,17 +985,41 @@ const AdminDashboard = ({ activeTab }) => {
                         <h1 className="font-h1 text-h1 text-on-surface mb-2">Marketplace Categories</h1>
                         <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Manage logical groupings for agricultural products across the entire platform.</p>
                     </div>
-                    <button 
-                        className="flex items-center justify-center gap-2 bg-primary text-on-primary font-button text-button px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors shadow-[0_4px_10px_rgba(26,58,52,0.2)] hover:shadow-[0_6px_15px_rgba(26,58,52,0.3)] transform hover:-translate-y-0.5"
-                        onClick={() => { setCategoryForm({ name: "", description: "", icon: "Leaf", color: "#dcfce7" }); setShowAddModal(true); }}
-                    >
-                        <span className="material-symbols-outlined text-[20px]">add</span>
-                        <span>New Category</span>
-                    </button>
+                   
                 </header>
+   <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
 
+    {/* SEARCH */}
+    <div className="search-wrapper w-full md:max-w-md">
+        <Search className="search-icon" size={18} />
+        <input 
+            type="text" 
+            placeholder="Find a category..." 
+            className="search-input-premium"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+        />
+    </div>
+
+    {/* BUTTON */}
+    <button 
+        className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors shadow-md"
+        onClick={() => { 
+            setCategoryForm({ name: "", description: "", icon: "Leaf", color: "#dcfce7" }); 
+            setShowAddModal(true); 
+        }}
+    >
+        <span className="material-symbols-outlined text-[20px]">add</span>
+        <span>New Category</span>
+    </button>
+
+</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-md">
-                    {categories.map(cat => (
+                    {categories
+    .filter(cat =>
+        cat.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .map(cat => (
                         <div 
                             key={cat.id} 
                             className="bg-surface-container-lowest rounded-2xl p-6 shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30 hover:shadow-[0_10px_25px_rgba(26,58,52,0.1)] transition-all transform hover:-translate-y-1 cursor-pointer group flex flex-col relative overflow-hidden"
@@ -1074,7 +1099,7 @@ const AdminDashboard = ({ activeTab }) => {
                             </div>
                             
                             <div className="mt-6 pt-4 border-t border-outline-variant/30 flex justify-between items-center z-10">
-                                <span className="font-label-caps text-label-caps text-on-surface-variant font-semibold bg-surface-container px-3 py-1 rounded-full">{cat.productsCount || 0} Products</span>
+                                <span className="font-label-caps text-label-caps text-on-surface-variant font-semibold bg-surface-container px-3 py-1 rounded-full">{cat.products_count || 0} Products</span>
                                 <span className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transform group-hover:translate-x-1 transition-all">arrow_forward</span>
                             </div>
                         </div>

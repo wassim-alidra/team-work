@@ -3,9 +3,14 @@ from .models import Category, ProductCatalog, Product, Order, Delivery, Complain
 from users.models import User
 
 class CategorySerializer(serializers.ModelSerializer):
+    products_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
         fields = '__all__'
+
+    def get_products_count(self, obj):
+        return obj.products.count()
 
 class PriceHistorySerializer(serializers.ModelSerializer):
     updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)

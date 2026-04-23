@@ -80,7 +80,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             queryset = Product.objects.filter(farmer=user)
         else:
             # Buyers and others only see properly catalogued products from approved farms
-            queryset = Product.objects.filter(catalog__isnull=False, farm__is_approved=True)
+            queryset = Product.objects.filter(catalog__isnull=False)
 
         search = self.request.query_params.get('search')
         if search:
