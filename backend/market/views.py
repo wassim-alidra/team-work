@@ -85,6 +85,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(catalog__name__icontains=search)
+            
+        category = self.request.query_params.get('category')
+        if category and category != 'all':
+            queryset = queryset.filter(catalog__category_id=category)
+            
+        min_price = self.request.query_params.get('min_price')
+        if min_price:
+            queryset = queryset.filter(price_per_kg__gte=min_price)
+            
+        max_price = self.request.query_params.get('max_price')
+        if max_price:
+            queryset = queryset.filter(price_per_kg__lte=max_price)
 
         return queryset
 

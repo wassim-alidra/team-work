@@ -21,7 +21,8 @@ const BuyerDashboard = ({ activeTab }) => {
         delivered_count: 0,
         total_spent: 0
     });
-    const [filters, setFilters] = useState({ search: "" });
+    const [categories, setCategories] = useState([]);
+    const [filters, setFilters] = useState({ search: "", category: "all", priceRange: "all" });
     const [cart, setCart] = useState(null); // Simple one-item cart
     const [loading, setLoading] = useState(false);
 
@@ -29,6 +30,7 @@ const BuyerDashboard = ({ activeTab }) => {
         if (activeTab === "notifications") fetchNotifications();
         fetchMyOrders(myOrdersPage);
         fetchStats();
+        fetchCategories();
         // Load cart from local storage
         const savedCart = localStorage.getItem("buyer_cart");
         if (savedCart) setCart(JSON.parse(savedCart));
@@ -44,6 +46,17 @@ const BuyerDashboard = ({ activeTab }) => {
             let url = "market/products/";
             const params = new URLSearchParams();
             if (filters.search) params.append("search", filters.search);
+            if (filters.category && filters.category !== "all") params.append("category", filters.category);
+            if (filters.priceRange && filters.priceRange !== "all") {
+                if (filters.priceRange === "under_100") {
+                    params.append("max_price", "100");
+                } else if (filters.priceRange === "100_500") {
+                    params.append("min_price", "100");
+                    params.append("max_price", "500");
+                } else if (filters.priceRange === "over_500") {
+                    params.append("min_price", "500");
+                }
+            }
             params.append("page", page);
             url += `?${params.toString()}`;
             
@@ -65,6 +78,16 @@ const BuyerDashboard = ({ activeTab }) => {
             const res = await api.get("market/notifications/");
             const data = res.data.results || res.data;
             setNotifications(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchCategories = async () => {
+        try {
+            const res = await api.get("market/categories/");
+            const data = res.data.results || res.data;
+            setCategories(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
         }
@@ -191,22 +214,24 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "notifications") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Notifications</h2>
-                    <p>Information and alerts from the Ministry</p>
+            <div className="max-w-container-max mx-auto space-y-md animate-in">
+                <div>
+                    <h1 className="font-h1 text-h1 text-on-surface">Notifications</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Information and alerts from the Ministry</p>
                 </div>
-                <div className="notifications-list">
+                <div className="flex flex-col gap-4">
                     {notifications.map(n => (
-                        <div key={n.id} className={`notification-card ${n.is_read ? 'read' : 'unread'}`}>
-                            <div className="notif-icon"><Bell size={20} /></div>
-                            <div className="notif-content">
-                                <p>{n.message}</p>
-                                <span className="timestamp">{new Date(n.created_at).toLocaleString()}</span>
+                        <div key={n.id} className={`bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border ${n.is_read ? 'border-outline-variant/20' : 'border-primary/40 bg-primary-fixed/10'} flex gap-4 items-start`}>
+                            <div className="p-2 bg-surface-variant rounded-full text-primary">
+                                <Bell size={24} />
+                            </div>
+                            <div className="flex-1">
+                                <p className="font-body-md text-body-md text-on-surface mb-1">{n.message}</p>
+                                <span className="font-label-caps text-label-caps text-outline">{new Date(n.created_at).toLocaleString()}</span>
                             </div>
                         </div>
                     ))}
-                    {notifications.length === 0 && <p className="empty-text">No notifications yet.</p>}
+                    {notifications.length === 0 && <p className="text-on-surface-variant">No notifications yet.</p>}
                 </div>
             </div>
         );
@@ -214,65 +239,75 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "dashboard") {
         const statCards = [
-            { label: "My Orders", value: stats.total_orders, icon: <ShoppingCart />, color: "blue" },
-            { label: "On The Way", value: stats.pending_deliveries, icon: <Truck />, color: "yellow" },
-            { label: "Delivered", value: stats.delivered_count, icon: <CheckCircle />, color: "green" },
-            { label: "Total Spent", value: `${stats.total_spent} DA`, icon: <CreditCard />, color: "purple" }
+            { label: "My Orders", value: stats.total_orders, icon: <ShoppingCart />, color: "bg-primary text-on-primary" },
+            { label: "On The Way", value: stats.pending_deliveries, icon: <Truck />, color: "bg-surface-container-highest text-on-surface" },
+            { label: "Delivered", value: stats.delivered_count, icon: <CheckCircle />, color: "bg-secondary-container text-on-secondary-container" },
+            { label: "Total Spent", value: `${stats.total_spent} DA`, icon: <CreditCard />, color: "bg-tertiary-container text-on-tertiary-container" }
         ];
 
         return (
-            <div className="buyer-dashboard-home animate-in">
-                <div className="stats-grid">
+            <div className="max-w-container-max mx-auto space-y-xl animate-in">
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
                     {statCards.map((s, i) => (
-                        <div key={i} className={`stat-card stat-${s.color}`}>
-                            <div className="stat-icon">{s.icon}</div>
-                            <div className="stat-info">
-                                <h3>{s.value}</h3>
-                                <p>{s.label}</p>
+                        <div key={i} className={`${s.color} rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] flex flex-col justify-between min-h-[140px]`}>
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="p-2 rounded-full bg-white/20">{s.icon}</div>
+                                <span className="font-label-caps text-label-caps uppercase opacity-90">{s.label}</span>
                             </div>
+                            <h3 className="font-h1 text-h2 font-bold">{s.value}</h3>
                         </div>
                     ))}
-                </div>
+                </section>
 
-                <div className="dashboard-sections">
-                    <div className="glass-panel">
-                        <div className="panel-header">
-                            <h3>Marketplace Highlights</h3>
-                            <button className="text-btn">View All</button>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+                    <section className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/10">
+                        <div className="flex justify-between items-center mb-6 border-b border-outline-variant/30 pb-4">
+                            <h2 className="font-h3 text-h3 text-on-surface">Marketplace Highlights</h2>
+                            <button className="font-button text-button text-secondary hover:text-primary transition-colors" onClick={() => window.location.hash = "products"}>View All</button>
                         </div>
-                        <div className="grid-list-mini">
+                        <div className="flex flex-col gap-4">
                             {products.slice(0, 4).map(p => (
-                                <div key={p.id} className="mini-item-card">
-                                    <div className="item-img">
-                                        {p.catalog_image ? <img src={p.catalog_image} alt={p.name} style={{width:'100%', height:'100%', objectFit:'cover', borderRadius:'8px'}} /> : (p.name?.[0] || 'P')}
+                                <div key={p.id} className="bg-surface-bright rounded-lg p-md border border-outline-variant/20 flex items-center justify-between group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded bg-surface-variant overflow-hidden flex items-center justify-center font-bold text-primary">
+                                            {p.catalog_image ? <img src={p.catalog_image} alt={p.name} className="w-full h-full object-cover" /> : (p.name?.[0] || 'P')}
+                                        </div>
+                                        <div>
+                                            <strong className="font-body-lg text-body-lg font-medium text-on-surface">{p.name || "Unnamed Product"}</strong>
+                                            <p className="font-body-sm text-body-sm text-on-surface-variant">{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</p>
+                                        </div>
                                     </div>
-                                    <div className="item-details">
-                                        <strong>{p.name || "Unnamed Product"}</strong>
-                                        <span>{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</span>
-                                    </div>
-                                    <button className="btn-icon" onClick={() => addToCart(p)}>+</button>
+                                    <button className="w-10 h-10 rounded-full bg-surface-container hover:bg-secondary-fixed text-on-surface hover:text-on-secondary-container flex items-center justify-center transition-colors" onClick={() => addToCart(p)}>
+                                        <Package size={20} />
+                                    </button>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </section>
 
-                    <div className="glass-panel">
-                        <div className="panel-header">
-                            <h3>Active Tracking</h3>
+                    <section className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/10">
+                        <div className="flex justify-between items-center mb-6 border-b border-outline-variant/30 pb-4">
+                            <h2 className="font-h3 text-h3 text-on-surface">Active Deliveries</h2>
                         </div>
-                        <div className="mini-list">
+                        <div className="flex flex-col gap-4">
                             {myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status)).slice(0, 3).map(o => (
-                                <div key={o.id} className="mini-item">
-                                    <div className="item-main">
-                                        <strong>Order #{o.id}</strong>
-                                        <span className={`status-pill ${o.status.toLowerCase()}`}>{o.status}</span>
+                                <div key={o.id} className="bg-surface-bright rounded-lg p-md border border-outline-variant/20 flex flex-col gap-2">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <span className="font-label-caps text-label-caps text-outline uppercase">Order #{o.id}</span>
+                                            <h4 className="font-body-lg text-body-lg font-medium text-on-surface mt-1">{o.product_name}</h4>
+                                        </div>
+                                        <span className="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps rounded-full flex items-center gap-1">
+                                            <Truck size={14} /> {o.status}
+                                        </span>
                                     </div>
-                                    <Truck size={16} color="#6b7280" />
                                 </div>
                             ))}
-                            {myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status)).length === 0 && <p className="empty-text">No active deliveries.</p>}
+                            {myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status)).length === 0 && (
+                                <p className="font-body-md text-on-surface-variant p-4 text-center bg-surface-variant/30 rounded-lg">No active deliveries.</p>
+                            )}
                         </div>
-                    </div>
+                    </section>
                 </div>
             </div>
         );
@@ -280,39 +315,93 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "products") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header-row">
-                    <h2>Fruit & Vegetable Marketplace</h2>
-                    <div className="filter-bar">
-                        <div className="search-input">
-                            <Search size={18} />
+            <div className="max-w-container-max mx-auto space-y-xl animate-in">
+                <section className="space-y-lg">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                        <div>
+                            <h1 className="font-h1 text-h1 text-on-surface">Global Marketplace</h1>
+                            <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Source high-quality agricultural commodities from verified sellers nationwide.</p>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
+                        <div className="relative w-full">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={20} />
                             <input 
-                                type="text" 
+                                className="w-full pl-12 pr-4 py-4 rounded-lg border-2 border-outline-variant/30 bg-surface focus:outline-none focus:ring-0 focus:border-primary font-body-md text-body-md text-on-surface transition-colors" 
                                 placeholder="Search products..." 
+                                type="text"
                                 value={filters.search}
                                 onChange={(e) => setFilters({...filters, search: e.target.value})}
                             />
                         </div>
-                    </div>
-                </div>
-
-                <div className="product-marketplace-grid mt-2">
-                    {products.map(p => (
-                        <div key={p.id} className="product-card-premium">
-                            <div className="product-icon-box">
-                                {p.catalog_image ? <img src={p.catalog_image} alt={p.name} className="product-card-img" /> : (p.name?.[0] || 'P')}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase">Category</label>
+                                <select 
+                                    className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-0"
+                                    value={filters.category}
+                                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                                >
+                                    <option value="all">All Categories</option>
+                                    {categories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
                             </div>
-                            <div className="product-info">
-                                <h3>{p.name || "Unnamed Product"}</h3>
-                                <p className="farmer-name">By {p.farmer_name}</p>
-                                <div className="price-tag">{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</div>
-                                <p className="stock-info">{p.quantity_available} {p.catalog_unit || 'kg'} available</p>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase">Price Range / kg</label>
+                                <select 
+                                    className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-0"
+                                    value={filters.priceRange}
+                                    onChange={(e) => setFilters({...filters, priceRange: e.target.value})}
+                                >
+                                    <option value="all">Any Price</option>
+                                    <option value="under_100">Under 100 DA</option>
+                                    <option value="100_500">100 DA - 500 DA</option>
+                                    <option value="over_500">Over 500 DA</option>
+                                </select>
                             </div>
-                            <button className="btn-buy-now" onClick={() => addToCart(p)}>Add to Cart</button>
                         </div>
+                    </div>
+                </section>
+
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+                    {products.map(p => (
+                        <article key={p.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,58,52,0.05)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow duration-300 border border-outline-variant/10 flex flex-col group cursor-pointer">
+                            <div className="h-48 w-full bg-surface-variant relative overflow-hidden flex items-center justify-center text-4xl text-primary font-bold">
+                                {p.catalog_image ? (
+                                    <img src={p.catalog_image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                ) : (
+                                    (p.name?.[0] || 'P')
+                                )}
+                                <div className="absolute top-3 left-3 flex gap-1">
+                                    <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm">
+                                        <CheckCircle size={14} /> Verified
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="p-5 flex flex-col flex-1">
+                                <h3 className="font-body-lg text-body-lg font-semibold text-on-surface line-clamp-2 mb-2">{p.name || "Unnamed Product"}</h3>
+                                <p className="font-body-sm text-body-sm text-on-surface-variant mb-1 flex-1">By: {p.farmer_name}</p>
+                                <p className="font-body-sm text-body-sm text-outline mb-4">{p.quantity_available} {p.catalog_unit || 'kg'} available</p>
+                                <div className="flex items-end justify-between mt-auto">
+                                    <div className="flex flex-col">
+                                        <span className="font-h3 text-h3 text-primary">{p.price_per_kg} DA</span>
+                                        <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
+                                    </div>
+                                    <button 
+                                        onClick={() => addToCart(p)}
+                                        className="w-10 h-10 rounded-full bg-secondary-fixed text-on-secondary-container flex items-center justify-center hover:bg-secondary-container transition-colors"
+                                    >
+                                        <ShoppingCart size={20} />
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
                     ))}
-                    {products.length === 0 && <p className="empty-state">No products found matching your filters.</p>}
-                </div>
+                    {products.length === 0 && <p className="col-span-full text-center text-on-surface-variant py-8">No products found matching your filters.</p>}
+                </section>
                 <Pagination 
                     currentPage={productsPage}
                     totalCount={productsCount}
@@ -325,57 +414,54 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "cart") {
         return (
-            <div className="glass-panel animate-in max-600">
-                <div className="section-header">
-                    <h2><ShoppingCart size={24} /> Order Validation</h2>
-                    <p>Confirm your selection before placing the order</p>
+            <div className="max-w-3xl mx-auto space-y-md animate-in">
+                <div className="mb-8">
+                    <h1 className="font-h1 text-h1 text-on-surface">Order Validation</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Confirm your selection before placing the order.</p>
                 </div>
                 
                 {cart ? (
-                    <div className="cart-checkout-card">
-                        <div className="cart-item-info">
-                            <div className="item-icon-lg">{cart.name?.[0] || 'P'}</div>
-                            <div className="item-text">
-                                <h3>{cart.name || "Unnamed Product"}</h3>
-                                <p>From: {cart.farmer_name}</p>
-                                <div className="checkout-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px', background: 'transparent', color: '#1e293b' }}>
-                                    <button 
-                                        className="btn-sm"
-                                        onClick={() => handleUpdateQuantity(cart.quantity - 1)}
-                                        style={{ padding: '0 8px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}
-                                    >-</button>
-                                    <input 
-                                        type="number" 
-                                        value={cart.quantity}
-                                        onChange={(e) => handleUpdateQuantity(parseFloat(e.target.value) || 0)}
-                                        style={{ width: '50px', textAlign: 'center', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '2px', fontWeight: 'bold' }}
-                                    />
-                                    <button 
-                                        className="btn-sm"
-                                        onClick={() => handleUpdateQuantity(cart.quantity + 1)}
-                                        style={{ padding: '0 8px', background: '#e2e8f0', color: '#1e293b', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '1rem' }}
-                                    >+</button>
-                                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>{cart.catalog_unit || 'kg'}</span>
-                                </div>
+                    <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6">
+                        <div className="flex items-center gap-6 pb-6 border-b border-outline-variant/20">
+                            <div className="w-20 h-20 rounded bg-surface-variant flex items-center justify-center text-3xl font-bold text-primary">
+                                {cart.name?.[0] || 'P'}
                             </div>
-                            <button className="btn-delete" onClick={removeFromCart}><Trash2 size={20} /></button>
+                            <div className="flex-1">
+                                <h3 className="font-h3 text-h3 text-on-surface">{cart.name || "Unnamed Product"}</h3>
+                                <p className="font-body-md text-on-surface-variant">From: {cart.farmer_name}</p>
+                            </div>
+                            <button className="text-error hover:bg-error-container p-2 rounded-full transition-colors" onClick={removeFromCart}>
+                                <Trash2 size={24} />
+                            </button>
                         </div>
-                        <div className="checkout-summary">
-                            <div className="summary-row">
+                        
+                        <div className="flex items-center justify-between pb-6 border-b border-outline-variant/20">
+                            <span className="font-body-lg font-medium text-on-surface">Quantity</span>
+                            <div className="flex items-center gap-4 bg-surface-container p-2 rounded-lg">
+                                <button className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-on-surface" onClick={() => handleUpdateQuantity(cart.quantity - 1)}>-</button>
+                                <input 
+                                    type="number" 
+                                    className="w-16 text-center bg-transparent border-none focus:ring-0 font-body-lg font-bold"
+                                    value={cart.quantity}
+                                    onChange={(e) => handleUpdateQuantity(parseFloat(e.target.value) || 0)}
+                                />
+                                <button className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-on-surface" onClick={() => handleUpdateQuantity(cart.quantity + 1)}>+</button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div className="flex justify-between text-on-surface-variant">
                                 <span>Unit Price</span>
                                 <span>{cart.price_per_kg} DA / {cart.catalog_unit || 'kg'}</span>
                             </div>
-                            <div className="summary-row">
-                                <span>Quantity</span>
-                                <span>{cart.quantity} {cart.catalog_unit || 'kg'}</span>
-                            </div>
-                            <div className="summary-row total">
-                                <span>Order Total</span>
-                                <span>{cart.totalPrice} DA</span>
+                            <div className="flex justify-between text-on-surface font-bold text-xl pt-4 border-t border-outline-variant/20">
+                                <span>Total Order Value</span>
+                                <span className="text-primary">{cart.totalPrice} DA</span>
                             </div>
                         </div>
+
                         <button 
-                            className="btn-primary-lg" 
+                            className="w-full bg-primary text-on-primary py-4 rounded-xl font-button text-button hover:bg-tertiary transition-colors shadow-sm disabled:opacity-50" 
                             onClick={handleCheckout}
                             disabled={loading}
                         >
@@ -383,10 +469,13 @@ const BuyerDashboard = ({ activeTab }) => {
                         </button>
                     </div>
                 ) : (
-                    <div className="empty-cart">
-                        <ShoppingCart size={64} color="#e5e7eb" />
-                        <p>Your cart is empty. Browse the marketplace to add items.</p>
-                        <button className="btn-outline" onClick={() => window.location.hash = "products"}>Go to Marketplace</button>
+                    <div className="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant/20 flex flex-col items-center text-center gap-4">
+                        <ShoppingCart size={64} className="text-outline-variant" />
+                        <h3 className="font-h3 text-on-surface">Your cart is empty</h3>
+                        <p className="font-body-md text-on-surface-variant">Browse the marketplace to find fresh products.</p>
+                        <button className="bg-primary text-on-primary px-6 py-2 rounded-full font-button text-button mt-2" onClick={() => window.location.hash = "products"}>
+                            Go to Marketplace
+                        </button>
                     </div>
                 )}
             </div>
@@ -395,44 +484,55 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "orders") {
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>My Purchases</h2>
-                    <p>History of all your orders</p>
+            <div className="max-w-container-max mx-auto space-y-md animate-in">
+                <div className="mb-6">
+                    <h1 className="font-h1 text-h1 text-on-surface">My Purchases</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">History of all your orders</p>
                 </div>
-                <div className="history-table-container">
-                    <table className="history-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Product</th>
-                                <th>Farmer</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {myOrders.map(o => (
-                                <tr key={o.id}>
-                                    <td>#{o.id}</td>
-                                    <td>{o.product_name}</td>
-                                    <td>{o.farmer_name}</td>
-                                    <td>{o.quantity} {o.product_unit || 'kg'}</td>
-                                    <td><strong>{o.total_price} DA</strong></td>
-                                    <td><span className={`status-badge ${o.status.toLowerCase()}`}>{o.status}</span></td>
-                                    <td>
-                                        {o.status === 'PENDING' ? (
-                                            <button className="btn-danger-sm" onClick={() => handleCancelOrder(o.id)}>Cancel</button>
-                                        ) : (
-                                            <span className="text-muted">No actions</span>
-                                        )}
-                                    </td>
+                
+                <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-surface-container-lowest border-b border-outline-variant/20">
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Order ID</th>
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Product</th>
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Quantity</th>
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Total</th>
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Status</th>
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-outline-variant/10">
+                                {myOrders.map(o => (
+                                    <tr key={o.id} className="hover:bg-surface-bright transition-colors">
+                                        <td className="p-4 font-body-md text-on-surface">#{o.id}</td>
+                                        <td className="p-4 font-body-md font-medium text-on-surface">{o.product_name} <span className="block text-sm text-outline font-normal">By {o.farmer_name}</span></td>
+                                        <td className="p-4 font-body-md text-on-surface-variant">{o.quantity} {o.product_unit || 'kg'}</td>
+                                        <td className="p-4 font-body-md font-bold text-primary">{o.total_price} DA</td>
+                                        <td className="p-4">
+                                            <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${
+                                                o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
+                                                o.status === 'ACCEPTED' || o.status === 'IN_TRANSIT' ? 'bg-secondary-container text-on-secondary-container' :
+                                                o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
+                                                'bg-error-container text-on-error-container'
+                                            }`}>
+                                                {o.status}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            {o.status === 'PENDING' ? (
+                                                <button className="text-error hover:bg-error-container px-3 py-1 rounded-md text-sm font-medium transition-colors border border-error" onClick={() => handleCancelOrder(o.id)}>Cancel</button>
+                                            ) : (
+                                                <span className="text-outline text-sm">No actions</span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    {myOrders.length === 0 && <p className="text-center text-outline p-8">No purchases found.</p>}
                 </div>
                 <Pagination 
                     currentPage={myOrdersPage}
@@ -448,43 +548,48 @@ const BuyerDashboard = ({ activeTab }) => {
         const activeTracking = myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         return (
-            <div className="glass-panel animate-in">
-                <div className="section-header">
-                    <h2>Track Your Deliveries</h2>
-                    <p>Real-time updates on your fresh produce</p>
+            <div className="max-w-container-max mx-auto space-y-md animate-in">
+                <div className="mb-6">
+                    <h1 className="font-h1 text-h1 text-on-surface">Track Deliveries</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Real-time updates on your fresh produce.</p>
                 </div>
-                <div className="grid-list">
+                <div className="flex flex-col gap-6">
                     {paginatedTracking.map(o => (
-                        <div key={o.id} className="card-item tracking-card">
-                            <div className="card-header">
-                                <h3>Order #{o.id}</h3>
-                                <span className={`status-badge ${o.status.toLowerCase()}`}>{o.status}</span>
-                            </div>
-                            <div className="tracking-info">
-                                <div className="info-row">
-                                    <Truck size={18} />
-                                    <span>Transporter: {o.transporter_name || "Finding Transporter..."}</span>
+                        <div key={o.id} className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col md:flex-row gap-6 items-center">
+                            <div className="flex-1 w-full">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <span className="font-label-caps text-label-caps text-outline uppercase">Order #{o.id}</span>
+                                        <h4 className="font-body-lg text-body-lg font-medium text-on-surface mt-1">{o.product_name}</h4>
+                                        <p className="font-body-sm text-body-sm text-on-surface-variant">Transporter: {o.transporter_name || "Finding..."}</p>
+                                    </div>
+                                    <span className="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps rounded-full flex items-center gap-1">
+                                        <Truck size={16} /> {o.delivery_status || o.status}
+                                    </span>
                                 </div>
-                                <div className="info-row">
-                                    <ShoppingCart size={18} />
-                                    <span>Status: {o.delivery_status || "Pending Acceptance"}</span>
+                                
+                                <div className="mt-6 relative">
+                                    <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
+                                        <span className={['ACCEPTED','IN_TRANSIT','DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                        <span className={['IN_TRANSIT','DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                        <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
+                                    </div>
+                                    <div className="w-full bg-surface-variant rounded-full h-2 relative">
+                                        <div 
+                                            className="bg-primary h-2 rounded-full transition-all duration-500" 
+                                            style={{ 
+                                                width: o.status === 'DELIVERED' ? '100%' : o.status === 'IN_TRANSIT' ? '50%' : '10%' 
+                                            }}
+                                        ></div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="progress-track-container">
-                                <div className="track-step active">Ordered</div>
-                                <div className={`track-line ${o.status === 'ACCEPTED' || o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'active' : ''}`}></div>
-                                <div className={`track-step ${o.status === 'ACCEPTED' || o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'active' : ''}`}>Accepted</div>
-                                <div className={`track-line ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'active' : ''}`}></div>
-                                <div className={`track-step ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'active' : ''}`}>In Transit</div>
-                                <div className={`track-line ${o.status === 'DELIVERED' ? 'active' : ''}`}></div>
-                                <div className={`track-step ${o.status === 'DELIVERED' ? 'active' : ''}`}>Delivered</div>
                             </div>
                         </div>
                     ))}
                     {activeTracking.length === 0 && (
-                        <div className="empty-state">
-                            <Truck size={48} color="#e5e7eb" />
-                            <p>No active deliveries to track right now.</p>
+                        <div className="bg-surface-container-lowest p-xl rounded-xl border border-outline-variant/20 flex flex-col items-center justify-center text-center gap-4 text-on-surface-variant">
+                            <Truck size={48} className="text-outline-variant/50" />
+                            <p className="font-body-lg">No active deliveries to track right now.</p>
                         </div>
                     )}
                 </div>
@@ -502,26 +607,26 @@ const BuyerDashboard = ({ activeTab }) => {
 
     if (activeTab === "complaints") {
         return (
-            <div className="glass-panel animate-in max-600">
-                <div className="section-header">
-                    <h2>Submit a Complaint</h2>
-                    <p>Report issues with orders or delivery quality</p>
+            <div className="max-w-2xl mx-auto space-y-md animate-in">
+                <div className="mb-6">
+                    <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Report issues with orders or delivery quality.</p>
                 </div>
-                <form className="complaint-form" onSubmit={handleSubmitComplaint}>
-                    <div className="form-group">
-                        <label>Reason for Complaint (Subject)</label>
-                        <input name="subject" placeholder="Summary of the issue" required />
+                <form className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6" onSubmit={handleSubmitComplaint}>
+                    <div className="flex flex-col gap-2">
+                        <label className="font-label-caps text-label-caps text-on-surface uppercase">Reason for Complaint</label>
+                        <input name="subject" className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md" placeholder="Summary of the issue" required />
                     </div>
-                    <div className="form-group">
-                        <label>Details</label>
-                        <textarea name="message" rows="4" placeholder="Briefly describe the issue..." required></textarea>
+                    <div className="flex flex-col gap-2">
+                        <label className="font-label-caps text-label-caps text-on-surface uppercase">Details</label>
+                        <textarea name="message" rows="4" className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md resize-none" placeholder="Briefly describe the issue..." required></textarea>
                     </div>
-                    <div className="form-group">
-                        <label>Order ID (Optional)</label>
-                        <input name="orderId" type="text" placeholder="e.g. #15" />
+                    <div className="flex flex-col gap-2">
+                        <label className="font-label-caps text-label-caps text-on-surface uppercase">Order ID (Optional)</label>
+                        <input name="orderId" type="text" className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md" placeholder="e.g. #15" />
                     </div>
-                    <button type="submit" className="btn-danger" disabled={loading}>
-                        {loading ? "Reporting..." : "Report Issue"}
+                    <button type="submit" className="bg-error text-on-error py-3 rounded-xl font-button text-button hover:bg-error-container hover:text-on-error-container transition-colors shadow-sm disabled:opacity-50 mt-4" disabled={loading}>
+                        {loading ? "Reporting..." : "Submit Complaint"}
                     </button>
                 </form>
             </div>
