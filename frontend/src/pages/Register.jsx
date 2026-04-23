@@ -74,7 +74,7 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         const data = new FormData();
         for (const key in formData) {
             if (key === 'additional_farms') {
@@ -87,7 +87,7 @@ const Register = () => {
                 data.append(key, formData[key]);
             }
         }
-        
+
         try {
             await api.post('users/register/', data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -112,7 +112,7 @@ const Register = () => {
             <div className="glass-panel">
                 <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Create Account</h2>
                 <p className="auth-subtitle">Join AgriGov Market to start trading today</p>
-                
+
                 <form onSubmit={handleSubmit}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                         <div>
@@ -124,7 +124,7 @@ const Register = () => {
                             <input type="password" name="password" placeholder="Create a password" onChange={handleChange} required />
                         </div>
                     </div>
-                    
+
                     <div>
                         <label className="auth-form-label">Email Address</label>
                         <input type="email" name="email" placeholder="Enter your email" onChange={handleChange} required />
@@ -136,6 +136,7 @@ const Register = () => {
                             <option value="FARMER">Farmer</option>
                             <option value="BUYER">Buyer</option>
                             <option value="TRANSPORTER">Transporter</option>
+                            <option value="EQUIPMENT_PROVIDER">Equipment Provider</option>
                         </select>
                     </div>
 
@@ -249,9 +250,22 @@ const Register = () => {
                         </div>
                     )}
 
+                    {formData.role === 'EQUIPMENT_PROVIDER' && (
+                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
+                            <div>
+                                <label className="auth-form-label">Company Name</label>
+                                <input type="text" name="company_name" placeholder="Your machinery company" onChange={handleChange} />
+                            </div>
+                            <div>
+                                <label className="auth-form-label">Business License (PDF)</label>
+                                <input type="file" name="commercial_register_file" accept=".pdf" onChange={handleFileChange} required />
+                            </div>
+                        </div>
+                    )}
+
                     <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>Open Account</button>
                 </form>
-                
+
                 <p className="auth-footer">
                     Already have an account? <Link to="/login" className="auth-link">Sign In</Link>
                 </p>

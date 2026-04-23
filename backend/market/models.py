@@ -80,7 +80,7 @@ class Order(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.total_price:
-            self.total_price = self.product.price_per_kg * Decimal(str(self.quantity)) # Basic calculation
+            self.total_price = self.product.price_per_kg * Decimal(str(self.quantity))
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -95,11 +95,8 @@ class Delivery(models.Model):
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def save(self, *args, **kwargs):
-        # Default fee is 10% of order total, min 5.00
         if not self.delivery_fee and self.order:
             self.delivery_fee = max(Decimal('5.00'), self.order.total_price * Decimal('0.10'))
-        
-        # Sync status with Order
         if self.status == 'IN_TRANSIT':
             self.order.status = Order.Status.IN_TRANSIT
             self.order.save()
@@ -109,7 +106,6 @@ class Delivery(models.Model):
             if not self.delivery_date:
                 from django.utils import timezone
                 self.delivery_date = timezone.now()
-        
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -134,3 +130,69 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"To {self.recipient.username}: {self.message[:20]}..."
+
+class Equipment(models.Model):
+    provider = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='equipments', limit_choices_to={'role': User.Role.EQUIPMENT_PROVIDER})
+    name = models.CharField(max_length=255)
+    equipment_type = models.CharField(max_length=100)
+    
+    price_per_day = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    quantity_available = models.IntegerField(default=1)
+    deposit_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    
+    horsepower = models.CharField(max_length=50, null=True, blank=True)
+    weight = models.CharField(max_length=50, null=True, blank=True)
+    year_of_manufacture = models.IntegerField(null=True, blank=True)
+    transmission = models.CharField(max_length=100, null=True, blank=True)
+    max_speed = models.CharField(max_length=50, null=True, blank=True)
+    fuel_type = models.CharField(max_length=50, null=True, blank=True)
+    hours_of_use = models.CharField(max_length=50, null=True, blank=True)
+    
+    location = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True, help_text="General notes or extra technical details")
+    
+    condition = models.CharField(max_length=100)
+    usage_instructions = models.TextField(blank=True, null=True)
+    is_available = models.BooleanField(default=True)
+    expected_available_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.provider.username})"
+
+class EquipmentImage(models.Model):
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='images')
+    image = models.FileField(upload_to='equipment_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class EquipmentBooking(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        ACCEPTED = 'ACCEPTED', 'Accepted'
+        REJECTED = 'REJECTED', 'Rejected'
+        COMPLETED = 'COMPLETED', 'Completed'
+
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='bookings')
+    farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='equipment_bookings', limit_choices_to={'role': User.Role.FARMER})
+    requested_quantity = models.IntegerField(default=1)
+    rental_days = models.IntegerField(default=1)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    expected_return_date = models.DateTimeField(null=True, blank=True)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.total_price:
+            self.total_price = self.equipment.price_per_day * Decimal(str(self.requested_quantity)) * Decimal(str(self.rental_days))
+        if not self.expected_return_date:
+            from django.utils import timezone
+            from datetime import timedelta
+            self.expected_return_date = timezone.now() + timedelta(days=self.rental_days)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Booking for {self.equipment.name} by {self.farmer.username}"

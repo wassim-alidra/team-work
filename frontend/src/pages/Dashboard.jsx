@@ -4,6 +4,7 @@ import FarmerDashboard from "../components/dashboards/FarmerDashboard";
 import BuyerDashboard from "../components/dashboards/BuyerDashboard";
 import TransporterDashboard from "../components/dashboards/TransporterDashboard";
 import AdminDashboard from "../components/dashboards/AdminDashboard";
+import EquipmentProviderDashboard from "../components/dashboards/EquipmentProviderDashboard";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import "../styles/dashboard.css";
 
@@ -29,6 +30,10 @@ const Dashboard = () => {
 
             {user.role === "ADMIN" && (
                 <AdminDashboard activeTab={activeTab} />
+            )}
+
+            {user.role === "EQUIPMENT_PROVIDER" && (
+                <EquipmentProviderDashboard activeTab={activeTab} />
             )}
         </DashboardLayout>
     );

@@ -8,6 +8,7 @@ class User(AbstractUser):
         FARMER = 'FARMER', _('Farmer')
         BUYER = 'BUYER', _('Buyer')
         TRANSPORTER = 'TRANSPORTER', _('Transporter')
+        EQUIPMENT_PROVIDER = 'EQUIPMENT_PROVIDER', _('Equipment Provider')
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.FARMER)
     is_deleted = models.BooleanField(default=False)
@@ -53,3 +54,11 @@ class TransporterProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.vehicle_type}"
+
+class EquipmentProviderProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='equipment_provider_profile')
+    company_name = models.CharField(max_length=255)
+    commercial_register_file = models.FileField(upload_to='documents/equipment_providers/', null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.company_name}"

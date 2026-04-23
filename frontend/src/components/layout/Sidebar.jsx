@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid } from "lucide-react";
+import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench } from "lucide-react";
 
 const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const transporterItems = [
@@ -10,12 +10,22 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "profile", label: "Profile", icon: <Sprout size={18} /> },
   ];
 
+  const equipmentProviderItems = [
+    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
+    { key: "equipment", label: "My Equipment", icon: <Package size={18} /> },
+    { key: "orders", label: "Inquiries", icon: <ShoppingCart size={18} /> },
+    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
+    { key: "profile", label: "Profile", icon: <Sprout size={18} /> },
+  ];
+
   const farmerItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
     { key: "farms", label: "My Farms", icon: <LayoutGrid size={18} /> },
     { key: "products", label: "My Products", icon: <Package size={18} /> },
     { key: "orders", label: "My Orders", icon: <ShoppingCart size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
+    { key: "equipment", label: "Equipment Rental", icon: <Wrench size={18} /> },
     { key: "prices", label: "Official Prices", icon: <Package size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
     { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
@@ -56,36 +66,34 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   if (user?.role === "FARMER") menuItems = farmerItems;
   if (user?.role === "BUYER") menuItems = buyerItems;
   if (user?.role === "ADMIN") menuItems = adminItems;
+  if (user?.role === "EQUIPMENT_PROVIDER") menuItems = equipmentProviderItems;
 
   return (
-  <aside 
-  className="dashboard-sidebar"
-  style={{ display: "flex", flexDirection: "column" }}
->
-
-  <div 
-    className="sidebar-brand"
-    style={{
-      height: "80px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-      padding: "5px"
-    }}
-  >
-    <img 
-      src="/Agrigove web site.PNG" 
-      alt="AgriGov Logo"
-      style={{
-        height: "100%",
-        width: "auto",
-        objectFit: "contain"
-      }}
-    />
-  </div>
-
-
+    <aside
+      className="dashboard-sidebar"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
+      <div
+        className="sidebar-brand"
+        style={{
+          height: "80px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          overflow: "hidden",
+          padding: "5px"
+        }}
+      >
+        <img
+          src="/Agrigove web site.PNG"
+          alt="AgriGov Logo"
+          style={{
+            height: "100%",
+            width: "auto",
+            objectFit: "contain"
+          }}
+        />
+      </div>
 
       <nav className="sidebar-nav">
         {menuItems.map((item) => (

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
-from .models import FarmerProfile, BuyerProfile, TransporterProfile
+from .models import FarmerProfile, BuyerProfile, TransporterProfile, EquipmentProviderProfile
 from farms.models import Farm
 import json
 
@@ -125,6 +125,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                 capacity=profile_data.get('capacity', 0),
                 driving_license_file=profile_data.get('driving_license_file'),
                 car_license_file=profile_data.get('car_license_file')
+            )
+        elif role == User.Role.EQUIPMENT_PROVIDER:
+            EquipmentProviderProfile.objects.create(
+                user=user,
+                company_name=profile_data.get('company_name', ''),
+                commercial_register_file=profile_data.get('commercial_register_file')
             )
         
         return user
