@@ -225,18 +225,23 @@ const AdminDashboard = ({ activeTab }) => {
         }
     };
 
-    const fetchPriceHistory = async (productId) => {
-        setLoading(true);
-        try {
-            const res = await api.get(`market/price-history/?product=${productId}`);
-            setPriceHistory(res.data);
-            setShowHistoryModal(true);
-        } catch (err) {
-            alert("Error fetching price history");
-        } finally {
-            setLoading(false);
-        }
-    };
+  const fetchPriceHistory = async (productId) => {
+    setLoading(true);
+    try {
+        const res = await api.get(`market/price-history/?product=${productId}`);
+        console.log("PRICE HISTORY:", res.data);
+
+        const data = res.data.results || res.data;
+        setPriceHistory(Array.isArray(data) ? data : []);
+
+        setShowHistoryModal(true);
+    } catch (err) {
+        console.error("History error:", err);
+        alert("Error fetching price history");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleAddCatalogItem = async (e) => {
         e.preventDefault();
@@ -532,7 +537,7 @@ const AdminDashboard = ({ activeTab }) => {
                         <div className="bg-surface-container-lowest w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden flex flex-col">
                             <div className="p-lg border-b border-outline-variant/30 flex justify-between items-center">
                                 <h3 className="font-h3 text-h3 text-on-surface">Actor Review</h3>
-                                <button className="text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors" onClick={() => { setSelectedUser(null); setTempMessage(""); }}>
+                                <button className="bg-white text-red-600 hover:text-red-600 hover:bg-red-100 p-1 rounded-full transition-colors" onClick={() => { setSelectedUser(null); setTempMessage(""); }}>
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -794,7 +799,7 @@ const AdminDashboard = ({ activeTab }) => {
                                     <h3 className="font-h3 text-h3 text-on-surface mb-0.5">{selectedCatalogItem ? "Edit Official Price" : "Add Official Price"}</h3>
                                     <p className="font-body-sm text-body-sm text-on-surface-variant">Ministerial price regulation panel</p>
                                 </div>
-                                <button className="absolute top-4 right-4 text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors" onClick={() => setShowAddModal(false)}>
+                                <button className="absolute top-4 right-4 bg-white text-red-600 hover:text-red-600 hover:bg-red-100 p-1 rounded-full transition-colors" onClick={() => setShowAddModal(false)}>
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -866,7 +871,7 @@ const AdminDashboard = ({ activeTab }) => {
                                     <h3 className="font-h3 text-h3 text-on-surface mb-0.5">Price Timeline</h3>
                                     <p className="font-body-sm text-body-sm text-on-surface-variant">{selectedCatalogItem?.name}</p>
                                 </div>
-                                <button className="absolute top-4 right-4 text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors" onClick={() => setShowHistoryModal(false)}>
+                                <button className="absolute top-4 right-4 bg-white text-red-600 hover:text-red-600 hover:bg-red-100 p-1 rounded-full transition-colors" onClick={() => setShowHistoryModal(false)}>
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -1118,7 +1123,7 @@ const AdminDashboard = ({ activeTab }) => {
                                     <h3 className="font-h3 text-h3 text-on-surface mb-0.5">Add Category</h3>
                                     <p className="font-body-sm text-body-sm text-on-surface-variant">Create a new product group</p>
                                 </div>
-                                <button className="absolute top-4 right-4 text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors" onClick={() => setShowAddModal(false)}>
+                                <button className="absolute top-4 right-4 bg-white text-red-600 hover:text-red-600 hover:bg-red-100 p-1 rounded-full transition-colors" onClick={() => setShowAddModal(false)}>
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
@@ -1187,7 +1192,7 @@ const AdminDashboard = ({ activeTab }) => {
                                     <h3 className="font-h3 text-h3 text-on-surface mb-0.5">Edit Category</h3>
                                     <p className="font-body-sm text-body-sm text-on-surface-variant">Update category details</p>
                                 </div>
-                                <button className="absolute top-4 right-4 text-on-surface-variant hover:bg-surface-container p-1 rounded-full transition-colors" onClick={() => setShowEditModal(false)}>
+                                <button className="absolute top-4 right-4 bg-white text-red-600 hover:text-red-600 hover:bg-red-100 p-1 rounded-full transition-colors" onClick={() => setShowEditModal(false)}>
                                     <span className="material-symbols-outlined">close</span>
                                 </button>
                             </div>
