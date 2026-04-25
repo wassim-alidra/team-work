@@ -48,9 +48,21 @@ const Topbar = ({ user }) => {
 
       <div className="topbar-right">
         <div className="topbar-user" ref={dropdownRef}>
-          <div className="topbar-avatar" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            {user?.username?.charAt(0)?.toUpperCase() || "U"}
-          </div>
+         <div className="topbar-avatar" onClick={() => setDropdownOpen(!dropdownOpen)}>
+  {user?.profile_image ? (
+    <img
+      src={
+        user.profile_image.startsWith("http")
+          ? user.profile_image
+          : `http://localhost:8000${user.profile_image}`
+      }
+      alt="Profile"
+      className="w-full h-full object-cover rounded-full"
+    />
+  ) : (
+    user?.username?.charAt(0)?.toUpperCase() || "U"
+  )}
+</div>
           <div className="topbar-user-info" onClick={() => setDropdownOpen(!dropdownOpen)}>
             <span>{user?.username}</span>
             <small>{roleLabels[user?.role] || user?.role}</small>
@@ -72,7 +84,7 @@ const Topbar = ({ user }) => {
 
           {dropdownOpen && (
             <div className="topbar-dropdown-menu fade-in-slide">
-              <button className="dropdown-item" >
+              <button className="dropdown-item" onClick={goToProfile}>
                 <User size={16} />
                 <span>My Profile</span>
               </button>

@@ -9,7 +9,10 @@ from .serializers import (
     UserSerializer,
     CustomTokenObtainPairSerializer,
     TransporterProfileSerializer,
+    ChangePasswordSerializer,
 )
+
+
 from farms.serializers import FarmSerializer
 from farms.models import Farm
 
@@ -78,3 +81,47 @@ class CurrentUserView(APIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class ProfileImageView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        if 'profile_image' not in request.FILES:
+            return Response({"error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        image = request.FILES['profile_image']
+        
+        # Limit file size: 2MB
+        if image.size > 2 * 1024 * 1024:
+            return Response({"error": "Image size too large (max 2MB)."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Allow only jpg, png, webp
+        ext = image.name.split('.')[-1].lower()
+        if ext not in ['jpg', 'jpeg', 'png', 'webp']:
+            return Response({"error": "Invalid image format (only jpg, jpeg, png, webp allowed)."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.profile_image = image
+        user.save()
+        
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.user
+            if not user.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Current password is incorrect."]}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if serializer.data.get("old_password") == serializer.data.get("new_password"):
+                return Response({"new_password": ["New password must be different from current password."]}, status=status.HTTP_400_BAD_REQUEST)
+
+            user.set_password(serializer.data.get("new_password"))
+            user.save()
+            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

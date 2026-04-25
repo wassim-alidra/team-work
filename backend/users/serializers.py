@@ -13,13 +13,13 @@ from farms.serializers import FarmSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'wilaya', 'password')
+        fields = ('id', 'username', 'email', 'role', 'wilaya', 'date_joined', 'profile_image', 'password')
+        read_only_fields = ('date_joined',)
         extra_kwargs = {'password': {'write_only': True}}
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-
 class FarmerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FarmerProfile
@@ -151,4 +151,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             if getattr(user, 'approval_status', 'approved') == 'pending':
                 raise AuthenticationFailed("Your account is pending admin approval.")
                 
+                
         return super().validate(attrs)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "New passwords must match."})
+        return data
