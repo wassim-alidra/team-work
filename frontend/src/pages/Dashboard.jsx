@@ -1,4 +1,5 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import FarmerDashboard from "../components/dashboards/FarmerDashboard";
 import BuyerDashboard from "../components/dashboards/BuyerDashboard";
@@ -11,6 +12,15 @@ import "../styles/dashboard.css";
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
     const [activeTab, setActiveTab] = useState("dashboard");
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveTab(location.state.activeTab);
+            // Clear the state so it doesn't persist on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
 
     if (!user) return <div className="loading">Loading...</div>;
 

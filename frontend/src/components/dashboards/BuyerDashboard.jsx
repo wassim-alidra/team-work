@@ -356,8 +356,8 @@ const BuyerDashboard = ({ activeTab }) => {
                                 >
                                     <option value="all">All Categories</option>
                                     {categories.map(c => (
-                                        <option key={c.id} value={c.id}>{c.name}</option>
-                                    ))}
+                                         <option key={c.id} value={c.id}>{c.name} ({c.products_count || 0})</option>
+                                     ))}
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1">

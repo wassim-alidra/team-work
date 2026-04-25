@@ -22,6 +22,7 @@ const TransporterDashboard = ({ activeTab }) => {
         license_plate: "",
         capacity: 0
     });
+    const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -30,6 +31,7 @@ const TransporterDashboard = ({ activeTab }) => {
         if (activeTab === "dashboard" || activeTab === "status") fetchMyDeliveries(null, myDeliveriesPage);
         if (activeTab === "history") fetchMyDeliveries("DELIVERED", myDeliveriesPage);
         if (activeTab === "earnings") fetchEarnings();
+        if (activeTab === "notifications") fetchNotifications();
         if (activeTab === "profile") {
             setProfileForm({
                 vehicle_type: user.profile?.vehicle_type || "",
@@ -77,6 +79,16 @@ const TransporterDashboard = ({ activeTab }) => {
             setEarningsData(res.data);
         } catch (err) {
             console.error("Error fetching earnings:", err);
+        }
+    };
+
+    const fetchNotifications = async () => {
+        try {
+            const res = await api.get("market/notifications/");
+            const data = res.data.results || res.data;
+            setNotifications(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Error fetching notifications:", err);
         }
     };
 
@@ -450,6 +462,35 @@ const TransporterDashboard = ({ activeTab }) => {
                             <p className="text-center text-outline p-4">No recent payouts.</p>
                         )}
                     </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (activeTab === "notifications") {
+        return (
+            <div className="max-w-container-max mx-auto space-y-md animate-in">
+                <div className="mb-6">
+                    <h1 className="font-h1 text-h1 text-on-surface">Notifications</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Latest updates and alerts</p>
+                </div>
+                <div className="flex flex-col gap-4">
+                    {notifications.map(n => (
+                        <div key={n.id} className={`bg-surface-container-lowest p-lg rounded-xl border ${n.is_read ? 'border-outline-variant/20' : 'border-primary/30 bg-primary/5'} flex gap-4 items-start`}>
+                            <div className={`p-2 rounded-full ${n.is_read ? 'bg-surface-variant text-on-surface-variant' : 'bg-primary text-on-primary'}`}>
+                                <CheckCircle size={20} />
+                            </div>
+                            <div className="flex-1">
+                                <p className={`font-body-md ${n.is_read ? 'text-on-surface' : 'text-on-surface font-bold'}`}>{n.message}</p>
+                                <span className="text-xs text-on-surface-variant mt-1 block">{new Date(n.created_at).toLocaleString()}</span>
+                            </div>
+                        </div>
+                    ))}
+                    {notifications.length === 0 && (
+                        <div className="bg-surface-container-lowest p-xl rounded-xl border border-outline-variant/20 text-center text-on-surface-variant">
+                            No notifications yet.
+                        </div>
+                    )}
                 </div>
             </div>
         );

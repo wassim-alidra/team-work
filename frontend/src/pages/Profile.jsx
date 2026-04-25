@@ -173,7 +173,10 @@ const submitPasswordChange = async (e) => {
     }
 };
     return (
-        <DashboardLayout activeTab="profile" setActiveTab={() => {}}>
+        <DashboardLayout 
+            activeTab="profile" 
+            setActiveTab={(tab) => navigate("/dashboard", { state: { activeTab: tab } })}
+        >
             <button
   onClick={() => navigate(-1)}
   className="flex items-center gap-2 mb-4 text-sm text-gray-700 hover:text-black bg-white px-3 py-1.5 rounded-lg shadow-sm"

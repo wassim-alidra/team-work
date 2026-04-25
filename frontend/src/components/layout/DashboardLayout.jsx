@@ -16,7 +16,7 @@ const DashboardLayout = ({ children, activeTab, setActiveTab }) => {
             />
 
             <div className="dashboard-main">
-                <Topbar user={user} />
+                <Topbar user={user} setActiveTab={setActiveTab} />
                 <div className="dashboard-content">{children}</div>
             </div>
         </div>
