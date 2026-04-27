@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
+
+
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar" }, { id: 2, name: "Chlef" }, { id: 3, name: "Laghouat" }, { id: 4, name: "Oum El Bouaghi" },
     { id: 5, name: "Batna" }, { id: 6, name: "Bejaia" }, { id: 7, name: "Biskra" }, { id: 8, name: "Bechar" },
@@ -41,6 +43,8 @@ const Register = () => {
         additional_farms: []
     });
 
+    const [submitError, setSubmitError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -74,6 +78,8 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setSubmitError('');
+        setIsSubmitting(true);
 
         const data = new FormData();
         for (const key in formData) {
@@ -89,20 +95,24 @@ const Register = () => {
         }
 
         try {
-            await api.post('users/register/', data, {
+            const res = await api.post('users/register/', data, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-            alert('Registration successful! Please login.');
-            navigate('/login');
+            // Navigate to the email verification step, passing the email via state
+            navigate('/verify-email', { state: { email: res.data.email } });
         } catch (error) {
             console.error(error);
             if (error.response && error.response.data) {
                 const errorData = error.response.data;
-                const errorMessages = Object.keys(errorData).map(key => `${key}: ${errorData[key]}`).join('\n');
-                alert(`Registration failed:\n${errorMessages}`);
+                const errorMessages = Object.keys(errorData)
+                    .map(key => `${key}: ${Array.isArray(errorData[key]) ? errorData[key].join(', ') : errorData[key]}`)
+                    .join(' | ');
+                setSubmitError(errorMessages);
             } else {
-                alert('Registration failed. Check console for details.');
+                setSubmitError('Registration failed. Please check your details and try again.');
             }
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -261,7 +271,21 @@ const Register = () => {
                         </div>
                     )}
 
-                    <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>Open Account</button>
+                    {submitError && (
+                        <div style={{
+                            display: 'flex', alignItems: 'flex-start', gap: '8px',
+                            background: '#fef2f2', color: '#b91c1c', padding: '10px 14px',
+                            borderRadius: '10px', margin: '0.5rem 0', fontSize: '0.88rem',
+                            border: '1px solid #fecaca'
+                        }}>
+                            <span style={{ fontWeight: 'bold', flexShrink: 0 }}>✖</span>
+                            <span>{submitError}</span>
+                        </div>
+                    )}
+
+                    <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }} disabled={isSubmitting}>
+                        {isSubmitting ? 'Creating Account…' : 'Open Account'}
+                    </button>
                 </form>
 
                 <p className="auth-footer">

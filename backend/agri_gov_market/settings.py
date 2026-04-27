@@ -11,9 +11,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from backend/.env (if it exists)
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -162,3 +167,26 @@ CORS_ALLOW_ALL_ORIGINS = True # For development
 
 # OpenRouteService API Key for map routing
 OPENROUTESERVICE_API_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImE3OTM3Mzc0ODc3NjQ0OWE4YjIzMTZjNjUwYTJiZWUxIiwiaCI6Im11cm11cjY0In0='
+
+# ─── Email / SMTP Configuration ───────────────────────────────────────────────
+# Credentials are loaded from backend/.env via load_dotenv() above.
+_email_user = os.environ.get('EMAIL_HOST_USER', '')
+_email_pass = os.environ.get('EMAIL_HOST_PASSWORD', '')
+
+if _email_user and _email_pass:
+    # Real Gmail SMTP
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = _email_user
+    EMAIL_HOST_PASSWORD = _email_pass
+    DEFAULT_FROM_EMAIL = _email_user
+else:
+    # No credentials found → print OTP to Django console (dev fallback)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    EMAIL_HOST_USER = ''
+    DEFAULT_FROM_EMAIL = 'noreply@agrigov.local'
+
+# OTP expires after this many minutes
+OTP_EXPIRY_MINUTES = 5

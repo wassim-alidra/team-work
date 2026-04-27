@@ -13,7 +13,7 @@ from farms.serializers import FarmSerializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'wilaya', 'date_joined', 'profile_image', 'password')
+        fields = ('id', 'username', 'email', 'role', 'wilaya', 'date_joined', 'profile_image', 'approval_status', 'password')
         read_only_fields = ('date_joined',)
         extra_kwargs = {'password': {'write_only': True}}
     
@@ -38,6 +38,12 @@ class TransporterProfileSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     role = serializers.ChoiceField(choices=User.Role.choices)
+    email = serializers.EmailField(required=True)
+
+    def validate_email(self, value):
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value.lower()
     
     # Optional profile fields
     farm_name = serializers.CharField(required=False, allow_blank=True)
@@ -137,8 +143,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        # We check the user object directly before the standard validation attempts authentication.
-        # This prevents the generic "No active account found" error from hiding our specific messages.
         username = attrs.get(self.username_field)
         password = attrs.get("password")
         
@@ -147,10 +151,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             if hasattr(user, 'is_deleted') and user.is_deleted:
                 raise AuthenticationFailed("This account has been deleted and is no longer accessible.")
             if not user.is_active:
+                # Distinguish between: email not yet verified vs admin-suspended
+                from .models import EmailOTP
+                if EmailOTP.objects.filter(email=user.email).exists():
+                    raise AuthenticationFailed(
+                        "Please verify your email before logging in. "
+                        "Check your inbox for the 6-digit code."
+                    )
                 raise AuthenticationFailed("Your account has been suspended. Please contact the administrator.")
-            if getattr(user, 'approval_status', 'approved') == 'pending':
-                raise AuthenticationFailed("Your account is pending admin approval.")
-                
                 
         return super().validate(attrs)
 

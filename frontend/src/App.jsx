@@ -6,6 +6,7 @@ import AuthContext, { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Landing from "./pages/Landing";
 import CategoryProductsPage from "./pages/CategoryProductsPage";
@@ -32,6 +33,7 @@ function AppContent() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
 
         <Route
           path="/dashboard/*"

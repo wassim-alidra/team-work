@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+import datetime
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -64,3 +66,21 @@ class EquipmentProviderProfile(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.company_name}"
+
+
+class EmailOTP(models.Model):
+    """Stores one-time passwords for email verification."""
+    email = models.EmailField()
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Keep only the latest OTP per email
+        ordering = ['-created_at']
+
+    def is_expired(self):
+        """Returns True if the OTP is older than 5 minutes."""
+        return timezone.now() > self.created_at + datetime.timedelta(minutes=5)
+
+    def __str__(self):
+        return f"OTP for {self.email} ({self.code})"
