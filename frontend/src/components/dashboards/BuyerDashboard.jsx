@@ -301,7 +301,7 @@ const BuyerDashboard = ({ activeTab }) => {
                             <h2 className="font-h3 text-h3 text-on-surface">Active Deliveries</h2>
                         </div>
                         <div className="flex flex-col gap-4">
-                            {myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status)).slice(0, 3).map(o => (
+                            {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status)).slice(0, 3).map(o => (
                                 <div key={o.id} className="bg-surface-bright rounded-lg p-md border border-outline-variant/20 flex flex-col gap-2">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -309,12 +309,12 @@ const BuyerDashboard = ({ activeTab }) => {
                                             <h4 className="font-body-lg text-body-lg font-medium text-on-surface mt-1">{o.product_name}</h4>
                                         </div>
                                         <span className="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps rounded-full flex items-center gap-1">
-                                            <Truck size={14} /> {o.status}
+                                            <Truck size={14} /> {o.status.replace('_', ' ')}
                                         </span>
                                     </div>
                                 </div>
                             ))}
-                            {myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT'].includes(o.status)).length === 0 && (
+                            {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status)).length === 0 && (
                                 <p className="font-body-md text-on-surface-variant p-4 text-center bg-surface-variant/30 rounded-lg">No active deliveries.</p>
                             )}
                         </div>
@@ -523,11 +523,11 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <td className="p-4 font-body-md font-bold text-primary">{o.total_price} DA</td>
                                         <td className="p-4">
                                             <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
-                                                    o.status === 'ACCEPTED' || o.status === 'IN_TRANSIT' ? 'bg-secondary-container text-on-secondary-container' :
+                                                    ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
                                                         o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
                                                             'bg-error-container text-on-error-container'
                                                 }`}>
-                                                {o.status}
+                                                {o.status.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td className="p-4">
@@ -580,15 +580,20 @@ const BuyerDashboard = ({ activeTab }) => {
 
                                 <div className="mt-6 relative">
                                     <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                        <span className={['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                        <span className={['IN_TRANSIT', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                        <span className={['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                        <span className={['CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Charging</span>
+                                        <span className={['IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                        <span className={['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Near Arrival</span>
                                         <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                     </div>
                                     <div className="w-full bg-surface-variant rounded-full h-2 relative">
                                         <div
                                             className="bg-primary h-2 rounded-full transition-all duration-500"
                                             style={{
-                                                width: o.status === 'DELIVERED' ? '100%' : o.status === 'IN_TRANSIT' ? '50%' : '10%'
+                                                width: o.status === 'DELIVERED' ? '100%' : 
+                                                       o.status === 'NEAR_ARRIVAL' ? '75%' :
+                                                       o.status === 'IN_TRANSIT' ? '50%' : 
+                                                       o.status === 'CHARGING' ? '25%' : '5%'
                                             }}
                                         ></div>
                                     </div>

@@ -786,7 +786,7 @@ const FarmerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "tracking") {
-        const activeTracking = orders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
+        const activeTracking = orders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         return (
             <div className="animate-in w-full pb-20 md:pb-0">
@@ -801,7 +801,7 @@ const FarmerDashboard = ({ activeTab }) => {
                         <div key={o.id} className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
                             <div className="flex justify-between items-center mb-4 pb-2 border-b border-outline-variant/30">
                                 <h3 className="font-bold text-primary">Order #{o.id}</h3>
-                                <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] uppercase tracking-wider ${o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-secondary-container text-on-secondary-container'}`}>{o.status}</span>
+                                <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] uppercase tracking-wider ${o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-secondary-container text-on-secondary-container'}`}>{o.status.replace('_', ' ')}</span>
                             </div>
                             <div className="space-y-3 mb-6 text-sm text-on-surface">
                                 <div className="flex items-center gap-3">
@@ -810,21 +810,34 @@ const FarmerDashboard = ({ activeTab }) => {
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="material-symbols-outlined text-outline">schedule</span>
-                                    <span>Status: <strong>{o.delivery_status || "Pending Pickup"}</strong></span>
+                                    <span>Status: <strong>{(o.delivery_status || o.status).replace('_', ' ')}</strong></span>
                                 </div>
                             </div>
                             {/* Progress bar */}
                             <div className="flex justify-between items-center relative w-full pt-2">
                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container -z-10 -translate-y-1/2"></div>
-                                <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${o.status === 'DELIVERED' ? 'w-full' : o.status === 'IN_TRANSIT' ? 'w-1/2' : 'w-0'}`}></div>
+                                <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${
+                                    o.status === 'DELIVERED' ? 'w-full' : 
+                                    o.status === 'NEAR_ARRIVAL' ? 'w-3/4' :
+                                    o.status === 'IN_TRANSIT' ? 'w-1/2' : 
+                                    o.status === 'CHARGING' ? 'w-1/4' : 'w-0'
+                                }`}></div>
                                 
                                 <div className="flex flex-col items-center">
                                     <div className="w-4 h-4 rounded-full bg-primary border-4 border-surface-container-lowest"></div>
                                     <span className="text-[10px] mt-1 font-semibold text-primary">Accepted</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'bg-primary' : 'bg-surface-variant'}`}></div>
-                                    <span className={`text-[10px] mt-1 font-semibold ${o.status === 'IN_TRANSIT' || o.status === 'DELIVERED' ? 'text-primary' : 'text-outline'}`}>In Transit</span>
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Charging</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>In Transit</span>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Near Arrival</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${o.status === 'DELIVERED' ? 'bg-primary' : 'bg-surface-variant'}`}></div>

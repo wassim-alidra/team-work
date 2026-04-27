@@ -67,7 +67,9 @@ class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         ACCEPTED = 'ACCEPTED', 'Accepted'
+        CHARGING = 'CHARGING', 'In Charging'
         IN_TRANSIT = 'IN_TRANSIT', 'In Transit'
+        NEAR_ARRIVAL = 'NEAR_ARRIVAL', 'Close to Arrival'
         DELIVERED = 'DELIVERED', 'Delivered'
         CANCELLED = 'CANCELLED', 'Cancelled'
 
@@ -97,15 +99,23 @@ class Delivery(models.Model):
     def save(self, *args, **kwargs):
         if not self.delivery_fee and self.order:
             self.delivery_fee = max(Decimal('5.00'), self.order.total_price * Decimal('0.10'))
-        if self.status == 'IN_TRANSIT':
+        
+        # Sync status with Order
+        if self.status == 'ASSIGNED':
+            self.order.status = Order.Status.ACCEPTED
+        elif self.status == 'CHARGING':
+            self.order.status = Order.Status.CHARGING
+        elif self.status == 'IN_TRANSIT':
             self.order.status = Order.Status.IN_TRANSIT
-            self.order.save()
+        elif self.status == 'NEAR_ARRIVAL':
+            self.order.status = Order.Status.NEAR_ARRIVAL
         elif self.status == 'DELIVERED':
             self.order.status = Order.Status.DELIVERED
-            self.order.save()
             if not self.delivery_date:
                 from django.utils import timezone
                 self.delivery_date = timezone.now()
+        
+        self.order.save()
         super().save(*args, **kwargs)
 
     def __str__(self):

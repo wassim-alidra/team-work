@@ -268,12 +268,95 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         # Valid status transitions
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
-            if delivery.status == 'ASSIGNED' and new_status != 'IN_TRANSIT':
-                raise permissions.PermissionDenied("From ASSIGNED, you must move to IN_TRANSIT.")
-            if delivery.status == 'IN_TRANSIT' and new_status != 'DELIVERED':
-                raise permissions.PermissionDenied("From IN_TRANSIT, you must move to DELIVERED.")
+            status_order = ['ASSIGNED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED']
+            
+            if delivery.status in status_order and new_status in status_order:
+                current_idx = status_order.index(delivery.status)
+                new_idx = status_order.index(new_status)
+                if new_idx <= current_idx:
+                    raise permissions.PermissionDenied(f"Cannot move status backwards or to the same status (from {delivery.status} to {new_status}).")
+            elif new_status not in status_order:
+                 raise permissions.PermissionDenied(f"Invalid status: {new_status}")
         
         serializer.save()
+
+    @action(detail=True, methods=['get'])
+    def download_pdf(self, request, pk=None):
+        delivery = self.get_object()
+        order = delivery.order
+        
+        from django.http import HttpResponse
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+        from io import BytesIO
+        
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # Header
+        p.setFont("Helvetica-Bold", 20)
+        p.drawCentredString(width/2, height - 50, "AgriGov Delivery Receipt")
+        
+        p.setFont("Helvetica", 12)
+        p.drawCentredString(width/2, height - 70, f"Delivery ID: #{delivery.id}")
+        p.line(50, height - 85, width - 50, height - 85)
+        
+        # Content
+        y = height - 120
+        line_height = 20
+        
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Order Details")
+        y -= 25
+        
+        p.setFont("Helvetica", 12)
+        details = [
+            ("Order ID:", f"#{order.id}"),
+            ("Product:", order.product.catalog.name if order.product.catalog else "N/A"),
+            ("Quantity:", f"{order.quantity} kg"),
+            ("Total Price:", f"{order.total_price} DA"),
+            ("Buyer:", order.buyer.username),
+            ("Farmer:", order.product.farmer.username),
+        ]
+        
+        for label, value in details:
+            p.drawString(70, y, label)
+            p.drawString(200, y, value)
+            y -= line_height
+            
+        y -= 20
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Delivery Details")
+        y -= 25
+        
+        p.setFont("Helvetica", 12)
+        delivery_details = [
+            ("Transporter:", delivery.transporter.username),
+            ("Status:", delivery.status),
+            ("Fee:", f"{delivery.delivery_fee} DA"),
+            ("Delivery Date:", delivery.delivery_date.strftime("%Y-%m-%d %H:%M") if delivery.delivery_date else "N/A"),
+        ]
+        
+        for label, value in delivery_details:
+            p.drawString(70, y, label)
+            p.drawString(200, y, value)
+            y -= line_height
+            
+        # Footer
+        p.setFont("Helvetica-Oblique", 10)
+        p.drawCentredString(width/2, 50, "Thank you for using AgriGov Logistics Platform.")
+        
+        p.showPage()
+        p.save()
+        
+        pdf = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="delivery_{delivery.id}.pdf"'
+        response.write(pdf)
+        return response
 
     @action(detail=False, methods=['get'])
     def available_orders(self, request):

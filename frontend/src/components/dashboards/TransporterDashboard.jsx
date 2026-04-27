@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import api from "../../api/axios";
-import { Truck, ClipboardList, CheckCircle, DollarSign, Save, Package, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Truck, ClipboardList, CheckCircle, DollarSign, Save, Package, MapPin, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import AuthContext from "../../context/AuthContext";
 import RouteMapModal from "./RouteMapModal";
 import "../../styles/dashboard.css";
@@ -112,6 +112,24 @@ const TransporterDashboard = ({ activeTab }) => {
         }
     };
 
+    const handleDownloadPDF = async (deliveryId) => {
+        try {
+            const response = await api.get(`market/deliveries/${deliveryId}/download_pdf/`, {
+                responseType: 'blob',
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `delivery_${deliveryId}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error("Error downloading PDF:", err);
+            alert("Failed to download PDF.");
+        }
+    };
+
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -161,9 +179,14 @@ const TransporterDashboard = ({ activeTab }) => {
                                         <div key={d.id} className="relative pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30 flex flex-col gap-md mb-4 border-b border-outline-variant/20 pb-4">
                                             <div className="flex items-center justify-between">
                                                 <strong>Delivery #{d.id}</strong>
-                                                <span className={`bg-secondary-fixed text-on-secondary-fixed-variant px-sm py-xs rounded-full font-label-caps text-label-caps inline-flex items-center gap-xs`}>
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> {d.status}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <button onClick={() => handleDownloadPDF(d.id)} className="text-primary hover:text-tertiary transition-colors" title="Download PDF">
+                                                        <FileText size={14} />
+                                                    </button>
+                                                    <span className={`bg-secondary-fixed text-on-secondary-fixed-variant px-sm py-xs rounded-full font-label-caps text-label-caps inline-flex items-center gap-xs`}>
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> {d.status}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -315,33 +338,58 @@ const TransporterDashboard = ({ activeTab }) => {
                         <div key={d.id} className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
                             <div className="flex items-center justify-between mb-2">
                                 <h3 className="font-h3 text-h3 text-on-surface">Delivery #{d.id}</h3>
-                                <span className={`px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps rounded-full flex items-center gap-1`}>
-                                    <Truck size={16} /> {d.status}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <button 
+                                        onClick={() => handleDownloadPDF(d.id)}
+                                        className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                        title="Download Order PDF"
+                                    >
+                                        <FileText size={20} />
+                                    </button>
+                                    <span className={`px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps rounded-full flex items-center gap-1`}>
+                                        <Truck size={16} /> {d.status}
+                                    </span>
+                                </div>
                             </div>
                             
                             <div className="mt-4 relative mb-4">
                                 <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                    <span className={['ASSIGNED','IN_TRANSIT','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Assigned</span>
-                                    <span className={['IN_TRANSIT','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                    <span className={['ASSIGNED','CHARGING','IN_TRANSIT','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                    <span className={['CHARGING','IN_TRANSIT','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Charging</span>
+                                    <span className={['IN_TRANSIT','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                    <span className={['NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Near Arrival</span>
                                     <span className={['DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                 </div>
                                 <div className="w-full bg-surface-variant rounded-full h-2 relative">
                                     <div 
                                         className="bg-primary h-2 rounded-full transition-all duration-500" 
                                         style={{ 
-                                            width: d.status === 'DELIVERED' ? '100%' : d.status === 'IN_TRANSIT' ? '50%' : '10%' 
+                                            width: d.status === 'DELIVERED' ? '100%' : 
+                                                   d.status === 'NEAR_ARRIVAL' ? '75%' :
+                                                   d.status === 'IN_TRANSIT' ? '50%' : 
+                                                   d.status === 'CHARGING' ? '25%' : '5%' 
                                         }}
                                     ></div>
                                 </div>
                             </div>
 
                             <div className="flex justify-end border-t border-outline-variant/20 pt-4">
-                                {d.status === "ASSIGNED" ? (
+                                {d.status === "ASSIGNED" && (
+                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "CHARGING")}>
+                                        Start Charging
+                                    </button>
+                                )}
+                                {d.status === "CHARGING" && (
                                     <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "IN_TRANSIT")}>
                                         Start Transit
                                     </button>
-                                ) : (
+                                )}
+                                {d.status === "IN_TRANSIT" && (
+                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "NEAR_ARRIVAL")}>
+                                        Close to Arrival
+                                    </button>
+                                )}
+                                {d.status === "NEAR_ARRIVAL" && (
                                     <button className="bg-primary text-on-primary px-6 py-2 rounded-lg font-button hover:bg-tertiary transition-colors" onClick={() => handleUpdateStatus(d.id, "DELIVERED")}>
                                         Mark as Delivered
                                     </button>
@@ -386,6 +434,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                     <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Date</th>
                                     <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Fee</th>
                                     <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Status</th>
+                                    <th className="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-outline-variant/10">
@@ -397,6 +446,14 @@ const TransporterDashboard = ({ activeTab }) => {
                                         <td className="p-4 font-body-md font-bold text-primary">{d.delivery_fee} DA</td>
                                         <td className="p-4">
                                             <span className="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full font-label-caps text-xs">Completed</span>
+                                        </td>
+                                        <td className="p-4">
+                                            <button 
+                                                onClick={() => handleDownloadPDF(d.id)}
+                                                className="flex items-center gap-2 text-primary hover:text-tertiary transition-colors font-medium text-sm"
+                                            >
+                                                <FileText size={16} /> PDF
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}
