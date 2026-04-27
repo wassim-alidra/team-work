@@ -299,7 +299,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         p.drawCentredString(width/2, height - 50, "AgriGov Delivery Receipt")
         
         p.setFont("Helvetica", 12)
-        p.drawCentredString(width/2, height - 70, f"Delivery ID: #{delivery.id}")
+        p.drawCentredString(width/2, height - 70, f"Order ID: #{order.id}")
         p.line(50, height - 85, width - 50, height - 85)
         
         # Content

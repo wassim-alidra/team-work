@@ -178,7 +178,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                     {myDeliveries.filter(d => d.status !== "DELIVERED").slice(0, 3).map(d => (
                                         <div key={d.id} className="relative pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30 flex flex-col gap-md mb-4 border-b border-outline-variant/20 pb-4">
                                             <div className="flex items-center justify-between">
-                                                <strong>Delivery #{d.id}</strong>
+                                                <strong>Order #{d.order}</strong>
                                                 <div className="flex items-center gap-2">
                                                     <button onClick={() => handleDownloadPDF(d.id)} className="text-primary hover:text-tertiary transition-colors" title="Download PDF">
                                                         <FileText size={14} />
@@ -337,7 +337,7 @@ const TransporterDashboard = ({ activeTab }) => {
                     {paginatedActive.map(d => (
                         <div key={d.id} className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
                             <div className="flex items-center justify-between mb-2">
-                                <h3 className="font-h3 text-h3 text-on-surface">Delivery #{d.id}</h3>
+                                <h3 className="font-h3 text-h3 text-on-surface">Order #{d.order}</h3>
                                 <div className="flex items-center gap-2">
                                     <button 
                                         onClick={() => handleDownloadPDF(d.id)}
@@ -440,8 +440,8 @@ const TransporterDashboard = ({ activeTab }) => {
                             <tbody className="divide-y divide-outline-variant/10">
                                 {history.map(d => (
                                     <tr key={d.id} className="hover:bg-surface-bright transition-colors">
-                                        <td className="p-4 font-body-md text-on-surface">#{d.id}</td>
                                         <td className="p-4 font-body-md text-on-surface">Order #{d.order}</td>
+                                        <td className="p-4 font-body-md text-on-surface-variant">{d.product_name}</td>
                                         <td className="p-4 font-body-md text-on-surface-variant">{new Date(d.delivery_date).toLocaleDateString()}</td>
                                         <td className="p-4 font-body-md font-bold text-primary">{d.delivery_fee} DA</td>
                                         <td className="p-4">
@@ -506,8 +506,8 @@ const TransporterDashboard = ({ activeTab }) => {
                                         <ClipboardList size={20} />
                                     </div>
                                     <div>
-                                        <p className="font-body-md text-body-md text-on-surface font-medium">Delivery #{d.id}</p>
-                                        <p className="font-body-sm text-body-sm text-on-surface-variant">Order #{d.order}</p>
+                                        <p className="font-body-md text-body-md text-on-surface font-medium">Order #{d.order}</p>
+                                        <p className="font-body-sm text-body-sm text-on-surface-variant">{d.product_name}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
