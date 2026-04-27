@@ -39,11 +39,6 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     role = serializers.ChoiceField(choices=User.Role.choices)
     email = serializers.EmailField(required=True)
-
-    def validate_email(self, value):
-        if User.objects.filter(email__iexact=value).exists():
-            raise serializers.ValidationError("A user with this email already exists.")
-        return value.lower()
     
     # Optional profile fields
     farm_name = serializers.CharField(required=False, allow_blank=True)
