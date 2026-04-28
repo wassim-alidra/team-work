@@ -6,6 +6,8 @@ from users.models import User
 from market.models import Order, ProductCatalog
 from farms.models import Farm
 
+from django.db.models.functions import TruncWeek
+
 class FarmersByWilayaView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
@@ -31,6 +33,47 @@ class TopSellingProductsView(APIView):
         # Rename for frontend convenience
         formatted_stats = [
             {'name': item['product__catalog__name'], 'value': item['total_quantity'] or 0}
+            for item in stats
+        ]
+        
+        return Response(formatted_stats)
+
+class StatsProductsListView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        # Return list of products that have at least one order
+        products = Order.objects.exclude(status=Order.Status.CANCELLED) \
+            .values('product__catalog__id', 'product__catalog__name') \
+            .distinct()
+        
+        formatted_products = [
+            {'id': item['product__catalog__id'], 'name': item['product__catalog__name']}
+            for item in products
+        ]
+        return Response(formatted_products)
+
+class ProductWeeklySalesView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        product_id = request.query_params.get('product_id')
+        if not product_id:
+            return Response({"error": "Product ID required"}, status=400)
+
+        # Sales quantity over the weeks for the selected product
+        stats = Order.objects.filter(product__catalog_id=product_id) \
+            .exclude(status=Order.Status.CANCELLED) \
+            .annotate(week=TruncWeek('created_at')) \
+            .values('week') \
+            .annotate(total_quantity=Sum('quantity')) \
+            .order_by('week')
+        
+        formatted_stats = [
+            {
+                'week': item['week'].strftime('%Y-%m-%d'), 
+                'quantity': item['total_quantity'] or 0
+            }
             for item in stats
         ]
         
