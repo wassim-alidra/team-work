@@ -862,7 +862,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                             </div>
 
                             <div className="p-lg border-t border-outline-variant/30 bg-surface-bright flex justify-end gap-3">
-                                <button className="px-5 py-2.5 rounded-lg font-button text-button text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container transition-colors" onClick={() => setShowAddModal(false)}>Cancel</button>
+                                <button className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors" onClick={() => setShowAddModal(false)}>Cancel</button>
                                 <button className="px-5 py-2.5 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary/90 transition-colors flex items-center justify-center gap-2" onClick={handleAddCatalogItem} disabled={loading}>
                                     <span className="material-symbols-outlined text-[18px]">gavel</span>
                                     {loading ? "Saving..." : "Authorize"}
@@ -1168,7 +1168,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                 </div>
                             </div>
                             <div className="p-lg border-t border-outline-variant/30 bg-surface-bright flex justify-end gap-3">
-                                <button className="px-5 py-2.5 rounded-lg font-button text-button text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container transition-colors" onClick={() => setShowAddModal(false)}>Cancel</button>
+                                <button className="px-5 py-2.5 rounded-lg font-button  bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" onClick={() => setShowAddModal(false)}>Cancel</button>
                                 <button className="px-5 py-2.5 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-sm" disabled={categoryLoading} onClick={async () => {
                                     if (!categoryForm.name) return alert("Name is required");
                                     setCategoryLoading(true);
@@ -1237,7 +1237,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                 </div>
                             </div>
                             <div className="p-lg border-t border-outline-variant/30 bg-surface-bright flex justify-end gap-3">
-                                <button className="px-5 py-2.5 rounded-lg font-button text-button text-on-surface-variant border border-outline-variant/50 hover:bg-surface-container transition-colors" onClick={() => setShowEditModal(false)}>Cancel</button>
+                                <button className="px-5 py-2.5 rounded-lg font-button text-button  bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" onClick={() => setShowEditModal(false)}>Cancel</button>
                                 <button className="px-5 py-2.5 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-sm" disabled={categoryLoading} onClick={async () => {
                                     setCategoryLoading(true);
                                     try {

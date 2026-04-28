@@ -1177,6 +1177,68 @@ const FarmerDashboard = ({ activeTab }) => {
             </div>
         );
     }
+    if (activeTab === "complaints") {
+    return (
+        <div className="max-w-2xl mx-auto space-y-md animate-in">
+            <div className="mb-6">
+                <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
+                <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">
+                    Report issues with orders, buyers, delivery, or platform services.
+                </p>
+            </div>
+
+            <form
+                className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6"
+                onSubmit={handleSubmitComplaint}
+            >
+                <div className="flex flex-col gap-2">
+                    <label className="font-label-caps text-label-caps text-on-surface uppercase">
+                        Reason for Complaint
+                    </label>
+                    <input
+                        name="subject"
+                        className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md"
+                        placeholder="Summary of the issue"
+                        required
+                    />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <label className="font-label-caps text-label-caps text-on-surface uppercase">
+                        Details
+                    </label>
+                    <textarea
+                        name="message"
+                        rows="4"
+                        className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md resize-none"
+                        placeholder="Briefly describe the issue..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                    <label className="font-label-caps text-label-caps text-on-surface uppercase">
+                        Order ID (Optional)
+                    </label>
+                    <input
+                        name="orderId"
+                        type="text"
+                        className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md"
+                        placeholder="e.g. #15"
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    className="bg-error text-on-error py-3 rounded-xl font-button text-button hover:bg-error-container hover:text-on-error-container transition-colors shadow-sm disabled:opacity-50 mt-4"
+                    disabled={loading}
+                >
+                    {loading ? "Reporting..." : "Submit Complaint"}
+                </button>
+            </form>
+        </div>
+    );
+}
 
     return null;
 };

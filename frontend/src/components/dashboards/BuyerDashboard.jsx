@@ -532,8 +532,8 @@ const BuyerDashboard = ({ activeTab }) => {
                                         </td>
                                         <td className="p-4">
                                             {o.status === 'PENDING' ? (
-                                                <button className="text-error hover:bg-error-container px-3 py-1 rounded-md text-sm font-medium transition-colors border border-error" onClick={() => handleCancelOrder(o.id)}>Cancel</button>
-                                            ) : (
+                                             <button className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors" onClick={() => setShowAddModal(false)}>Cancel</button>
+                                             ) : (
                                                 <span className="text-outline text-sm">No actions</span>
                                             )}
                                         </td>
