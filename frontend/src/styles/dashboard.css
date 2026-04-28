@@ -29,12 +29,17 @@
     width: 34px;
     height: 34px;
     border-radius: 8px;
-    background: #2f953b;
+    background: #10B981;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+.sidebar-brand-icon:hover {
+    transform: scale(1.1);
 }
 
 .sidebar-brand h2 {
@@ -76,8 +81,9 @@
 }
 
 .sidebar-link.active {
-    background: #2f8f3a;
+    background: #10B981;
     color: white;
+    transform: scale(1.02);
 }
 
 .sidebar-icon {
@@ -164,12 +170,20 @@
     font-size: 0.95rem;
 }
 
-.topbar-icon-btn {
-   
-    border: none;
-    border-radius: 100%;
-   
-   
+.topbar-icon-btn,
+.topbar-icon-btn.has-unread,
+.topbar-icon-btn:hover,
+.topbar-icon-btn:focus {
+    background: #ffffff !important;
+    color: #127120ff !important;
+    border: none !important;
+    border-radius: 50%;
+    width: 58px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(47, 143, 58, 0.15);
 }
 
 .topbar-user {
@@ -184,12 +198,17 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-     background: #2f8f3a;
+    background: #10B981;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topbar-avatar:hover {
+    transform: scale(1.1);
 }
 
 .topbar-user-info {
@@ -320,12 +339,6 @@
     padding: 0 4px;
 }
 
-.topbar-icon-btn.has-unread {
-    color: #2f8f3a;      
-    background: #ffffff;  
-    border-color: #e5e7eb;
-}
-
 .notifications-dropdown {
     position: absolute;
     top: calc(100% + 15px);
@@ -359,8 +372,8 @@
 }
 
 .unread-dot-label {
-    background: rgba(47, 143, 58, 0.1);
-    color: #2f8f3a;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10B981;
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.6rem;
@@ -400,7 +413,7 @@
 }
 
 .notification-preview-item.unread .notification-dot {
-    background: #2f8f3a;
+    background: #10B981;
 }
 
 .notification-content {
@@ -417,6 +430,7 @@
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -431,28 +445,13 @@
     color: #9ca3af;
 }
 
-.no-notifications {
-    padding: 3rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-    text-align: center;
-}
-
-.no-notifications p {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
 .view-all-btn {
     width: 100%;
     padding: 1rem;
     background: #ffffff;
     border: none;
     border-top: 1px solid #f3f4f6;
-    color: #2f8f3a;
+    color: #10B981;
     font-size: 0.88rem;
     font-weight: 600;
     cursor: pointer;
@@ -461,7 +460,7 @@
 
 .view-all-btn:hover {
     background: #f9fafb;
-    color: #257a2f;
+    color: #059669;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -609,13 +608,23 @@
 
 .btn-sm {
     padding: 0.5rem 1rem;
-    background: #2f8f3a;
+    background: #10B981;
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-sm:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.btn-sm:active {
+    transform: scale(0.95);
 }
 
 .grid-list {
@@ -1544,16 +1553,16 @@
 }
 
 .notif-target-btn:hover {
-    border-color: #2f8f3a;
-    color: #2f8f3a;
+    border-color: #059669;
+    color: #059669;
     background: #f0fdf4;
 }
 
 .notif-target-btn.active {
-    border-color: #2f8f3a;
-    background: #2f8f3a;
+    border-color: #059669;
+    background: #059669;
     color: white;
-    box-shadow: 0 4px 12px rgba(47, 143, 58, 0.25);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
 }
 
 /* ===== PRICE RANGE STYLES ===== */

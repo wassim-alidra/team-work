@@ -1,4 +1,4 @@
-import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench, Landmark } from "lucide-react";
+import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench, Landmark, BarChart2 } from "lucide-react";
 
 const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const transporterItems = [
@@ -50,6 +50,8 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
     { key: "catalog", label: "Official Prices", icon: <Package size={18} /> },
     { key: "notifications", label: "Farmer Alerts", icon: <Bell size={18} /> },
+    { key: "admin-notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
   ];
 
   const genericItems = [

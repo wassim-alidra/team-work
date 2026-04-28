@@ -5,8 +5,9 @@ import { Users, Home, AlertCircle, Bell, TrendingUp, Package, ShoppingCart, Chec
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import { Search } from "lucide-react";
+import SetisticsDashboard from "../setistics/SetisticsDashboard";
 
-const AdminDashboard = ({ activeTab }) => {
+const AdminDashboard = ({ activeTab, setActiveTab }) => {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [users, setUsers] = useState([]);
@@ -419,24 +420,35 @@ const AdminDashboard = ({ activeTab }) => {
                     <section className="md:col-span-1 bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
                         <h3 className="font-h3 text-h3 text-on-surface mb-md">Quick Actions</h3>
                         <div className="space-y-3">
-                            <button onClick={() => {}} className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center">
-                                Review Users
-                                <ChevronRight size={20} />
-                            </button>
-                            <button onClick={() => {}} className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center">
-                                Update Official Prices
-                                <ChevronRight size={20} />
-                            </button>
-                            {allFarms.filter(f => !f.is_approved).length > 0 && (
-                                <button className="w-full text-left font-button text-button bg-amber-50 text-amber-800 border border-amber-200 rounded-lg px-4 py-3 hover:bg-amber-100 transition-colors flex justify-between items-center">
-                                    <span className="flex items-center gap-2">
-                                        <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
-                                            {allFarms.filter(f => !f.is_approved).length}
-                                        </span>
-                                        Farm Approvals Pending
-                                    </span>
-                                    <ChevronRight size={20} />
-                                </button>
+                           <button
+  onClick={() => setActiveTab("users")}
+  className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center"
+>
+  Review Users
+  <ChevronRight size={20} />
+</button>
+
+<button
+  onClick={() => setActiveTab("catalog")}
+  className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center"
+>
+  Update Official Prices
+  <ChevronRight size={20} />
+</button>
+
+{allFarms.filter(f => !f.is_approved).length > 0 && (
+  <button
+    onClick={() => setActiveTab("farm-approvals")}
+    className="w-full text-left font-button text-button bg-amber-50 text-amber-800 border border-amber-200 rounded-lg px-4 py-3 hover:bg-amber-100 transition-colors flex justify-between items-center"
+  >
+    <span className="flex items-center gap-2">
+      <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+        {allFarms.filter(f => !f.is_approved).length}
+      </span>
+      Farm Approvals Pending
+    </span>
+    <ChevronRight size={20} />
+  </button>
                             )}
                         </div>
                     </section>
@@ -1409,6 +1421,10 @@ const AdminDashboard = ({ activeTab }) => {
                 )}
             </div>
         );
+    }
+
+    if (activeTab === "setistics") {
+        return <SetisticsDashboard />;
     }
 
     return null;

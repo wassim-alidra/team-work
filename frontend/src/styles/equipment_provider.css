@@ -286,20 +286,35 @@
 
 /* Buttons */
 .ep-btn-primary {
-    background: var(--primary);
+    background: #10B981;
     color: white;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
-    transition: opacity 0.2s;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ep-btn-primary:hover {
+    background: #059669;
+    transform: scale(1.05);
+}
+
+.ep-btn-primary:active {
+    transform: scale(0.95);
 }
 
 .ep-btn-secondary {
-    background: var(--secondary);
+    background: #059669;
     color: white;
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ep-btn-secondary:hover {
+    background: #047857;
+    transform: scale(1.05);
 }
 
 .ep-btn-outline {
@@ -308,6 +323,13 @@
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ep-btn-outline:hover {
+    border-color: #10B981;
+    color: #10B981;
+    transform: scale(1.05);
 }
 
 @media (max-width: 768px) {

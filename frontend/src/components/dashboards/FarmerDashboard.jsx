@@ -717,7 +717,7 @@ const FarmerDashboard = ({ activeTab }) => {
                                     </span>
                                 </div>
                                 <div className="md:col-span-1 flex justify-end gap-sm md:gap-xs border-t md:border-none pt-4 md:pt-0 mt-2 md:mt-0 border-outline-variant/20">
-                                    <button onClick={() => handleDeleteProduct(p.id)} className="text-outline hover:text-error transition-colors p-1" title="Delete">
+                                    <button onClick={() => handleDeleteProduct(p.id)} className="bg-[#ef4444] text-white p-2 rounded-lg hover:bg-[#dc2626] transition-all shadow-sm flex items-center justify-center" title="Delete">
                                         <span className="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'weather',
     'routing',
     'farms',
+    'setistics',
 ]
 
 MIDDLEWARE = [

@@ -3,10 +3,10 @@
   /* Soft farm mint */
   --text-color: #1b4332;
   /* Deep natural green */
-  --primary-color: #2f9e44;
-  /* Fresh crop green */
-  --primary-hover: #2b8a3e;
-  /* Darker leaf green */
+  --primary-color: #10B981;
+  /* Emerald green */
+  --primary-hover: #059669;
+  /* Darker emerald */
   --secondary-color: #a47148;
   /* Earth soil brown */
   --accent-color: #74c69d;
@@ -57,19 +57,20 @@ button {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 6px -1px rgba(47, 158, 68, 0.2), 0 2px 4px -1px rgba(47, 158, 68, 0.1);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1);
 }
 
 button:hover {
   background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(47, 158, 68, 0.3), 0 4px 6px -2px rgba(47, 158, 68, 0.15);
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(16, 185, 129, 0.15);
 }
 
 button:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 6px -1px rgba(47, 158, 68, 0.2);
+  transform: scale(0.98);
+  background: #047857;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
 }
 
 input,
@@ -98,7 +99,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px rgba(47, 158, 68, 0.15);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
   background-color: #fff;
 }
 
@@ -306,31 +307,38 @@ ul {
   padding: 6px 12px;
   font-size: 0.8rem;
   border-radius: 8px;
-  background: #2f8f3a;
-  color: white;
-  border: none;
+  background: #DCFCE7;
+  color: #065F46;
+  border: 1.5px solid #10B981;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.2s;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-view-small:hover {
-  background: #25702d;
-  transform: translateY(-1px);
+  transform: scale(1.02);
+  background: #10B981;
+  color: white;
 }
 .btn-danger-custom {
-  background: #ef4444;
-  border: none;
-  color: white;
+  background: #FEE2E2;
+  border: 1.5px solid #DC2626;
+  color: #991B1B;
   padding: 0.61rem 1.25rem;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-danger-custom:hover {
-  background: #dc2626;
+  background: #DC2626;
+  color: white;
+  transform: scale(1.02);
+}
+
+.btn-danger-custom:active {
+  transform: scale(0.98);
 }
    .search-wrapper {
                     position: relative;
