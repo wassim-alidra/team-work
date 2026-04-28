@@ -164,12 +164,20 @@
     font-size: 0.95rem;
 }
 
-.topbar-icon-btn {
-   
-    border: none;
-    border-radius: 100%;
-   
-   
+.topbar-icon-btn,
+.topbar-icon-btn.has-unread,
+.topbar-icon-btn:hover,
+.topbar-icon-btn:focus {
+    background: #ffffff !important;
+    color: #127120ff !important;
+    border: none !important;
+    border-radius: 50%;
+    width: 58px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(47, 143, 58, 0.15);
 }
 
 .topbar-user {
@@ -320,12 +328,6 @@
     padding: 0 4px;
 }
 
-.topbar-icon-btn.has-unread {
-    color: #2f8f3a;      
-    background: #ffffff;  
-    border-color: #e5e7eb;
-}
-
 .notifications-dropdown {
     position: absolute;
     top: calc(100% + 15px);
@@ -417,6 +419,7 @@
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -429,21 +432,6 @@
 .notification-time {
     font-size: 0.75rem;
     color: #9ca3af;
-}
-
-.no-notifications {
-    padding: 3rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #9ca3af;
-    text-align: center;
-}
-
-.no-notifications p {
-    margin: 0;
-    font-size: 0.9rem;
 }
 
 .view-all-btn {

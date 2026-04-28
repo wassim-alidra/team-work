@@ -132,9 +132,9 @@ const Dashboard = () => {
                 <TransporterDashboard activeTab={activeTab} />
             )}
 
-            {user.role === "ADMIN" && (
-                <AdminDashboard activeTab={activeTab} />
-            )}
+           {user.role === "ADMIN" && (
+    <AdminDashboard activeTab={activeTab} setActiveTab={setActiveTab} />
+)}
 
             {user.role === "EQUIPMENT_PROVIDER" && (
                 <EquipmentProviderDashboard activeTab={activeTab} />
