@@ -256,6 +256,12 @@ class DeliveryViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
          if self.request.user.role != User.Role.TRANSPORTER:
              raise permissions.PermissionDenied("Only transporters can accept deliveries.")
+         
+         # Ensure transporter has only ONE active mission at a time
+         active_statuses = ['ASSIGNED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL']
+         if Delivery.objects.filter(transporter=self.request.user, status__in=active_statuses).exists():
+             raise ValidationError({"detail": "You already have an active mission"})
+             
          serializer.save(transporter=self.request.user)
 
     def perform_update(self, serializer):

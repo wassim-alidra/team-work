@@ -66,7 +66,7 @@ const ALGERIA_WILAYAS = [
     { id: 58, name: "In Guezzam", lat: 19.5667, lon: 5.7667 }
 ];
 
-const FarmerDashboard = ({ activeTab }) => {
+const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const [products, setProducts] = useState([]);
     const [productsCount, setProductsCount] = useState(0);
     const [productsPage, setProductsPage] = useState(1);
@@ -104,6 +104,7 @@ const FarmerDashboard = ({ activeTab }) => {
     const [bookingFormId, setBookingFormId] = useState(null);
     const [bookingData, setBookingData] = useState({ requested_quantity: 1, rental_days: 1 });
     const [editingFarm, setEditingFarm] = useState(null);
+    const [editingProduct, setEditingProduct] = useState(null);
     const [farmImage, setFarmImage] = useState(null);
 
     // Weather Feature States
@@ -251,6 +252,20 @@ const FarmerDashboard = ({ activeTab }) => {
         }
     };
 
+    const handleEditProduct = (product) => {
+        setEditingProduct(product);
+        setFormData({
+            catalog: product.catalog,
+            price_per_kg: product.price_per_kg,
+            quantity_available: product.quantity_available,
+            farm: product.farm,
+        });
+        if (activeTab !== "products") {
+            setActiveTab("products");
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     const handleAddProduct = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -262,8 +277,14 @@ const FarmerDashboard = ({ activeTab }) => {
         }
 
         try {
-            await api.post("market/products/", formData);
-            alert("Product added to your inventory!");
+            if (editingProduct) {
+                await api.put(`market/products/${editingProduct.id}/`, formData);
+                alert("Product updated successfully!");
+            } else {
+                await api.post("market/products/", formData);
+                alert("Product added to your inventory!");
+            }
+            setEditingProduct(null);
             setFormData({
                 catalog: "",
                 price_per_kg: "",
@@ -273,8 +294,8 @@ const FarmerDashboard = ({ activeTab }) => {
             fetchProducts();
             fetchStats();
         } catch (err) {
-            console.error("Error adding product:", err);
-            alert("Error adding product. Please ensure all fields are correct.");
+            console.error("Error saving product:", err);
+            alert("Error saving product. Please ensure all fields are correct.");
         } finally {
             setLoading(false);
         }
@@ -534,9 +555,13 @@ const FarmerDashboard = ({ activeTab }) => {
                     <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Farm Manager</h2>
-                            <button className="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-lg hover:bg-tertiary transition-colors flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">add</span> New Location
-                            </button>
+                            <span
+  onClick={() => setActiveTab("farms")}
+  className="text-primary font-semibold cursor-pointer hover:underline flex items-center gap-1"
+>
+  View All
+  
+</span>
                         </div>
                         <div className="space-y-3">
                             {farms.length > 0 ? farms.slice(0, 3).map(farm => (
@@ -550,7 +575,7 @@ const FarmerDashboard = ({ activeTab }) => {
                                             <div className="text-xs text-on-surface-variant">{farm.wilaya} • {farm.location || "Registered"}</div>
                                         </div>
                                     </div>
-                                    <span className="material-symbols-outlined text-outline">chevron_right</span>
+                                   
                                 </div>
                             )) : (
                                 <p className="text-sm text-on-surface-variant">No farms added yet.</p>
@@ -562,7 +587,7 @@ const FarmerDashboard = ({ activeTab }) => {
                     <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Sales Manager</h2>
-                            <span className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All Orders</span>
+                            <span onClick={() => setActiveTab("orders")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="space-y-4">
                             {orders.filter(o => o.status === 'PENDING').length > 0 ? orders.filter(o => o.status === 'PENDING').slice(0, 2).map(o => (
@@ -615,10 +640,19 @@ const FarmerDashboard = ({ activeTab }) => {
                                                 </div>
                                             </td>
                                             <td className="py-3 px-4">
-                                                <span className="inline-block bg-secondary-fixed text-on-secondary-container px-2 py-1 rounded text-xs font-semibold">Published</span>
+                                                {p.quantity_available > 0 ? (
+                                                    <span className="inline-block bg-secondary-fixed text-on-secondary-container px-2 py-1 rounded text-xs font-semibold">Available</span>
+                                                ) : (
+                                                    <span className="inline-block bg-error-container text-on-error-container px-2 py-1 rounded text-xs font-semibold">Out of Stock</span>
+                                                )}
                                             </td>
                                             <td className="py-3 px-4">
-                                                <button onClick={() => handleDeleteProduct(p.id)} className="text-primary hover:underline text-sm font-medium">Delete</button>
+                                                <div className="flex items-center gap-2">
+                                                    <button onClick={() => handleEditProduct(p)} className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition" title="Edit">
+                                                        <span className="material-symbols-outlined text-sm">edit</span>
+                                                    </button>
+                                                    <button onClick={() => handleDeleteProduct(p.id)}  className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors">Delete</button>
+                                                </div>
                                             </td>
                                         </tr>
                                     )) : (
@@ -646,7 +680,20 @@ const FarmerDashboard = ({ activeTab }) => {
 
                 {/* Form Section */}
                 <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] mb-lg">
-                    <h3 className="font-h3 text-h3 text-on-surface mb-4">Add New Product</h3>
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-h3 text-h3 text-on-surface">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
+                        {editingProduct && (
+                            <button onClick={() => {
+                                setEditingProduct(null);
+                                setFormData({
+                                    catalog: "",
+                                    price_per_kg: "",
+                                    quantity_available: "",
+                                    farm: farms.length > 0 ? farms[0].id : "",
+                                });
+                            }} className="text-sm text-primary hover:underline">Cancel Edit</button>
+                        )}
+                    </div>
                     <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleAddProduct}>
                         <div className="col-span-1 md:col-span-2">
                             <label className="block text-sm font-medium text-on-surface mb-1">Product Type (From Official List)</label>
@@ -676,7 +723,9 @@ const FarmerDashboard = ({ activeTab }) => {
                             <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
                         </div>
                         <div className="col-span-1 md:col-span-2 mt-2">
-                            <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>{loading ? "Publishing..." : "Add Product to Market"}</button>
+                            <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>
+                                {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product to Market")}
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -712,12 +761,26 @@ const FarmerDashboard = ({ activeTab }) => {
                                 </div>
                                 <div className="md:col-span-2 flex md:block justify-between items-center">
                                     <span className="md:hidden font-label-caps text-label-caps text-outline">Status</span>
-                                    <span className="inline-flex bg-primary-container text-on-primary-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
-                                        Published
-                                    </span>
+                                    {p.quantity_available > 0 ? (
+                                        <span className="inline-flex bg-primary-container text-on-primary-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
+                                            Available
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex bg-error-container text-on-error-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
+                                            Out of Stock
+                                        </span>
+                                    )}
+                                    {p.quantity_available > 0 && p.quantity_available < 5 && (
+                                        <div className="text-[10px] text-error font-bold mt-1">Low Stock!</div>
+                                    )}
                                 </div>
                                 <div className="md:col-span-1 flex justify-end gap-sm md:gap-xs border-t md:border-none pt-4 md:pt-0 mt-2 md:mt-0 border-outline-variant/20">
-                                    <button onClick={() => handleDeleteProduct(p.id)} className="bg-[#ef4444] text-white p-2 rounded-lg hover:bg-[#dc2626] transition-all shadow-sm flex items-center justify-center" title="Delete">
+                                    <button onClick={() => handleEditProduct(p)}  className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container"
+                                                    title="View Price Timeline">
+                                         <span className="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button onClick={() => handleDeleteProduct(p.id)}className="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container"
+                                                    title="Remove Entry">
                                         <span className="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>

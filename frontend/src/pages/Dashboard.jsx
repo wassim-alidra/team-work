@@ -121,7 +121,8 @@ const Dashboard = () => {
     return (
         <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
             {user.role === "FARMER" && (
-                <FarmerDashboard activeTab={activeTab} />
+                <FarmerDashboard activeTab={activeTab}
+                setActiveTab={setActiveTab}  />
             )}
 
             {user.role === "BUYER" && (

@@ -126,8 +126,18 @@ const BuyerDashboard = ({ activeTab }) => {
     };
 
     const addToCart = (product) => {
-        const qty = prompt(`How many ${product.catalog_unit || 'units'} of ${product.name} would you like?`, "1");
+        if (product.quantity_available <= 0) {
+            alert("This product is out of stock.");
+            return;
+        }
+
+        const qty = prompt(`How many ${product.catalog_unit || 'units'} of ${product.name} would you like? (Available: ${product.quantity_available})`, "1");
         if (!qty || isNaN(qty) || parseFloat(qty) <= 0) return;
+
+        if (parseFloat(qty) > product.quantity_available) {
+            alert(`Only ${product.quantity_available} ${product.catalog_unit || 'kg'} available!`);
+            return;
+        }
 
         const item = {
             ...product,
@@ -395,18 +405,29 @@ const BuyerDashboard = ({ activeTab }) => {
                             <div className="p-5 flex flex-col flex-1">
                                 <h3 className="font-body-lg text-body-lg font-semibold text-on-surface line-clamp-2 mb-2">{p.name || "Unnamed Product"}</h3>
                                 <p className="font-body-sm text-body-sm text-on-surface-variant mb-1 flex-1">By: {p.farmer_name}</p>
-                                <p className="font-body-sm text-body-sm text-outline mb-4">{p.quantity_available} {p.catalog_unit || 'kg'} available</p>
+                                <p className="font-body-sm text-body-sm text-outline mb-4">
+                                    {p.quantity_available > 0 ? (
+                                        <>
+                                            {p.quantity_available} {p.catalog_unit || 'kg'} available
+                                            {p.quantity_available < 5 && <span className="text-error font-bold ml-2">Low Stock!</span>}
+                                        </>
+                                    ) : (
+                                        <span className="text-error font-bold">This product is no longer available</span>
+                                    )}
+                                </p>
                                 <div className="flex items-end justify-between mt-auto">
                                     <div className="flex flex-col">
                                         <span className="font-h3 text-h3 text-primary">{p.price_per_kg} DA</span>
                                         <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
                                     </div>
-                                  <button
-  onClick={() => addToCart(p)}
-  className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
->
-  <ShoppingCart size={24} color="white" strokeWidth={3} />
-</button>
+                                    {p.quantity_available > 0 && (
+                                        <button
+                                            onClick={() => addToCart(p)}
+                                            className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+                                        >
+                                            <ShoppingCart size={24} color="white" strokeWidth={3} />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </article>
