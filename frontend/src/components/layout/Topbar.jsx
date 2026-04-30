@@ -63,9 +63,9 @@ const Topbar = ({ user, setActiveTab }) => {
   const handleNotificationClick = () => {
     setNotificationsOpen(false);
     if (setActiveTab) {
-      setActiveTab("admin-notifications");
+      setActiveTab("notifications");
     } else {
-      navigate("/dashboard"); // Fallback
+      navigate("/dashboard?tab=notifications");
     }
   };
 
@@ -100,7 +100,7 @@ const Topbar = ({ user, setActiveTab }) => {
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             aria-label="Notifications"
           >
-          <Bell size={40} color="#127120ff" />
+            <Bell size={40} color="#127120ff" />
             {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
           </button>
 
@@ -128,7 +128,7 @@ const Topbar = ({ user, setActiveTab }) => {
                       </div>
                     </div>
                   ))
-                )  : null}
+                ) : null}
               </div>
 
               <button className="view-all-btn" onClick={handleNotificationClick}>
