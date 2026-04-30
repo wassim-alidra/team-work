@@ -4,6 +4,7 @@ import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, Aler
 import "../../styles/dashboard.css";
 import "../../styles/equipment_provider.css";
 import Pagination from "../common/Pagination";
+import AskAgriButton from '../chat/AskAgriButton';
 
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar", lat: 27.8727, lon: -0.2929 },
@@ -77,7 +78,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const [trackingPage, setTrackingPage] = useState(1);
 
     const [notifications, setNotifications] = useState([]);
-    
+
     const [catalog, setCatalog] = useState([]);
     const [catalogCount, setCatalogCount] = useState(0);
     const [catalogPage, setCatalogPage] = useState(1);
@@ -433,6 +434,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
         }
     };
 
+    let content = null;
+
     if (activeTab === "dashboard") {
         const statCards = [
             { label: "Products", value: stats.total_products, icon: <Package />, color: "blue" },
@@ -441,7 +444,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             { label: "Revenue", value: `${stats.total_revenue} DA`, icon: <DollarSign />, color: "purple" }
         ];
 
-        return (
+        content = (
             <div className="animate-in pb-20 md:pb-0 font-body-md antialiased text-on-background w-full">
                 <div className="mb-xl">
                     <h1 className="font-h1 text-h1 text-on-background mb-2">Farmer Dashboard</h1>
@@ -509,7 +512,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             <h2 className="font-h3 text-h3 text-on-surface">Soil Advisor</h2>
                             {weatherData?.soil && (
                                 <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${weatherData.soil.is_needed ? 'bg-error-container text-on-error-container' : 'bg-secondary-container text-on-secondary-container'}`}>
-                                    <span className="material-symbols-outlined text-sm">{weatherData.soil.is_needed ? 'warning' : 'water_drop'}</span> 
+                                    <span className="material-symbols-outlined text-sm">{weatherData.soil.is_needed ? 'warning' : 'water_drop'}</span>
                                     {weatherData.soil.irrigation_recommendation}
                                 </div>
                             )}
@@ -556,12 +559,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Farm Manager</h2>
                             <span
-  onClick={() => setActiveTab("farms")}
-  className="text-primary font-semibold cursor-pointer hover:underline flex items-center gap-1"
->
-  View All
-  
-</span>
+                                onClick={() => setActiveTab("farms")}
+                                className="text-primary font-semibold cursor-pointer hover:underline flex items-center gap-1"
+                            >
+                                View All
+
+                            </span>
                         </div>
                         <div className="space-y-3">
                             {farms.length > 0 ? farms.slice(0, 3).map(farm => (
@@ -575,7 +578,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                             <div className="text-xs text-on-surface-variant">{farm.wilaya} • {farm.location || "Registered"}</div>
                                         </div>
                                     </div>
-                                   
+
                                 </div>
                             )) : (
                                 <p className="text-sm text-on-surface-variant">No farms added yet.</p>
@@ -651,7 +654,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                                     <button onClick={() => handleEditProduct(p)} className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition" title="Edit">
                                                         <span className="material-symbols-outlined text-sm">edit</span>
                                                     </button>
-                                                    <button onClick={() => handleDeleteProduct(p.id)}  className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors">Delete</button>
+                                                    <button onClick={() => handleDeleteProduct(p.id)} className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors">Delete</button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -665,10 +668,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </div>
             </div>
         );
-    }
-
-    if (activeTab === "products") {
-        return (
+    } else if (activeTab === "products") {
+        content = (
             <div className="animate-in w-full pb-20 md:pb-0">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
@@ -775,12 +776,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     )}
                                 </div>
                                 <div className="md:col-span-1 flex justify-end gap-sm md:gap-xs border-t md:border-none pt-4 md:pt-0 mt-2 md:mt-0 border-outline-variant/20">
-                                    <button onClick={() => handleEditProduct(p)}  className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container"
-                                                    title="View Price Timeline">
-                                         <span className="material-symbols-outlined">edit</span>
+                                    <button onClick={() => handleEditProduct(p)} className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container"
+                                        title="View Price Timeline">
+                                        <span className="material-symbols-outlined">edit</span>
                                     </button>
-                                    <button onClick={() => handleDeleteProduct(p.id)}className="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container"
-                                                    title="Remove Entry">
+                                    <button onClick={() => handleDeleteProduct(p.id)} className="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container"
+                                        title="Remove Entry">
                                         <span className="material-symbols-outlined">delete</span>
                                     </button>
                                 </div>
@@ -792,10 +793,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 <Pagination currentPage={productsPage} totalCount={productsCount} pageSize={10} onPageChange={setProductsPage} />
             </div>
         );
-    }
-
-    if (activeTab === "orders") {
-        return (
+    } else if (activeTab === "orders") {
+        content = (
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
@@ -846,12 +845,10 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 <Pagination currentPage={ordersPage} totalCount={ordersCount} pageSize={10} onPageChange={setOrdersPage} />
             </div>
         );
-    }
-
-    if (activeTab === "tracking") {
+    } else if (activeTab === "tracking") {
         const activeTracking = orders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
-        return (
+        content = (
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
@@ -879,13 +876,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             {/* Progress bar */}
                             <div className="flex justify-between items-center relative w-full pt-2">
                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container -z-10 -translate-y-1/2"></div>
-                                <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${
-                                    o.status === 'DELIVERED' ? 'w-full' : 
-                                    o.status === 'NEAR_ARRIVAL' ? 'w-3/4' :
-                                    o.status === 'IN_TRANSIT' ? 'w-1/2' : 
-                                    o.status === 'CHARGING' ? 'w-1/4' : 'w-0'
-                                }`}></div>
-                                
+                                <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${o.status === 'DELIVERED' ? 'w-full' :
+                                        o.status === 'NEAR_ARRIVAL' ? 'w-3/4' :
+                                            o.status === 'IN_TRANSIT' ? 'w-1/2' :
+                                                o.status === 'CHARGING' ? 'w-1/4' : 'w-0'
+                                    }`}></div>
+
                                 <div className="flex flex-col items-center">
                                     <div className="w-4 h-4 rounded-full bg-primary border-4 border-surface-container-lowest"></div>
                                     <span className="text-[10px] mt-1 font-semibold text-primary">Accepted</span>
@@ -914,10 +910,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 {activeTracking.length > 0 && <Pagination currentPage={trackingPage} totalCount={activeTracking.length} pageSize={10} onPageChange={setTrackingPage} />}
             </div>
         );
-    }
-
-    if (activeTab === "prices") {
-        return (
+    } else if (activeTab === "prices") {
+        content = (
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
@@ -956,10 +950,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 <Pagination currentPage={catalogPage} totalCount={catalogCount} pageSize={10} onPageChange={setCatalogPage} />
             </div>
         );
-    }
-
-    if (activeTab === "notifications") {
-        return (
+    } else if (activeTab === "notifications") {
+        content = (
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
@@ -983,10 +975,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </div>
             </div>
         );
-    }
-
-    if (activeTab === "farms") {
-        return (
+    } else if (activeTab === "farms") {
+        content = (
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
@@ -1000,28 +990,28 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                         <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined text-outline">
                                 {editingFarm ? "edit_location" : "add_circle"}
-                            </span> 
+                            </span>
                             {editingFarm ? "Edit Farm" : "Add New Farm"}
                         </h3>
                         <form className="flex flex-col gap-4" onSubmit={editingFarm ? handleUpdateFarm : handleAddFarm}>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Farm Name</label>
-                                <input 
-                                    name="farm_name" 
-                                    defaultValue={editingFarm?.name || ""} 
+                                <input
+                                    name="farm_name"
+                                    defaultValue={editingFarm?.name || ""}
                                     key={editingFarm?.id || 'new'}
-                                    placeholder="Name of your farm" 
-                                    required 
-                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" 
+                                    placeholder="Name of your farm"
+                                    required
+                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Wilaya</label>
-                                <select 
-                                    name="wilaya" 
-                                    defaultValue={editingFarm?.wilaya || ""} 
+                                <select
+                                    name="wilaya"
+                                    defaultValue={editingFarm?.wilaya || ""}
                                     disabled={!!editingFarm}
-                                    required 
+                                    required
                                     className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2 disabled:opacity-50"
                                 >
                                     <option value="">Select Wilaya</option>
@@ -1031,26 +1021,26 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Location (Optional)</label>
-                                <input 
-                                    name="location" 
-                                    defaultValue={editingFarm?.location || ""} 
-                                    placeholder="Specific area" 
-                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" 
+                                <input
+                                    name="location"
+                                    defaultValue={editingFarm?.location || ""}
+                                    placeholder="Specific area"
+                                    className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-on-surface mb-1">Farm Photo</label>
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     accept="image/*"
                                     onChange={(e) => setFarmImage(e.target.files[0])}
-                                    className="w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-on-primary hover:file:bg-tertiary transition-all" 
+                                    className="w-full text-sm text-on-surface-variant file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-on-primary hover:file:bg-tertiary transition-all"
                                 />
                                 {(editingFarm?.image || farmImage) && (
                                     <div className="mt-2 rounded-lg overflow-hidden h-32 border border-outline-variant">
-                                        <img 
-                                            src={farmImage ? URL.createObjectURL(farmImage) : editingFarm.image} 
-                                            className="w-full h-full object-cover" 
+                                        <img
+                                            src={farmImage ? URL.createObjectURL(farmImage) : editingFarm.image}
+                                            className="w-full h-full object-cover"
                                             alt="Farm preview"
                                         />
                                     </div>
@@ -1061,9 +1051,9 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     {loading ? (editingFarm ? "Updating..." : "Adding...") : (editingFarm ? "Save Changes" : (farms.length >= 5 ? "Limit Reached" : "Create Farm Profile"))}
                                 </button>
                                 {editingFarm && (
-                                    <button 
-                                        type="button" 
-                                        onClick={() => {setEditingFarm(null); setFarmImage(null);}} 
+                                    <button
+                                        type="button"
+                                        onClick={() => { setEditingFarm(null); setFarmImage(null); }}
                                         className="bg-surface-variant text-on-surface-variant font-button px-4 py-2 rounded-lg hover:bg-surface-dim transition-colors mt-2"
                                     >
                                         Cancel
@@ -1096,14 +1086,14 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                             )}
                                         </div>
                                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button 
-                                                onClick={() => {setEditingFarm(f); setFarmImage(null);}}
+                                            <button
+                                                onClick={() => { setEditingFarm(f); setFarmImage(null); }}
                                                 className="bg-white/90 p-1.5 rounded-full text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
                                                 title="Edit Farm"
                                             >
                                                 <span className="material-symbols-outlined text-sm">edit</span>
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => handleDeleteFarm(f.id)}
                                                 disabled={farms.length <= 1}
                                                 className="bg-white/90 p-1.5 rounded-full text-error hover:bg-error hover:text-white transition-all shadow-sm disabled:opacity-50"
@@ -1128,10 +1118,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </div>
             </div>
         );
-    }
-
-    if (activeTab === "equipment") {
-        return (
+    } else if (activeTab === "equipment") {
+        content = (
             <div className="ep-dashboard-container animate-in pb-20 md:pb-0">
                 <header className="flex flex-col md:flex-row md:items-end justify-between mb-lg mt-4">
                     <div>
@@ -1150,10 +1138,10 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             <table className="history-table w-full">
                                 <thead>
                                     <tr className="border-b border-surface-container-highest">
-                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Machine</th>
-                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Provider</th>
-                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Date</th>
-                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Status</th>
+                                        <th className="py-4 font-label-caps" style={{ fontSize: '10px' }}>Machine</th>
+                                        <th className="py-4 font-label-caps" style={{ fontSize: '10px' }}>Provider</th>
+                                        <th className="py-4 font-label-caps" style={{ fontSize: '10px' }}>Date</th>
+                                        <th className="py-4 font-label-caps" style={{ fontSize: '10px' }}>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-surface-container">
@@ -1181,7 +1169,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                         <img src={e.images[0].image} alt={e.name} className="ep-card-img" />
                                     ) : (
                                         <div className="flex items-center justify-center bg-surface-container h-full">
-                                             <ImageIcon size={40} className="text-outline-variant" />
+                                            <ImageIcon size={40} className="text-outline-variant" />
                                         </div>
                                     )}
                                     <div className="ep-card-badge">
@@ -1189,9 +1177,9 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     </div>
                                 </div>
                                 <div className="ep-card-body">
-                                    <p className="ep-label-caps" style={{fontSize: '10px'}}>{e.equipment_type}</p>
+                                    <p className="ep-label-caps" style={{ fontSize: '10px' }}>{e.equipment_type}</p>
                                     <h3 className="font-bold text-lg text-primary">{e.name}</h3>
-                                    
+
                                     <div className="grid grid-cols-2 gap-4 my-4">
                                         <div className="ep-meta-item"><MapPin size={14} /> <span>{e.location || "Nearby"}</span></div>
                                         <div className="ep-meta-item"><Package size={14} /> <span>{e.quantity_available} Available</span></div>
@@ -1239,71 +1227,75 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </div>
             </div>
         );
-    }
-    if (activeTab === "complaints") {
-    return (
-        <div className="max-w-2xl mx-auto space-y-md animate-in">
-            <div className="mb-6">
-                <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
-                <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">
-                    Report issues with orders, buyers, delivery, or platform services.
-                </p>
-            </div>
-
-            <form
-                className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6"
-                onSubmit={handleSubmitComplaint}
-            >
-                <div className="flex flex-col gap-2">
-                    <label className="font-label-caps text-label-caps text-on-surface uppercase">
-                        Reason for Complaint
-                    </label>
-                    <input
-                        name="subject"
-                        className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md"
-                        placeholder="Summary of the issue"
-                        required
-                    />
+    } else if (activeTab === "complaints") {
+        content = (
+            <div className="max-w-2xl mx-auto space-y-md animate-in">
+                <div className="mb-6">
+                    <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">
+                        Report issues with orders, buyers, delivery, or platform services.
+                    </p>
                 </div>
 
-                <div className="flex flex-col gap-2">
-                    <label className="font-label-caps text-label-caps text-on-surface uppercase">
-                        Details
-                    </label>
-                    <textarea
-                        name="message"
-                        rows="4"
-                        className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md resize-none"
-                        placeholder="Briefly describe the issue..."
-                        required
-                    ></textarea>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <label className="font-label-caps text-label-caps text-on-surface uppercase">
-                        Order ID (Optional)
-                    </label>
-                    <input
-                        name="orderId"
-                        type="text"
-                        className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md"
-                        placeholder="e.g. #15"
-                    />
-                </div>
-
-                <button
-                    type="submit"
-                    className="bg-error text-on-error py-3 rounded-xl font-button text-button hover:bg-error-container hover:text-on-error-container transition-colors shadow-sm disabled:opacity-50 mt-4"
-                    disabled={loading}
+                <form
+                    className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6"
+                    onSubmit={handleSubmitComplaint}
                 >
-                    {loading ? "Reporting..." : "Submit Complaint"}
-                </button>
-            </form>
-        </div>
-    );
-}
+                    <div className="flex flex-col gap-2">
+                        <label className="font-label-caps text-label-caps text-on-surface uppercase">
+                            Reason for Complaint
+                        </label>
+                        <input
+                            name="subject"
+                            className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md"
+                            placeholder="Summary of the issue"
+                            required
+                        />
+                    </div>
 
-    return null;
+                    <div className="flex flex-col gap-2">
+                        <label className="font-label-caps text-label-caps text-on-surface uppercase">
+                            Details
+                        </label>
+                        <textarea
+                            name="message"
+                            rows="4"
+                            className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md resize-none"
+                            placeholder="Briefly describe the issue..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                        <label className="font-label-caps text-label-caps text-on-surface uppercase">
+                            Order ID (Optional)
+                        </label>
+                        <input
+                            name="orderId"
+                            type="text"
+                            className="w-full px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-md"
+                            placeholder="e.g. #15"
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="bg-error text-on-error py-3 rounded-xl font-button text-button hover:bg-error-container hover:text-on-error-container transition-colors shadow-sm disabled:opacity-50 mt-4"
+                        disabled={loading}
+                    >
+                        {loading ? "Reporting..." : "Submit Complaint"}
+                    </button>
+                </form>
+            </div>
+        );
+    }
+
+    return (
+        <>
+            {content}
+            <AskAgriButton />
+        </>
+    );
 };
 
 export default FarmerDashboard;
