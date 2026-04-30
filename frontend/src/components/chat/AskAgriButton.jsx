@@ -94,7 +94,7 @@ const AskAgriButton = () => {
               </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="close-btn">
-              <X size={410} />
+              <X size={20} />
             </button>
           </div>
 
@@ -176,7 +176,7 @@ const AskAgriButton = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`fab-btn ${isOpen ? 'active' : ''}`}
-        title="تحدث مع AgriGov AI"
+        title="Chat with AgriGov AI"
       >
         {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
       </button>
