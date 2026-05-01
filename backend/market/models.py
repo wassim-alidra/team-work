@@ -79,10 +79,16 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
     
     def save(self, *args, **kwargs):
         if not self.total_price:
             self.total_price = self.product.price_per_kg * Decimal(str(self.quantity))
+        
+        if self.status == self.Status.DELIVERED and not self.delivered_at:
+            from django.utils import timezone
+            self.delivered_at = timezone.now()
+            
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -114,6 +120,9 @@ class Delivery(models.Model):
             if not self.delivery_date:
                 from django.utils import timezone
                 self.delivery_date = timezone.now()
+            if not self.order.delivered_at:
+                from django.utils import timezone
+                self.order.delivered_at = timezone.now()
         
         self.order.save()
         super().save(*args, **kwargs)

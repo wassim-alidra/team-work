@@ -108,7 +108,8 @@ const BuyerDashboard = ({ activeTab }) => {
 
     const fetchMyOrders = async (page = 1) => {
         try {
-            const res = await api.get(`market/orders/?page=${page}`);
+            const trackingParam = activeTab === "tracking" ? "&tracking=true" : "";
+            const res = await api.get(`market/orders/?page=${page}${trackingParam}`);
             if (res.data.results) {
                 setMyOrders(res.data.results);
                 setMyOrdersCount(res.data.count);
@@ -508,7 +509,7 @@ const BuyerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "tracking") {
-        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
+        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">

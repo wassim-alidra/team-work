@@ -167,13 +167,27 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        queryset = Order.objects.all().order_by('-id')
         if user.role == User.Role.BUYER:
-            return Order.objects.filter(buyer=user)
+            queryset = queryset.filter(buyer=user)
         elif user.role == User.Role.FARMER:
-            return Order.objects.filter(product__farmer=user)
+            queryset = queryset.filter(product__farmer=user)
         elif user.role == User.Role.TRANSPORTER:
-            return Order.objects.filter(delivery__transporter=user) # Only assigned
-        return Order.objects.all()
+            queryset = queryset.filter(delivery__transporter=user)
+
+        tracking = self.request.query_params.get('tracking')
+        if tracking == 'true':
+            from django.utils import timezone
+            from datetime import timedelta
+            from django.db.models import Q
+            # 3 minutes for testing/demo as per request, but 3 days was also mentioned.
+            # Following the "Backend Logic" requirement of 3 minutes.
+            time_threshold = timezone.now() - timedelta(minutes=3)
+            queryset = queryset.filter(
+                ~Q(status='DELIVERED') | 
+                Q(status='DELIVERED', delivered_at__gte=time_threshold)
+            )
+        return queryset
 
     def perform_create(self, serializer):
         if self.request.user.role != User.Role.BUYER:

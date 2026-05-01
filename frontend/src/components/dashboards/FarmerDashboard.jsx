@@ -209,7 +209,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
 
     const fetchOrders = async (page = 1) => {
         try {
-            const res = await api.get(`market/orders/?page=${page}`);
+            const trackingParam = activeTab === "tracking" ? "&tracking=true" : "";
+            const res = await api.get(`market/orders/?page=${page}${trackingParam}`);
             if (res.data.results) {
                 setOrders(res.data.results);
                 setOrdersCount(res.data.count);
