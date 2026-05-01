@@ -175,8 +175,8 @@ _email_user = os.environ.get('EMAIL_HOST_USER', '')
 _email_pass = os.environ.get('EMAIL_HOST_PASSWORD', '')
 
 if _email_user and _email_pass:
-    # Real Gmail SMTP
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    # Real Gmail SMTP (using custom backend to bypass SSL verification issues on Windows)
+    EMAIL_BACKEND = 'agri_gov_market.email_backend.UnverifiedEmailBackend'
     EMAIL_HOST = 'smtp.gmail.com'
     EMAIL_PORT = 587
     EMAIL_USE_TLS = True

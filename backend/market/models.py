@@ -79,7 +79,7 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def save(self, *args, **kwargs):
         if not self.total_price:
             self.total_price = self.product.price_per_kg * Decimal(str(self.quantity))
