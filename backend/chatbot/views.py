@@ -33,10 +33,17 @@ class ChatbotAskView(APIView):
             return Response({"error": "No text or image provided"}, status=status.HTTP_400_BAD_REQUEST)
 
         system_instruction = (
-            "You are an AI Agricultural Assistant for Algerian farmers. "
-            "You must respond ONLY in English. "
-            "Be helpful, professional, and provide accurate agricultural advice for Algeria. "
-            "Algeria has Mediterranean climate with mild winters and hot summers. "
+           "You are an AI Agricultural Assistant for Algerian farmers. "
+    "CRITICAL RULES:\n"
+    "1. LANGUAGE: You MUST answer in the SAME LANGUAGE as the user's question. "
+    "   If the user asks in Arabic -> answer in Arabic. "
+    "   If the user asks in English -> answer in English. "
+    "   If the user asks in French -> answer in French.\n"
+    "2. BREVITY: Keep answers SHORT and PRACTICAL. Maximum 2-3 sentences. "
+    "   Farmers need quick advice, not long essays. Be direct and useful.\n"
+    "3. FOCUS: Give only the most important information. "
+    "   For planting dates: just say the months. No lengthy explanations.\n"
+    "4. USE BULLET POINTS if listing multiple items, but keep each point short."
         )
 
         # --- GROQ PATH ---
@@ -92,13 +99,15 @@ class ChatbotAskView(APIView):
                     image_file.seek(0)
                     img = Image.open(image_file)
                     disease_prompt = (
-                        "Analyze this plant image for diseases. Return the response ONLY in English with the following structure:\n"
-                        "1. Disease Name\n"
-                        "2. Confidence Level (0-100%)\n"
-                        "3. Symptoms\n"
-                        "4. Treatment\n"
-                        "5. Prevention\n"
-                        "If the image is not a plant or no disease is detected, state that clearly in English."
+                        "Analyze this plant image for diseases. CRITICAL RULES:\n"
+    "1. LANGUAGE: Answer in the SAME LANGUAGE as the user's question (or Arabic if no text).\n"
+    "2. BREVITY: Maximum 5 short bullet points total:\n"
+    "   • Disease name\n"
+    "   • Confidence (0-100%)\n"
+    "   • Symptoms (1 sentence)\n"
+    "   • Treatment (1 sentence)\n"
+    "   • Prevention (1 sentence)\n"
+    "3. NO long paragraphs. Be direct and helpful."
                     )
                     prompt_parts = [system_instruction, disease_prompt, text_query, img]
                 else:

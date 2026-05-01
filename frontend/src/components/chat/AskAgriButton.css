@@ -129,7 +129,7 @@
 .preview-container {
     padding: 0.75rem 1rem;
     background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #f6f9f7;
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -201,15 +201,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    
 }
 
 .send-btn {
     background: #10B981;
-    color: white;
+    color: rgb(249, 248, 248);
+}
+
+.tool-btn {
+    color: rgb(229, 235, 232);
+     background: #79cdb1;
 }
 
 .send-btn:disabled {
-    background: #d1d5db;
+    background: #39ae7f9f;
     cursor: not-allowed;
 }
 
