@@ -3,6 +3,7 @@ import api from "../../api/axios";
 import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell, ChevronLeft, ChevronRight } from "lucide-react";
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
+import ProductPurchaseModal from "../../pages/ProductPurchaseModal";
 
 const BuyerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
@@ -25,6 +26,10 @@ const BuyerDashboard = ({ activeTab }) => {
     const [filters, setFilters] = useState({ search: "", category: "all", priceRange: "all" });
     const [cart, setCart] = useState(null); // Simple one-item cart
     const [loading, setLoading] = useState(false);
+
+    // Modal state
+    const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     useEffect(() => {
         if (activeTab === "notifications") fetchNotifications();
@@ -130,23 +135,16 @@ const BuyerDashboard = ({ activeTab }) => {
             alert("This product is out of stock.");
             return;
         }
+        setSelectedProduct(product);
+        setPurchaseModalOpen(true);
+    };
 
-        const qty = prompt(`How many ${product.catalog_unit || 'units'} of ${product.name} would you like? (Available: ${product.quantity_available})`, "1");
-        if (!qty || isNaN(qty) || parseFloat(qty) <= 0) return;
-
-        if (parseFloat(qty) > product.quantity_available) {
-            alert(`Only ${product.quantity_available} ${product.catalog_unit || 'kg'} available!`);
-            return;
-        }
-
-        const item = {
-            ...product,
-            quantity: parseFloat(qty),
-            totalPrice: (product.price_per_kg * parseFloat(qty)).toFixed(2)
-        };
-        setCart(item);
-        localStorage.setItem("buyer_cart", JSON.stringify(item));
-        alert("Item added to cart!");
+    const handlePurchaseSuccess = () => {
+        fetchMyOrders();
+        fetchStats();
+        fetchProducts(productsPage);
+        // Optionally clear cart if this product was in it
+        removeFromCart();
     };
 
     const removeFromCart = () => {
@@ -230,8 +228,10 @@ const BuyerDashboard = ({ activeTab }) => {
         }
     };
 
+    let content = null;
+
     if (activeTab === "notifications") {
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div>
                     <h1 className="font-h1 text-h1 text-on-surface">Notifications</h1>
@@ -263,7 +263,7 @@ const BuyerDashboard = ({ activeTab }) => {
             { label: "Total Spent", value: `${stats.total_spent} DA`, icon: <CreditCard />, color: "bg-tertiary-container text-on-tertiary-container" }
         ];
 
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-xl animate-in">
                 <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
                     {statCards.map((s, i) => (
@@ -295,12 +295,12 @@ const BuyerDashboard = ({ activeTab }) => {
                                             <p className="font-body-sm text-body-sm text-on-surface-variant">{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</p>
                                         </div>
                                     </div>
-                                  <button
-  onClick={() => addToCart(p)}
-  className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
->
-  <ShoppingCart size={24} color="white" strokeWidth={3} />
-</button>
+                                    <button
+                                        onClick={() => addToCart(p)}
+                                        className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+                                    >
+                                        <ShoppingCart size={24} color="white" strokeWidth={3} />
+                                    </button>
                                 </div>
                             ))}
                         </div>
@@ -335,7 +335,7 @@ const BuyerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "products") {
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-xl animate-in">
                 <section className="space-y-lg">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
@@ -366,8 +366,8 @@ const BuyerDashboard = ({ activeTab }) => {
                                 >
                                     <option value="all">All Categories</option>
                                     {categories.map(c => (
-                                         <option key={c.id} value={c.id}>{c.name} ({c.products_count || 0})</option>
-                                     ))}
+                                        <option key={c.id} value={c.id}>{c.name} ({c.products_count || 0})</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1">
@@ -444,78 +444,10 @@ const BuyerDashboard = ({ activeTab }) => {
         );
     }
 
-    if (activeTab === "cart") {
-        return (
-            <div className="max-w-3xl mx-auto space-y-md animate-in">
-                <div className="mb-8">
-                    <h1 className="font-h1 text-h1 text-on-surface">Order Validation</h1>
-                    <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Confirm your selection before placing the order.</p>
-                </div>
 
-                {cart ? (
-                    <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6">
-                        <div className="flex items-center gap-6 pb-6 border-b border-outline-variant/20">
-                            <div className="w-20 h-20 rounded bg-surface-variant flex items-center justify-center text-3xl font-bold text-primary">
-                                {cart.name?.[0] || 'P'}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-h3 text-h3 text-on-surface">{cart.name || "Unnamed Product"}</h3>
-                                <p className="font-body-md text-on-surface-variant">From: {cart.farmer_name}</p>
-                            </div>
-                            <button className="text-error hover:bg-error-container p-2 rounded-full transition-colors" onClick={removeFromCart}>
-                                <Trash2 size={24} />
-                            </button>
-                        </div>
-
-                        <div className="flex items-center justify-between pb-6 border-b border-outline-variant/20">
-                            <span className="font-body-lg font-medium text-on-surface">Quantity</span>
-                            <div className="flex items-center gap-4 bg-surface-container p-2 rounded-lg">
-                                <button className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-on-surface" onClick={() => handleUpdateQuantity(cart.quantity - 1)}>-</button>
-                                <input
-                                    type="number"
-                                    className="w-16 text-center bg-transparent border-none focus:ring-0 font-body-lg font-bold"
-                                    value={cart.quantity}
-                                    onChange={(e) => handleUpdateQuantity(parseFloat(e.target.value) || 0)}
-                                />
-                                <button className="w-8 h-8 flex items-center justify-center bg-white rounded shadow-sm text-on-surface" onClick={() => handleUpdateQuantity(cart.quantity + 1)}>+</button>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex justify-between text-on-surface-variant">
-                                <span>Unit Price</span>
-                                <span>{cart.price_per_kg} DA / {cart.catalog_unit || 'kg'}</span>
-                            </div>
-                            <div className="flex justify-between text-on-surface font-bold text-xl pt-4 border-t border-outline-variant/20">
-                                <span>Total Order Value</span>
-                                <span className="text-primary">{cart.totalPrice} DA</span>
-                            </div>
-                        </div>
-
-                        <button
-                            className="w-full bg-primary text-on-primary py-4 rounded-xl font-button text-button hover:bg-tertiary transition-colors shadow-sm disabled:opacity-50"
-                            onClick={handleCheckout}
-                            disabled={loading}
-                        >
-                            {loading ? "Processing..." : "Confirm & Place Order"}
-                        </button>
-                    </div>
-                ) : (
-                    <div className="bg-surface-container-lowest p-xl rounded-xl shadow-sm border border-outline-variant/20 flex flex-col items-center text-center gap-4">
-                        <ShoppingCart size={64} className="text-outline-variant" />
-                        <h3 className="font-h3 text-on-surface">Your cart is empty</h3>
-                        <p className="font-body-md text-on-surface-variant">Browse the marketplace to find fresh products.</p>
-                        <button className="bg-primary text-on-primary px-6 py-2 rounded-full font-button text-button mt-2" onClick={() => window.location.hash = "products"}>
-                            Go to Marketplace
-                        </button>
-                    </div>
-                )}
-            </div>
-        );
-    }
 
     if (activeTab === "orders") {
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">My Purchases</h1>
@@ -544,17 +476,17 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <td className="p-4 font-body-md font-bold text-primary">{o.total_price} DA</td>
                                         <td className="p-4">
                                             <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
-                                                    ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
-                                                        o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
-                                                            'bg-error-container text-on-error-container'
+                                                ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
+                                                    o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
+                                                        'bg-error-container text-on-error-container'
                                                 }`}>
                                                 {o.status.replace('_', ' ')}
                                             </span>
                                         </td>
                                         <td className="p-4">
                                             {o.status === 'PENDING' ? (
-                                             <button className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors" onClick={() => setShowAddModal(false)}>Cancel</button>
-                                             ) : (
+                                                <button className="px-5 py-2.5 rounded-lg font-button text-button bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" onClick={() => handleCancelOrder(o.id)}>Cancel</button>
+                                            ) : (
                                                 <span className="text-outline text-sm">No actions</span>
                                             )}
                                         </td>
@@ -578,7 +510,7 @@ const BuyerDashboard = ({ activeTab }) => {
     if (activeTab === "tracking") {
         const activeTracking = myOrders.filter(o => ['ACCEPTED', 'IN_TRANSIT', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Track Deliveries</h1>
@@ -611,10 +543,10 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <div
                                             className="bg-primary h-2 rounded-full transition-all duration-500"
                                             style={{
-                                                width: o.status === 'DELIVERED' ? '100%' : 
-                                                       o.status === 'NEAR_ARRIVAL' ? '75%' :
-                                                       o.status === 'IN_TRANSIT' ? '50%' : 
-                                                       o.status === 'CHARGING' ? '25%' : '5%'
+                                                width: o.status === 'DELIVERED' ? '100%' :
+                                                    o.status === 'NEAR_ARRIVAL' ? '75%' :
+                                                        o.status === 'IN_TRANSIT' ? '50%' :
+                                                            o.status === 'CHARGING' ? '25%' : '5%'
                                             }}
                                         ></div>
                                     </div>
@@ -642,7 +574,7 @@ const BuyerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "complaints") {
-        return (
+        content = (
             <div className="max-w-2xl mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
@@ -669,7 +601,18 @@ const BuyerDashboard = ({ activeTab }) => {
         );
     }
 
-    return null;
+    return (
+        <>
+            {content}
+            {purchaseModalOpen && (
+                <ProductPurchaseModal
+                    product={selectedProduct}
+                    onClose={() => setPurchaseModalOpen(false)}
+                    onSuccess={handlePurchaseSuccess}
+                />
+            )}
+        </>
+    );
 };
 
 export default BuyerDashboard;

@@ -617,26 +617,31 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                     <div className="col-span-1 md:col-span-12 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Inventory Control & Marketplace</h2>
-                            <button className="bg-secondary text-on-secondary font-button text-button px-4 py-2 rounded-lg hover:bg-secondary-fixed hover:text-on-secondary-container transition-colors flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">publish</span> Publish Listing
-                            </button>
+                            <span onClick={() => setActiveTab("products")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-outline-variant">
-                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Product</th>
-                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Quantity</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Product Details</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Quantity </th>
                                         <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Market Price</th>
                                         <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Status</th>
-                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Action</th>
+                                       <th className="py-3 pl-2 pr-4 font-label-caps text-label-caps text-outline uppercase text-left"> Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {products.length > 0 ? products.slice(0, 5).map(p => (
                                         <tr key={p.id} className="border-b border-surface-variant hover:bg-surface transition-colors">
-                                            <td className="py-3 px-4 font-medium text-on-surface">{p.name || "Unnamed Product"}</td>
-                                            <td className="py-3 px-4 text-on-surface-variant">{p.quantity_available} kg</td>
+<td   className="md:col-span-4 flex items-center gap-md">
+                                                <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
+                                                   {p.catalog_image ? <img src={p.catalog_image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-outline">inventory_2</span>}
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
+                                                   <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
+                                                </div>
+                                            </td>                                            <td className="py-3 px-4 text-on-surface-variant">{p.quantity_available} kg</td>
                                             <td className="py-3 px-4">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-semibold text-primary">{p.price_per_kg} DA/kg</span>
@@ -649,13 +654,16 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                                     <span className="inline-block bg-error-container text-on-error-container px-2 py-1 rounded text-xs font-semibold">Out of Stock</span>
                                                 )}
                                             </td>
-                                            <td className="py-3 px-4">
-                                                <div className="flex items-center gap-2">
-                                                    <button onClick={() => handleEditProduct(p)} className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition" title="Edit">
-                                                        <span className="material-symbols-outlined text-sm">edit</span>
-                                                    </button>
-                                                    <button onClick={() => handleDeleteProduct(p.id)} className="px-5 py-2.5 rounded-lg font-button text-button   bg-error-container text-on-error-container hover:bg-error hover:text-on-errortransition-colors">Delete</button>
-                                                </div>
+                                           <td className="py-3 pl-2 pr-4">
+  <div className="flex items-center gap-2">
+                                                     <button onClick={() => handleEditProduct(p)}  className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container"
+                                                    title="View Price Timeline">
+                                         <span className="material-symbols-outlined">edit</span>
+                                    </button>
+ <button onClick={() => handleDeleteProduct(p.id)}className="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container"
+                                                    title="Remove Entry">
+                                        <span className="material-symbols-outlined">delete</span>
+                                    </button>                                                </div>
                                             </td>
                                         </tr>
                                     )) : (
