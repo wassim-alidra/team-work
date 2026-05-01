@@ -11,11 +11,21 @@ User = get_user_model()
 from farms.serializers import FarmSerializer
 
 class UserSerializer(serializers.ModelSerializer):
+    has_active_mission = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'wilaya', 'date_joined', 'profile_image', 'approval_status', 'password')
-        read_only_fields = ('date_joined',)
+        fields = ('id', 'username', 'email', 'role', 'wilaya', 'date_joined', 'profile_image', 'approval_status', 'password', 'has_active_mission')
+        read_only_fields = ('date_joined', 'has_active_mission')
         extra_kwargs = {'password': {'write_only': True}}
+    
+    def get_has_active_mission(self, obj):
+        if obj.role != User.Role.TRANSPORTER:
+            return False
+        # Import Delivery here to avoid circular imports
+        from market.models import Delivery
+        active_statuses = ['ASSIGNED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL']
+        return Delivery.objects.filter(transporter=obj, status__in=active_statuses).exists()
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)

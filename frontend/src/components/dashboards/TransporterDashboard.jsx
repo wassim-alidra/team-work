@@ -93,12 +93,27 @@ const TransporterDashboard = ({ activeTab }) => {
     };
 
     const handleAccept = async (orderId) => {
+        if (user.has_active_mission) {
+            alert("Finish your current mission first");
+            return;
+        }
+        if (loading) return;
+        setLoading(true);
         try {
             await api.post("market/deliveries/", { order: orderId });
             alert("Delivery accepted!");
+            
+            // Refresh user to update has_active_mission state
+            const userRes = await api.get("users/me/");
+            setUser(userRes.data);
+            
             fetchAvailableOrders();
+            if (activeTab === "dashboard" || activeTab === "status") fetchMyDeliveries();
         } catch (err) {
-            alert("Error accepting delivery");
+            const errorMsg = err.response?.data?.detail || "Error accepting delivery";
+            alert(errorMsg);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -106,7 +121,12 @@ const TransporterDashboard = ({ activeTab }) => {
         try {
             await api.patch(`market/deliveries/${deliveryId}/`, { status });
             fetchMyDeliveries();
-            if (status === "DELIVERED") fetchEarnings();
+            if (status === "DELIVERED") {
+                fetchEarnings();
+                // Refresh user to update has_active_mission state
+                const userRes = await api.get("users/me/");
+                setUser(userRes.data);
+            }
         } catch (err) {
             alert("Error updating status");
         }
@@ -215,7 +235,12 @@ const TransporterDashboard = ({ activeTab }) => {
                                                 <button className="flex-1 flex items-center justify-center gap-2 bg-primary/10 text-primary py-2 rounded border border-primary/20 hover:bg-primary/20 transition-colors" onClick={() => setSelectedOrder(o)}>
                                                     <MapPin size={14} /> View
                                                 </button>
-                                                <button className="flex-1 bg-secondary-container text-on-secondary-container py-2 rounded hover:bg-secondary-fixed transition-colors" onClick={() => handleAccept(o.id)}>
+                                                <button 
+                                                    className="flex-1 bg-secondary-container text-on-secondary-container py-2 rounded hover:bg-secondary-fixed transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                                                    onClick={() => handleAccept(o.id)}
+                                                    disabled={user.has_active_mission}
+                                                    title={user.has_active_mission ? "You already have an active mission" : ""}
+                                                >
                                                     Accept
                                                 </button>
                                             </div>
@@ -293,10 +318,29 @@ const TransporterDashboard = ({ activeTab }) => {
                                 </div>
                             </div>
                             <div className="flex gap-3 mt-auto">
-                                <button className="flex-1 flex items-center justify-center gap-2 bg-surface text-on-surface py-2 rounded-lg border border-outline-variant/30 hover:bg-surface-variant transition-colors" onClick={() => setSelectedOrder(o)}>
-                                    <MapPin size={16} /> View Details
-                                </button>
-                                <button className="flex-1 bg-primary text-on-primary py-2 rounded-lg hover:bg-tertiary transition-colors flex items-center justify-center gap-2" onClick={() => handleAccept(o.id)}>
+                               <button
+  disabled={user.has_active_mission}
+  onClick={() => {
+    if (user.has_active_mission) {
+      alert("Finish your current mission first");
+      return;
+    }
+    setSelectedOrder(o);
+  }}
+  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-outline-variant/30 transition-colors ${
+    user.has_active_mission
+      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+      : "bg-surface text-on-surface hover:bg-surface-variant"
+  }`}
+>
+  <MapPin size={16} /> View Details
+</button>
+                                <button 
+                                    className="flex-1 bg-primary text-on-primary py-2 rounded-lg hover:bg-tertiary transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" 
+                                    onClick={() => handleAccept(o.id)}
+                                    disabled={user.has_active_mission}
+                                    title={user.has_active_mission ? "You already have an active mission" : ""}
+                                >
                                     <CheckCircle size={16} /> Accept
                                 </button>
                             </div>
