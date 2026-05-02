@@ -3,6 +3,12 @@ from django.conf import settings
 from users.models import User
 from decimal import Decimal
 
+class Season(models.TextChoices):
+    SPRING = 'SPRING', 'Spring'
+    SUMMER = 'SUMMER', 'Summer'
+    AUTUMN = 'AUTUMN', 'Autumn'
+    WINTER = 'WINTER', 'Winter'
+
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
@@ -22,6 +28,8 @@ class ProductCatalog(models.Model):
     unit = models.CharField(max_length=20, default="kg")
     min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Minimum price per unit (DA)")
     max_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Maximum price per unit (DA)")
+    season = models.CharField(max_length=20, choices=Season.choices, default=Season.SPRING)
+    year = models.IntegerField(default=2024)
     image = models.ImageField(upload_to='catalog_images/', null=True, blank=True)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_catalog_items')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -34,6 +42,8 @@ class PriceHistory(models.Model):
     product = models.ForeignKey(ProductCatalog, on_delete=models.CASCADE, related_name='history')
     min_price = models.DecimalField(max_digits=10, decimal_places=2)
     max_price = models.DecimalField(max_digits=10, decimal_places=2)
+    season = models.CharField(max_length=20, choices=Season.choices, default=Season.SPRING)
+    year = models.IntegerField(default=2024)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -67,8 +77,8 @@ class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         ACCEPTED = 'ACCEPTED', 'Accepted'
-        CHARGING = 'CHARGING', 'In Charging'
-        IN_TRANSIT = 'IN_TRANSIT', 'In Transit'
+        ON_WAY = 'ON_WAY', 'On Way to Farm'
+        CHARGING = 'CHARGING', 'Loading'
         NEAR_ARRIVAL = 'NEAR_ARRIVAL', 'Close to Arrival'
         DELIVERED = 'DELIVERED', 'Delivered'
         CANCELLED = 'CANCELLED', 'Cancelled'
@@ -109,10 +119,16 @@ class Delivery(models.Model):
         # Sync status with Order
         if self.status == 'ASSIGNED':
             self.order.status = Order.Status.ACCEPTED
+        elif self.status == 'ON_WAY':
+            self.order.status = Order.Status.ON_WAY
+            # Notify Farmer that transporter is coming
+            from .models import Notification
+            Notification.objects.create(
+                user=self.order.product.farmer,
+                message=f"Transporter is now ON WAY to your farm to pick up: {self.order.product.catalog.name} (Order #{self.order.id}). Please be ready!"
+            )
         elif self.status == 'CHARGING':
             self.order.status = Order.Status.CHARGING
-        elif self.status == 'IN_TRANSIT':
-            self.order.status = Order.Status.IN_TRANSIT
         elif self.status == 'NEAR_ARRIVAL':
             self.order.status = Order.Status.NEAR_ARRIVAL
         elif self.status == 'DELIVERED':

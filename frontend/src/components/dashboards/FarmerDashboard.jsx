@@ -107,6 +107,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const [editingFarm, setEditingFarm] = useState(null);
     const [editingProduct, setEditingProduct] = useState(null);
     const [farmImage, setFarmImage] = useState(null);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [priceHistory, setPriceHistory] = useState([]);
 
     // Weather Feature States
     const [weatherData, setWeatherData] = useState(null);
@@ -189,6 +191,16 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             setCatalogCount(res.data.count || (Array.isArray(data) ? data.length : 0));
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const fetchPriceHistory = async (catalogId) => {
+        try {
+            const res = await api.get(`market/price-history/?catalog_id=${catalogId}`);
+            setPriceHistory(res.data);
+            setShowHistoryModal(true);
+        } catch (err) {
+            console.error("Error fetching price history:", err);
         }
     };
 
@@ -642,7 +654,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                                     <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
                                                    <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
                                                 </div>
-                                            </td>                                            <td className="py-3 px-4 text-on-surface-variant">{p.quantity_available} kg</td>
+                                            </td>
+                                            <td className="py-3 px-4 text-on-surface-variant">{p.quantity_available} kg</td>
                                             <td className="py-3 px-4">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-semibold text-primary">{p.price_per_kg} DA/kg</span>
@@ -855,7 +868,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             </div>
         );
     } else if (activeTab === "tracking") {
-        const activeTracking = orders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
+        const activeTracking = orders.filter(o => ['ACCEPTED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         content = (
             <div className="animate-in w-full pb-20 md:pb-0">
@@ -887,8 +900,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container -z-10 -translate-y-1/2"></div>
                                 <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${o.status === 'DELIVERED' ? 'w-full' :
                                         o.status === 'NEAR_ARRIVAL' ? 'w-3/4' :
-                                            o.status === 'IN_TRANSIT' ? 'w-1/2' :
-                                                o.status === 'CHARGING' ? 'w-1/4' : 'w-0'
+                                            o.status === 'CHARGING' ? 'w-1/2' :
+                                                o.status === 'ON_WAY' ? 'w-1/4' : 'w-0'
                                     }`}></div>
 
                                 <div className="flex flex-col items-center">
@@ -896,12 +909,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     <span className="text-[10px] mt-1 font-semibold text-primary">Accepted</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
-                                    <span className={`text-[10px] mt-1 font-semibold ${['CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Charging</span>
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>On Way to Farm</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
-                                    <span className={`text-[10px] mt-1 font-semibold ${['IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>In Transit</span>
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Loading</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
@@ -937,20 +950,32 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 ) : (
                     <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
                         <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
-                            <div className="col-span-3">Product</div>
-                            <div className="col-span-4">Description</div>
+                            <div className="col-span-2">Product</div>
+                            <div className="col-span-3">Description</div>
+                            <div className="col-span-2">Last Update</div>
                             <div className="col-span-2">Min Price</div>
                             <div className="col-span-2">Max Price</div>
-                            <div className="col-span-1">Unit</div>
+                            <div className="col-span-1">History</div>
                         </div>
                         <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
                             {catalog.map(c => (
                                 <div key={c.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
-                                    <div className="md:col-span-3 font-bold text-on-surface">{c.name}</div>
-                                    <div className="md:col-span-4 text-on-surface-variant text-sm">{c.description || "—"}</div>
+                                    <div className="md:col-span-2 font-bold text-on-surface">{c.name}</div>
+                                    <div className="md:col-span-3 text-on-surface-variant text-sm">{c.description || "—"}</div>
+                                    <div className="md:col-span-2">
+                                        <p className="text-on-surface font-body-sm text-body-sm font-bold">{new Date(c.updated_at).toLocaleString()}</p>
+                                    </div>
                                     <div className="md:col-span-2 font-medium text-secondary">{c.min_price ? `${c.min_price} DA` : "—"}</div>
-                                    <div className="md:col-span-2 font-medium text-error">{c.max_price ? `${c.max_price} DA` : "—"}</div>
-                                    <div className="md:col-span-1 text-outline text-sm">{c.unit || 'kg'}</div>
+                                    <div className="md:col-span-2 font-medium text-error">{c.max_price ? `${c.max_price} DA` : "—"} <span className="text-[10px] text-outline font-normal">/{c.unit || 'kg'}</span></div>
+                                    <div className="md:col-span-1 flex justify-end">
+                                        <button 
+                                            onClick={() => { setSelectedCatalogItem(c); fetchPriceHistory(c.id); }} 
+                                            className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"
+                                            title="View Price History"
+                                        >
+                                            <span className="material-symbols-outlined">history</span>
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -1302,6 +1327,57 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     return (
         <>
             {content}
+            
+            {showHistoryModal && (
+                <div className="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-surface-container-lowest rounded-2xl w-full max-w-lg max-h-[90vh] shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col">
+                        <div className="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-primary/5">
+                            <div>
+                                <h3 className="font-h3 text-h3 text-primary">{selectedCatalogItem?.name} - Price History</h3>
+                                <p className="text-xs text-on-surface-variant mt-1 uppercase font-bold tracking-wider">Official Pricing Evolution</p>
+                            </div>
+                            <button onClick={() => setShowHistoryModal(false)} className="p-2 hover:bg-surface-variant rounded-full transition-colors">
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <div className="p-6 overflow-y-auto flex-1">
+                            <div className="space-y-6">
+                                {/* Current Price Header */}
+                                <div className="bg-primary-container/10 border border-primary/20 rounded-lg p-3">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className="text-primary font-bold text-lg">{selectedCatalogItem?.min_price} - {selectedCatalogItem?.max_price} <span className="text-sm font-normal">DA/{selectedCatalogItem?.unit}</span></span>
+                                        <span className="bg-primary text-on-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Current</span>
+                                    </div>
+                                </div>
+
+                                {/* History List */}
+                                <div className="space-y-4 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30">
+                                    {priceHistory.map((h, idx) => (
+                                        <div key={h.id} className="relative pl-8">
+                                            <div className="absolute left-0 top-1.5 w-[24px] h-[24px] rounded-full bg-surface-container-lowest border-2 border-primary/50 flex items-center justify-center z-10">
+                                                <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                            </div>
+                                            <p className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">{new Date(h.updated_at).toLocaleString()}</p>
+                                            <div className="bg-surface-container-low rounded-lg p-3 border border-outline-variant/30">
+                                                <div className="font-semibold text-on-surface mb-1">{h.min_price} - {h.max_price} <span className="text-sm font-normal text-on-surface-variant">DA/{selectedCatalogItem?.unit}</span></div>
+                                                <div className="text-xs text-on-surface-variant flex items-center gap-1">
+                                                    <span className="material-symbols-outlined text-[14px]">calendar_today</span> {new Date(h.updated_at).toLocaleDateString()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {priceHistory.length === 0 && (
+                                        <div className="text-center py-4 text-on-surface-variant">No historical data available.</div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-surface-variant/20 border-t border-outline-variant/30 flex justify-end">
+                            <button onClick={() => setShowHistoryModal(false)} className="bg-primary text-on-primary font-button px-6 py-2 rounded-lg hover:bg-tertiary transition-colors">Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <AskAgriButton />
         </>
     );

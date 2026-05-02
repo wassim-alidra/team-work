@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
             return False
         # Import Delivery here to avoid circular imports
         from market.models import Delivery
-        active_statuses = ['ASSIGNED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL']
+        active_statuses = ['ASSIGNED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL']
         return Delivery.objects.filter(transporter=obj, status__in=active_statuses).exists()
     
     def create(self, validated_data):

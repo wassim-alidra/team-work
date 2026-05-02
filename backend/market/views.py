@@ -53,6 +53,8 @@ class ProductCatalogViewSet(viewsets.ModelViewSet):
             product=instance,
             min_price=instance.min_price,
             max_price=instance.max_price,
+            season=instance.season,
+            year=instance.year,
             updated_by=instance.updated_by
         )
         serializer.save(updated_by=self.request.user)
@@ -239,7 +241,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         user = request.user
         buyer_orders = Order.objects.filter(buyer=user)
         total_orders = buyer_orders.count()
-        pending_deliveries = buyer_orders.filter(status__in=['ACCEPTED', 'IN_TRANSIT']).count()
+        pending_deliveries = buyer_orders.filter(status__in=['ACCEPTED', 'ON_WAY']).count()
         delivered_count = buyer_orders.filter(status='DELIVERED').count()
         total_spent = sum(o.total_price for o in buyer_orders.filter(status='DELIVERED'))
         
@@ -272,7 +274,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
              raise permissions.PermissionDenied("Only transporters can accept deliveries.")
          
          # Ensure transporter has only ONE active mission at a time
-         active_statuses = ['ASSIGNED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL']
+         active_statuses = ['ASSIGNED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL']
          if Delivery.objects.filter(transporter=self.request.user, status__in=active_statuses).exists():
              raise ValidationError({"detail": "You already have an active mission"})
              
@@ -288,7 +290,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         # Valid status transitions
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
-            status_order = ['ASSIGNED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED']
+            status_order = ['ASSIGNED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL', 'DELIVERED']
             
             if delivery.status in status_order and new_status in status_order:
                 current_idx = status_order.index(delivery.status)

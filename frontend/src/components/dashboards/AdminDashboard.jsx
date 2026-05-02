@@ -24,7 +24,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
 
     const [notifMessage, setNotifMessage] = useState("");
     const [notifTarget, setNotifTarget] = useState("all");
-    const [catalogForm, setCatalogForm] = useState({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg", image: null });
+    const [catalogForm, setCatalogForm] = useState({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg", image: null, season: "SPRING", year: new Date().getFullYear() });
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState(null); // For Category card edit
     const [selectedCatalogItem, setSelectedCatalogItem] = useState(null); // For Catalog item edit
@@ -272,7 +272,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
             }
             
             // Success cleanup
-            setCatalogForm({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg", image: null });
+            setCatalogForm({ name: "", description: "", min_price: "", max_price: "", category: "", unit: "kg", image: null, season: "SPRING", year: new Date().getFullYear() });
             setSelectedCatalogItem(null);
             setShowAddModal(false);
             
@@ -686,7 +686,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                     <button 
                         className="flex items-center justify-center gap-2 bg-primary text-on-primary font-button text-button px-4 py-2.5 rounded-lg hover:bg-primary/90 transition-colors"
                         onClick={() => { 
-                            setCatalogForm({ name: "", description: "", min_price: "", max_price: "", category: (catalogFilter !== "all") ? catalogFilter : "", unit: "kg", image: null }); 
+                            setCatalogForm({ name: "", description: "", min_price: "", max_price: "", category: (catalogFilter !== "all") ? catalogFilter : "", unit: "kg", image: null, season: "SPRING", year: new Date().getFullYear() }); 
                             setSelectedCatalogItem(null); 
                             setShowAddModal(true); 
                         }}
@@ -754,8 +754,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                             <p className="text-on-surface font-semibold">{item.min_price} - {item.max_price} <span className="text-on-surface-variant font-normal text-sm">DA / {item.unit}</span></p>
                                         </td>
                                         <td className="py-3 px-6">
-                                            <p className="text-on-surface font-body-sm text-body-sm">{new Date(item.updated_at).toLocaleDateString()}</p>
-                                            <p className="text-on-surface-variant text-xs mt-0.5">{item.updated_by_name || "System"}</p>
+                                            <p className="text-on-surface font-body-sm text-body-sm font-bold">{new Date(item.updated_at).toLocaleString()}</p>
                                         </td>
                                         <td className="py-3 px-6 text-right">
                                             <div className="flex justify-end gap-1">
@@ -764,7 +763,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                                     title="Edit Details"
                                                     onClick={() => { 
                                                         setSelectedCatalogItem(item); 
-                                                        setCatalogForm({ name: item.name, description: item.description, min_price: item.min_price, max_price: item.max_price, category: item.category, unit: item.unit, image: null }); 
+                                                        setCatalogForm({ name: item.name, description: item.description, min_price: item.min_price, max_price: item.max_price, category: item.category, unit: item.unit, image: null, season: item.season || "SPRING", year: new Date().getFullYear() }); 
                                                         setShowAddModal(true); 
                                                     }}
                                                 >
@@ -802,7 +801,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
 
                 {showAddModal && activeTab === "catalog" && (
                     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[1100] p-4">
-                        <div className="bg-surface-container-lowest w-full max-w-lg rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                        <div className="bg-surface-container-lowest w-full max-w-lg max-h-[90vh] rounded-2xl shadow-xl overflow-hidden flex flex-col">
                             <div className="p-lg border-b border-outline-variant/30 flex gap-4 items-center relative">
                                 <div className="w-10 h-10 bg-primary-container/20 text-primary rounded-xl flex items-center justify-center">
                                     <span className="material-symbols-outlined text-[20px]">tune</span>
@@ -849,6 +848,23 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                         <input type="text" value={catalogForm.unit} onChange={e => setCatalogForm({...catalogForm, unit: e.target.value})} className="w-full bg-surface border border-outline-variant/50 rounded-lg px-3 py-2 font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="kg, bunch..." required />
                                     </div>
                                 </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="block font-label-caps text-label-caps text-on-surface">SEASON</label>
+                                        <select value={catalogForm.season} onChange={e => setCatalogForm({...catalogForm, season: e.target.value})} className="w-full bg-surface border border-outline-variant/50 rounded-lg px-3 py-2 font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none" required>
+                                            <option value="SPRING">Spring</option>
+                                            <option value="SUMMER">Summer</option>
+                                            <option value="AUTUMN">Autumn</option>
+                                            <option value="WINTER">Winter</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="block font-label-caps text-label-caps text-on-surface">YEAR</label>
+                                        <input type="number" value={catalogForm.year} className="w-full bg-surface-variant/30 border border-outline-variant/50 rounded-lg px-3 py-2 font-body-sm text-body-sm text-on-surface-variant cursor-not-allowed outline-none" disabled />
+                                        <p className="text-[10px] text-primary font-bold">Current Year (Fixed)</p>
+                                    </div>
+                                </div>
                                 
                                 <div className="space-y-1">
                                     <label className="block font-label-caps text-label-caps text-on-surface">MANAGEMENT NOTES</label>
@@ -874,7 +890,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
 
                 {showHistoryModal && (
                     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[1100] p-4">
-                        <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-xl overflow-hidden flex flex-col">
+                        <div className="bg-surface-container-lowest w-full max-w-md max-h-[90vh] rounded-2xl shadow-xl overflow-hidden flex flex-col">
                             <div className="p-lg border-b border-outline-variant/30 flex gap-4 items-center relative">
                                 <div className="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-xl flex items-center justify-center">
                                     <span className="material-symbols-outlined">history</span>
@@ -888,7 +904,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                 </button>
                             </div>
                             
-                            <div className="p-lg flex-1 overflow-y-auto max-h-[60vh]">
+                            <div className="p-lg flex-1 overflow-y-auto">
                                 <div className="relative border-l-2 border-outline-variant/30 ml-3 space-y-6">
                                     <div className="relative pl-6">
                                         <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-surface-container-lowest"></div>
@@ -908,7 +924,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                             <div className="bg-surface-container-low rounded-lg p-3 border border-outline-variant/30">
                                                 <div className="font-semibold text-on-surface mb-1">{h.min_price} - {h.max_price} <span className="text-sm font-normal text-on-surface-variant">DA/{selectedCatalogItem?.unit}</span></div>
                                                 <div className="text-xs text-on-surface-variant flex items-center gap-1">
-                                                    <span className="material-symbols-outlined text-[14px]">person</span> {h.updated_by_name || "System"}
+                                                    <span className="material-symbols-outlined text-[14px]">calendar_today</span> {new Date(h.updated_at).toLocaleDateString()}
                                                 </div>
                                             </div>
                                         </div>

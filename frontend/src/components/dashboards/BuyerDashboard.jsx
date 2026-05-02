@@ -477,7 +477,7 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <td className="p-4 font-body-md font-bold text-primary">{o.total_price} DA</td>
                                         <td className="p-4">
                                             <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
-                                                ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
+                                                ['ACCEPTED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
                                                     o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
                                                         'bg-error-container text-on-error-container'
                                                 }`}>
@@ -509,7 +509,7 @@ const BuyerDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "tracking") {
-        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
+        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
@@ -534,9 +534,9 @@ const BuyerDashboard = ({ activeTab }) => {
 
                                 <div className="mt-6 relative">
                                     <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                        <span className={['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                        <span className={['CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Charging</span>
-                                        <span className={['IN_TRANSIT', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                        <span className={['ACCEPTED', 'ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                        <span className={['ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
+                                        <span className={['CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Loading</span>
                                         <span className={['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Near Arrival</span>
                                         <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                     </div>
@@ -546,8 +546,8 @@ const BuyerDashboard = ({ activeTab }) => {
                                             style={{
                                                 width: o.status === 'DELIVERED' ? '100%' :
                                                     o.status === 'NEAR_ARRIVAL' ? '75%' :
-                                                        o.status === 'IN_TRANSIT' ? '50%' :
-                                                            o.status === 'CHARGING' ? '25%' : '5%'
+                                                    o.status === 'CHARGING' ? '50%' :
+                                                            o.status === 'ON_WAY' ? '25%' : '5%'
                                             }}
                                         ></div>
                                     </div>

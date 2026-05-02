@@ -16,14 +16,14 @@ class PriceHistorySerializer(serializers.ModelSerializer):
     updated_by_name = serializers.CharField(source='updated_by.username', read_only=True)
     class Meta:
         model = PriceHistory
-        fields = '__all__'
+        fields = ['id', 'product', 'min_price', 'max_price', 'season', 'year', 'updated_by', 'updated_by_name', 'updated_at']
 
 class ProductCatalogSerializer(serializers.ModelSerializer):
     history = PriceHistorySerializer(many=True, read_only=True)
     category_name = serializers.CharField(source='category.name', read_only=True)
     class Meta:
         model = ProductCatalog
-        fields = '__all__'
+        fields = ['id', 'name', 'category', 'category_name', 'description', 'unit', 'min_price', 'max_price', 'season', 'year', 'image', 'updated_by', 'created_at', 'updated_at', 'history']
 
 class ProductSerializer(serializers.ModelSerializer):
     farmer_name = serializers.CharField(source='farmer.username', read_only=True)

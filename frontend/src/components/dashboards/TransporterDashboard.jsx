@@ -398,9 +398,9 @@ const TransporterDashboard = ({ activeTab }) => {
                             
                             <div className="mt-4 relative mb-4">
                                 <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                    <span className={['ASSIGNED','CHARGING','IN_TRANSIT','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                    <span className={['CHARGING','IN_TRANSIT','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Charging</span>
-                                    <span className={['IN_TRANSIT','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>In Transit</span>
+                                    <span className={['ASSIGNED','ON_WAY','CHARGING','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                    <span className={['ON_WAY','CHARGING','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
+                                    <span className={['CHARGING','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Loading</span>
                                     <span className={['NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Near Arrival</span>
                                     <span className={['DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                 </div>
@@ -410,8 +410,8 @@ const TransporterDashboard = ({ activeTab }) => {
                                         style={{ 
                                             width: d.status === 'DELIVERED' ? '100%' : 
                                                    d.status === 'NEAR_ARRIVAL' ? '75%' :
-                                                   d.status === 'IN_TRANSIT' ? '50%' : 
-                                                   d.status === 'CHARGING' ? '25%' : '5%' 
+                                                    d.status === 'ON_WAY' ? '25%' : 
+                                                    d.status === 'CHARGING' ? '50%' : '5%' 
                                         }}
                                     ></div>
                                 </div>
@@ -419,16 +419,20 @@ const TransporterDashboard = ({ activeTab }) => {
 
                             <div className="flex justify-end border-t border-outline-variant/20 pt-4">
                                 {d.status === "ASSIGNED" && (
+                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "ON_WAY")}>
+                                        Start Journey to Farm
+                                    </button>
+                                )}
+                                {d.status === "ON_WAY" && (
                                     <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "CHARGING")}>
-                                        Start Charging
+                                        Arrived & Start Loading
                                     </button>
                                 )}
                                 {d.status === "CHARGING" && (
-                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "IN_TRANSIT")}>
-                                        Start Transit
+                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "NEAR_ARRIVAL")}>
+                                        Finish Loading & Start Transit
                                     </button>
                                 )}
-                                {d.status === "IN_TRANSIT" && (
                                     <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "NEAR_ARRIVAL")}>
                                         Close to Arrival
                                     </button>
