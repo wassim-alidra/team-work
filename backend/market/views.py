@@ -290,7 +290,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         # Valid status transitions
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
-            status_order = ['ASSIGNED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL', 'DELIVERED']
+            status_order = ['ASSIGNED', 'ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED']
             
             if delivery.status in status_order and new_status in status_order:
                 current_idx = status_order.index(delivery.status)

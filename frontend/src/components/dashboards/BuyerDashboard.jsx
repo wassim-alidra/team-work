@@ -534,10 +534,9 @@ const BuyerDashboard = ({ activeTab }) => {
 
                                 <div className="mt-6 relative">
                                     <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                        <span className={['ACCEPTED', 'ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                        <span className={['ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
-                                        <span className={['CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Loading</span>
-                                        <span className={['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Near Arrival</span>
+                                        <span className={['ACCEPTED', 'ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                        <span className={['ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
+                                        <span className={['CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Loading</span>
                                         <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                     </div>
                                     <div className="w-full bg-surface-variant rounded-full h-2 relative">
@@ -545,9 +544,8 @@ const BuyerDashboard = ({ activeTab }) => {
                                             className="bg-primary h-2 rounded-full transition-all duration-500"
                                             style={{
                                                 width: o.status === 'DELIVERED' ? '100%' :
-                                                    o.status === 'NEAR_ARRIVAL' ? '75%' :
-                                                    o.status === 'CHARGING' ? '50%' :
-                                                            o.status === 'ON_WAY' ? '25%' : '5%'
+                                                    o.status === 'CHARGING' ? '66%' :
+                                                    o.status === 'ON_WAY' ? '33%' : '5%'
                                             }}
                                         ></div>
                                     </div>

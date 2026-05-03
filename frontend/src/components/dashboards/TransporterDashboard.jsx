@@ -398,10 +398,9 @@ const TransporterDashboard = ({ activeTab }) => {
                             
                             <div className="mt-4 relative mb-4">
                                 <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                    <span className={['ASSIGNED','ON_WAY','CHARGING','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                    <span className={['ON_WAY','CHARGING','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
-                                    <span className={['CHARGING','NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Loading</span>
-                                    <span className={['NEAR_ARRIVAL','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Near Arrival</span>
+                                    <span className={['ASSIGNED','ON_WAY','CHARGING','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Accepted</span>
+                                    <span className={['ON_WAY','CHARGING','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
+                                    <span className={['CHARGING','DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Loading</span>
                                     <span className={['DELIVERED'].includes(d.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                 </div>
                                 <div className="w-full bg-surface-variant rounded-full h-2 relative">
@@ -409,37 +408,28 @@ const TransporterDashboard = ({ activeTab }) => {
                                         className="bg-primary h-2 rounded-full transition-all duration-500" 
                                         style={{ 
                                             width: d.status === 'DELIVERED' ? '100%' : 
-                                                   d.status === 'NEAR_ARRIVAL' ? '75%' :
-                                                    d.status === 'ON_WAY' ? '25%' : 
-                                                    d.status === 'CHARGING' ? '50%' : '5%' 
+                                                   d.status === 'CHARGING' ? '66%' :
+                                                   d.status === 'ON_WAY' ? '33%' : '5%' 
                                         }}
                                     ></div>
                                 </div>
                             </div>
 
                             <div className="flex justify-end border-t border-outline-variant/20 pt-4">
-                                {d.status === "ASSIGNED" && (
-                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "ON_WAY")}>
-                                        Start Journey to Farm
-                                    </button>
-                                )}
-                                {d.status === "ON_WAY" && (
-                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "CHARGING")}>
-                                        Arrived & Start Loading
-                                    </button>
-                                )}
-                                {d.status === "CHARGING" && (
-                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "NEAR_ARRIVAL")}>
-                                        Finish Loading & Start Transit
-                                    </button>
-                                )}
-                                    <button className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors" onClick={() => handleUpdateStatus(d.id, "NEAR_ARRIVAL")}>
-                                        Close to Arrival
-                                    </button>
-                                )}
-                                {d.status === "NEAR_ARRIVAL" && (
-                                    <button className="bg-primary text-on-primary px-6 py-2 rounded-lg font-button hover:bg-tertiary transition-colors" onClick={() => handleUpdateStatus(d.id, "DELIVERED")}>
-                                        Mark as Delivered
+                                {['ASSIGNED', 'ON_WAY', 'CHARGING', 'NEAR_ARRIVAL'].includes(d.status) && (
+                                    <button 
+                                        className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm active:scale-95"
+                                        onClick={() => {
+                                            const nextStatus = {
+                                                'ASSIGNED': 'ON_WAY',
+                                                'ON_WAY': 'CHARGING',
+                                                'CHARGING': 'DELIVERED',
+                                                'NEAR_ARRIVAL': 'DELIVERED'
+                                            }[d.status];
+                                            handleUpdateStatus(d.id, nextStatus);
+                                        }}
+                                    >
+                                        Update Status
                                     </button>
                                 )}
                             </div>

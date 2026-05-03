@@ -124,7 +124,7 @@ class Delivery(models.Model):
             # Notify Farmer that transporter is coming
             from .models import Notification
             Notification.objects.create(
-                user=self.order.product.farmer,
+                recipient=self.order.product.farmer,
                 message=f"Transporter is now ON WAY to your farm to pick up: {self.order.product.catalog.name} (Order #{self.order.id}). Please be ready!"
             )
         elif self.status == 'CHARGING':

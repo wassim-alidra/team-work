@@ -899,9 +899,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             <div className="flex justify-between items-center relative w-full pt-2">
                                 <div className="absolute top-1/2 left-0 w-full h-1 bg-surface-container -z-10 -translate-y-1/2"></div>
                                 <div className={`absolute top-1/2 left-0 h-1 bg-primary -z-10 -translate-y-1/2 transition-all ${o.status === 'DELIVERED' ? 'w-full' :
-                                        o.status === 'NEAR_ARRIVAL' ? 'w-3/4' :
-                                            o.status === 'CHARGING' ? 'w-1/2' :
-                                                o.status === 'ON_WAY' ? 'w-1/4' : 'w-0'
+                                        o.status === 'CHARGING' ? 'w-2/3' :
+                                            o.status === 'ON_WAY' ? 'w-1/3' : 'w-0'
                                     }`}></div>
 
                                 <div className="flex flex-col items-center">
@@ -909,16 +908,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     <span className="text-[10px] mt-1 font-semibold text-primary">Accepted</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
-                                    <span className={`text-[10px] mt-1 font-semibold ${['ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>On Way to Farm</span>
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>On Way to Farm</span>
                                 </div>
                                 <div className="flex flex-col items-center">
-                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
-                                    <span className={`text-[10px] mt-1 font-semibold ${['CHARGING', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Loading</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
-                                    <span className={`text-[10px] mt-1 font-semibold ${['NEAR_ARRIVAL', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Near Arrival</span>
+                                    <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${['CHARGING', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                    <span className={`text-[10px] mt-1 font-semibold ${['CHARGING', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Loading</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className={`w-4 h-4 rounded-full border-4 border-surface-container-lowest ${o.status === 'DELIVERED' ? 'bg-primary' : 'bg-surface-variant'}`}></div>

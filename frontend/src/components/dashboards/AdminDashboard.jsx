@@ -914,6 +914,9 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                                 <span className="text-primary font-bold text-lg">{selectedCatalogItem?.min_price} - {selectedCatalogItem?.max_price} <span className="text-sm font-normal">DA/{selectedCatalogItem?.unit}</span></span>
                                                 <span className="bg-primary text-on-primary text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">Current</span>
                                             </div>
+                                            <div className="text-xs text-primary/80 font-medium uppercase">
+                                                {selectedCatalogItem?.season} {selectedCatalogItem?.year}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -923,6 +926,9 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                             <p className="font-label-caps text-label-caps text-on-surface-variant uppercase mb-1">{new Date(h.updated_at).toLocaleString()}</p>
                                             <div className="bg-surface-container-low rounded-lg p-3 border border-outline-variant/30">
                                                 <div className="font-semibold text-on-surface mb-1">{h.min_price} - {h.max_price} <span className="text-sm font-normal text-on-surface-variant">DA/{selectedCatalogItem?.unit}</span></div>
+                                                <div className="text-xs text-primary/70 font-bold uppercase mb-2">
+                                                    {h.season} {h.year}
+                                                </div>
                                                 <div className="text-xs text-on-surface-variant flex items-center gap-1">
                                                     <span className="material-symbols-outlined text-[14px]">calendar_today</span> {new Date(h.updated_at).toLocaleDateString()}
                                                 </div>
