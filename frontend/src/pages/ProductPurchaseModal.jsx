@@ -80,7 +80,16 @@ const ProductPurchaseModal = ({ product, onClose, onSuccess }) => {
                                 <div className="ppm-price-tag">
                                     Price: <strong>{product.price_per_kg} DA</strong> / {product.catalog_unit || 'kg'}
                                 </div>
-                                <div className="text-xs text-slate-400 mt-1">{product.quantity_available} {product.catalog_unit || ' kg'} available</div>
+                                <div className="mt-2">
+                                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
+                                        product.quality_grade === 'HIGH' ? 'bg-green-50 text-green-700 border-green-200' :
+                                        product.quality_grade === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                        'bg-red-50 text-red-700 border-red-200'
+                                    }`}>
+                                        {product.quality_grade || 'HIGH'} Quality
+                                    </span>
+                                </div>
+                                <div className="text-xs text-slate-400 mt-2">{product.quantity_available} {product.catalog_unit || ' kg'} available</div>
                                 <div className="text-xs text-slate-400 mt-1">Seller: {product.farmer_name}</div>
                             </div>
                         </div>

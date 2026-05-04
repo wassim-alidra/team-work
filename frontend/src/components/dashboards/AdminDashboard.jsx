@@ -6,6 +6,9 @@ import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import { Search } from "lucide-react";
 import SetisticsDashboard from "../setistics/SetisticsDashboard";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
+
+const COLORS = ['#1A3A34', '#2D6A4F', '#40916C', '#52B788', '#74C69D'];
 
 const AdminDashboard = ({ activeTab, setActiveTab }) => {
     const navigate = useNavigate();
@@ -50,6 +53,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
     const [farmTab, setFarmTab] = useState('pending'); // 'pending' | 'approved'
     const [farmLoading, setFarmLoading] = useState(false);
     const [selectedFarm, setSelectedFarm] = useState(null);
+
 
     const getIconComponent = (name, size = 24) => {
         const icons = { Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout };
@@ -375,43 +379,106 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                         <button onClick={fetchStats} className="font-button text-button text-primary border border-outline-variant px-4 py-2 rounded-lg hover:bg-surface-container transition-colors w-full">Refresh Analytics</button>
                     </section>
 
+                    <section className="md:col-span-3 grid grid-cols-1 lg:grid-cols-2 gap-lg">
+                        <div className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="bg-primary-container/10 p-2 rounded-lg text-primary">
+                                    <Users size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-h3 text-h3 text-on-surface">Top 10 Wilayas by Farmer Count</h3>
+                                    <p className="font-body-sm text-body-sm text-on-surface-variant">Approved farms distribution.</p>
+                                </div>
+                            </div>
+                            <div className="h-[280px] w-full">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={stats.farmers_by_wilaya || []} margin={{ top: 10, right: 10, left: -20, bottom: 40 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e1e3e4" />
+                                        <XAxis dataKey="wilaya" angle={-45} textAnchor="end" interval={0} height={60} tick={{ fill: '#414846', fontSize: 10 }} />
+                                        <YAxis tick={{ fill: '#414846', fontSize: 10 }} />
+                                        <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #c1c8c5' }} />
+                                        <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                                            {(stats.farmers_by_wilaya || []).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={index === 0 ? '#1A3A34' : '#2D6A4F'} />
+                                            ))}
+                                        </Bar>
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
+
+                        <div className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="bg-secondary-container/30 p-2 rounded-lg text-secondary">
+                                    <Package size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-h3 text-h3 text-on-surface">Product Sales Distribution</h3>
+                                    <p className="font-body-sm text-body-sm text-on-surface-variant">Top selling products.</p>
+                                </div>
+                            </div>
+                            <div className="h-[280px] w-full">
+                                {stats.top_selling_products && stats.top_selling_products.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie data={stats.top_selling_products} cx="50%" cy="50%" innerRadius={60} outerRadius={85} paddingAngle={5} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                                                {stats.top_selling_products.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #c1c8c5' }} />
+                                            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-on-surface-variant italic">
+                                        <Package size={40} className="mb-2 opacity-20" />
+                                        <p className="text-sm">No sales data available yet.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+
                     <section className="md:col-span-2 bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
                         <div className="flex justify-between items-center mb-md border-b border-outline-variant/20 pb-md">
                             <h3 className="font-h3 text-h3 text-on-surface">Platform Activity</h3>
                         </div>
-                        <div className="space-y-4">
-                            <div className="flex items-start space-x-3">
-                                <div className="mt-1 w-8 h-8 rounded-full bg-primary-container/10 flex items-center justify-center shrink-0 text-primary">
-                                    <Users size={16} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="flex items-center space-x-3 p-3 bg-primary-container/5 rounded-lg border border-primary/10">
+                                <div className="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center shrink-0 text-primary">
+                                    <Users size={20} />
                                 </div>
                                 <div>
-                                    <p className="font-body-md text-body-md text-on-surface"><span className="font-semibold">{stats.farmers_count}</span> Registered Farmers</p>
+                                    <p className="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px]">Farmers</p>
+                                    <p className="font-h3 text-h3 text-on-surface leading-none">{stats.farmers_count}</p>
                                 </div>
                             </div>
-                            <div className="flex items-start space-x-3">
-                                <div className="mt-1 w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0 text-secondary">
-                                    <TrendingUp size={16} />
+                            <div className="flex items-center space-x-3 p-3 bg-secondary-container/5 rounded-lg border border-secondary/10">
+                                <div className="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center shrink-0 text-secondary">
+                                    <TrendingUp size={20} />
                                 </div>
                                 <div>
-                                    <p className="font-body-md text-body-md text-on-surface"><span className="font-semibold">{stats.transporters_count}</span> Transporters active</p>
+                                    <p className="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px]">Transporters</p>
+                                    <p className="font-h3 text-h3 text-on-surface leading-none">{stats.transporters_count}</p>
                                 </div>
                             </div>
-                            <div className="flex items-start space-x-3">
-                                <div className="mt-1 w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center shrink-0 text-error">
-                                    <AlertCircle size={16} />
+                            <div className="flex items-center space-x-3 p-3 bg-error-container/5 rounded-lg border border-error/10">
+                                <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center shrink-0 text-error">
+                                    <AlertCircle size={20} />
                                 </div>
                                 <div>
-                                    <p className="font-body-md text-body-md text-on-surface"><span className="font-semibold">{stats.pending_complaints}</span> Pending Complaints</p>
-                                    <p className="font-body-sm text-body-sm text-error">Requires attention</p>
+                                    <p className="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px]">Complaints</p>
+                                    <p className="font-h3 text-h3 text-on-surface leading-none">{stats.pending_complaints}</p>
                                 </div>
                             </div>
-                            <div className="flex items-start space-x-3">
-                                <div className="mt-1 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0 text-amber-600">
-                                    <span className="material-symbols-outlined text-[16px]">landscape</span>
+                            <div className="flex items-center space-x-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0 text-amber-600">
+                                    <span className="material-symbols-outlined text-[20px]">landscape</span>
                                 </div>
                                 <div>
-                                    <p className="font-body-md text-body-md text-on-surface"><span className="font-semibold">{allFarms.filter(f => !f.is_approved).length}</span> Farms Awaiting Approval</p>
-                                    {allFarms.filter(f => !f.is_approved).length > 0 && <p className="font-body-sm text-body-sm text-amber-600">Requires ministerial review</p>}
+                                    <p className="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px]">Pending Farms</p>
+                                    <p className="font-h3 text-h3 text-on-surface leading-none">{allFarms.filter(f => !f.is_approved).length}</p>
                                 </div>
                             </div>
                         </div>
@@ -420,36 +487,14 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                     <section className="md:col-span-1 bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
                         <h3 className="font-h3 text-h3 text-on-surface mb-md">Quick Actions</h3>
                         <div className="space-y-3">
-                           <button
-  onClick={() => setActiveTab("users")}
-  className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center"
->
-  Review Users
-  <ChevronRight size={20} />
-</button>
-
-<button
-  onClick={() => setActiveTab("catalog")}
-  className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center"
->
-  Update Official Prices
-  <ChevronRight size={20} />
-</button>
-
-{allFarms.filter(f => !f.is_approved).length > 0 && (
-  <button
-    onClick={() => setActiveTab("farm-approvals")}
-    className="w-full text-left font-button text-button bg-amber-50 text-amber-800 border border-amber-200 rounded-lg px-4 py-3 hover:bg-amber-100 transition-colors flex justify-between items-center"
-  >
-    <span className="flex items-center gap-2">
-      <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
-        {allFarms.filter(f => !f.is_approved).length}
-      </span>
-      Farm Approvals Pending
-    </span>
-    <ChevronRight size={20} />
-  </button>
-                            )}
+                           <button onClick={() => setActiveTab("users")} className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center">
+                                Review Users
+                                <ChevronRight size={18} />
+                            </button>
+                            <button onClick={() => setActiveTab("catalog")} className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center">
+                                Update Official Prices
+                                <ChevronRight size={18} />
+                            </button>
                         </div>
                     </section>
                 </div>

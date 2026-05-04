@@ -53,14 +53,30 @@ class PriceHistory(models.Model):
     def __str__(self):
         return f"History for {self.product.name} at {self.updated_at}"
 
+class QualityGrade(models.TextChoices):
+    HIGH = 'HIGH', 'High'
+    MEDIUM = 'MEDIUM', 'Medium'
+    LOW = 'LOW', 'Low'
+
 class Product(models.Model):
     farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products', limit_choices_to={'role': User.Role.FARMER})
     farm = models.ForeignKey('farms.Farm', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
     catalog = models.ForeignKey(ProductCatalog, on_delete=models.CASCADE, related_name='instances', null=True, blank=True)
     price_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_available = models.FloatField(help_text="Quantity in kg")
+    quality_grade = models.CharField(max_length=10, choices=QualityGrade.choices, default=QualityGrade.HIGH)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def avg_rating(self):
+        from django.db.models import Avg
+        result = self.orders.filter(status='DELIVERED', rating__isnull=False).aggregate(Avg('rating'))['rating__avg']
+        return float(result) if result is not None else 0
+
+    @property
+    def rating_count(self):
+        return self.orders.filter(status='DELIVERED', rating__isnull=False).count()
 
     @property
     def name(self):
@@ -90,6 +106,8 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
     delivered_at = models.DateTimeField(null=True, blank=True)
+    rating = models.IntegerField(null=True, blank=True, choices=[(i, str(i)) for i in range(1, 6)])
+    rating_comment = models.TextField(null=True, blank=True)
     
     def save(self, *args, **kwargs):
         if not self.total_price:

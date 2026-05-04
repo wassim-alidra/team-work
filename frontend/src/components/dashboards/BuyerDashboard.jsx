@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../../api/axios";
-import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import ProductPurchaseModal from "../../pages/ProductPurchaseModal";
@@ -30,6 +30,10 @@ const BuyerDashboard = ({ activeTab }) => {
     // Modal state
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [ratingModalOpen, setRatingModalOpen] = useState(false);
+    const [orderToRate, setOrderToRate] = useState(null);
+    const [ratingValue, setRatingValue] = useState(5);
+    const [ratingComment, setRatingComment] = useState("");
 
     useEffect(() => {
         if (activeTab === "notifications") fetchNotifications();
@@ -229,6 +233,46 @@ const BuyerDashboard = ({ activeTab }) => {
         }
     };
 
+    const handleOpenRatingModal = (order) => {
+        setOrderToRate(order);
+        setRatingValue(order.rating || 5);
+        setRatingComment(order.rating_comment || "");
+        setRatingModalOpen(true);
+    };
+
+    const handleSubmitRating = async () => {
+        if (!orderToRate) return;
+        setLoading(true);
+        try {
+            await api.patch(`market/orders/${orderToRate.id}/`, {
+                rating: ratingValue,
+                rating_comment: ratingComment
+            });
+            alert("Thank you for your rating!");
+            setRatingModalOpen(false);
+            fetchMyOrders(myOrdersPage);
+        } catch (err) {
+            alert("Error submitting rating");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderStars = (rating) => {
+        return (
+            <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                        key={star}
+                        size={14}
+                        className={star <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-outline-variant"}
+                    />
+                ))}
+                {rating > 0 && <span className="text-xs font-bold text-on-surface ml-1">{Number(rating).toFixed(1)}</span>}
+            </div>
+        );
+    };
+
     let content = null;
 
     if (activeTab === "notifications") {
@@ -397,9 +441,16 @@ const BuyerDashboard = ({ activeTab }) => {
                                 ) : (
                                     (p.name?.[0] || 'P')
                                 )}
-                                <div className="absolute top-3 left-3 flex gap-1">
-                                    <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm">
+                                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                                    <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm w-fit">
                                         <CheckCircle size={14} /> Verified
+                                    </span>
+                                    <span className={`px-2 py-1 backdrop-blur-sm font-label-caps text-label-caps rounded border flex items-center gap-1 shadow-sm w-fit ${
+                                        p.quality_grade === 'HIGH' ? 'bg-green-500/90 text-white border-green-400' :
+                                        p.quality_grade === 'MEDIUM' ? 'bg-yellow-500/90 text-white border-yellow-400' :
+                                        'bg-red-500/90 text-white border-red-400'
+                                    }`}>
+                                        {p.quality_grade || 'HIGH'} Quality
                                     </span>
                                 </div>
                             </div>
@@ -418,6 +469,10 @@ const BuyerDashboard = ({ activeTab }) => {
                                 </p>
                                 <div className="flex items-end justify-between mt-auto">
                                     <div className="flex flex-col">
+                                        <div className="mb-2">
+                                            {renderStars(p.avg_rating || 0)}
+                                            {p.rating_count > 0 && <span className="text-[10px] text-outline">({p.rating_count} reviews)</span>}
+                                        </div>
                                         <span className="font-h3 text-h3 text-primary">{p.price_per_kg} DA</span>
                                         <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
                                     </div>
@@ -485,11 +540,24 @@ const BuyerDashboard = ({ activeTab }) => {
                                             </span>
                                         </td>
                                         <td className="p-4">
-                                            {o.status === 'PENDING' ? (
-                                                <button className="px-5 py-2.5 rounded-lg font-button text-button bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" onClick={() => handleCancelOrder(o.id)}>Cancel</button>
-                                            ) : (
-                                                <span className="text-outline text-sm">No actions</span>
-                                            )}
+                                            <div className="flex items-center gap-2">
+                                                {o.status === 'PENDING' && (
+                                                    <button className="px-5 py-2.5 rounded-lg font-button text-button bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors" onClick={() => handleCancelOrder(o.id)}>Cancel</button>
+                                                )}
+                                                {o.status === 'DELIVERED' && (
+                                                    <button 
+                                                        disabled={!!o.rating}
+                                                        className={`px-4 py-2 rounded-lg font-button text-xs transition-colors flex items-center gap-1 ${o.rating ? 'bg-amber-50/50 text-amber-600 border border-amber-200 cursor-default shadow-none' : 'bg-primary text-on-primary hover:bg-primary/90 shadow-sm shadow-primary/10 active:scale-95'}`}
+                                                        onClick={() => handleOpenRatingModal(o)}
+                                                    >
+                                                        <Star size={14} className={o.rating ? "fill-amber-500 text-amber-500" : ""} />
+                                                        {o.rating ? `Rated ${o.rating} ★` : "Rate Product"}
+                                                    </button>
+                                                )}
+                                                {!['PENDING', 'DELIVERED'].includes(o.status) && (
+                                                    <span className="text-outline text-sm">No actions</span>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -609,6 +677,92 @@ const BuyerDashboard = ({ activeTab }) => {
                     onClose={() => setPurchaseModalOpen(false)}
                     onSuccess={handlePurchaseSuccess}
                 />
+            )}
+            {ratingModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm">
+                    <div className="bg-surface-container-lowest w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-outline-variant/30 animate-in fade-in zoom-in duration-300">
+                        {/* Header */}
+                        <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center">
+                            <h3 className="font-h3 text-h3 text-on-surface">Rate Your Purchase</h3>
+                            <button onClick={() => setRatingModalOpen(false)} className="p-2 hover:bg-surface-variant rounded-full transition-colors">
+                                <AlertCircle size={20} className="rotate-45 text-outline" />
+                            </button>
+                        </div>
+
+                        {/* Product Info Section */}
+                        <div className="p-6 pb-0">
+                            <div className="flex items-center gap-4 p-3 rounded-xl border border-outline-variant/20">
+                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-surface-variant flex items-center justify-center shrink-0">
+                                    {orderToRate?.product_image ? (
+                                        <img src={orderToRate.product_image} alt={orderToRate.product_name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Package className="text-outline-variant" size={20} />
+                                    )}
+                                </div>
+                                <div>
+                                    <h4 className="font-body-sm font-bold text-on-surface leading-tight">{orderToRate?.product_name}</h4>
+                                    <p className="text-outline text-[10px] mt-0.5">Order #AN-{orderToRate?.id}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Rating Stars */}
+                        <div className="p-6 space-y-6">
+                            <div className="text-center">
+                                <p className="font-label-caps text-label-caps text-outline uppercase tracking-wider mb-3 text-[10px]">Select Rating</p>
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((val) => (
+                                        <button
+                                            key={val}
+                                            onClick={() => setRatingValue(val)}
+                                            className="transition-all duration-200 hover:scale-110 active:scale-95"
+                                        >
+                                            <Star
+                                                size={32}
+                                                strokeWidth={2}
+                                                className={`transition-all duration-300 ${
+                                                    val <= ratingValue 
+                                                    ? "fill-amber-400 text-amber-500" 
+                                                    : "text-outline-variant"
+                                                }`}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Comment Area */}
+                            <div className="flex flex-col gap-2">
+                                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase text-[10px]" htmlFor="review-comment">Your Experience</label>
+                                <textarea
+                                    id="review-comment"
+                                    className="w-full px-4 py-3 rounded-xl border border-outline-variant/30 bg-surface focus:border-primary focus:ring-0 font-body-sm resize-none transition-all placeholder:text-outline-variant/60"
+                                    rows="3"
+                                    placeholder="How was the product quality?"
+                                    value={ratingComment}
+                                    onChange={(e) => setRatingComment(e.target.value)}
+                                ></textarea>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 pt-0 flex gap-3">
+                            <button 
+                                onClick={() => setRatingModalOpen(false)}
+                                className="flex-1 px-4 py-3 rounded-xl font-button text-button text-on-surface border border-outline-variant hover:bg-surface-variant/20 transition-all active:scale-95"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSubmitRating}
+                                disabled={loading}
+                                className="flex-1 px-4 py-3 rounded-xl font-button text-button bg-primary text-on-primary shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {loading ? "Submitting..." : "Submit Review"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </>
     );

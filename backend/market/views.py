@@ -9,7 +9,8 @@ from .serializers import (
     CategorySerializer, PriceHistorySerializer, EquipmentSerializer, EquipmentBookingSerializer
 )
 from users.models import User
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from farms.models import Farm
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
@@ -77,7 +78,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        if user.role == User.Role.FARMER:
+        if user.is_authenticated and hasattr(user, 'role') and user.role == User.Role.FARMER:
             # Farmers see all their own products
             queryset = Product.objects.filter(farmer=user)
         else:
@@ -230,7 +231,24 @@ class OrderViewSet(viewsets.ModelViewSet):
             else:
                 raise permissions.PermissionDenied("You do not have permission to update this order status.")
         else:
-             super().perform_update(serializer)
+             # Check if rating is being updated
+             rating_updated = 'rating' in serializer.validated_data
+             
+             if rating_updated and order.rating is not None:
+                 raise ValidationError({"detail": "This order has already been rated."})
+                 
+             serializer.save()
+             
+             if rating_updated:
+                 order = self.get_object()
+                 from .models import Notification
+                 msg = f"Buyer {order.buyer.username} rated your product {order.product.catalog.name} with {order.rating} stars."
+                 if order.rating_comment:
+                     msg += f" Comment: \"{order.rating_comment}\""
+                 Notification.objects.create(
+                     recipient=order.product.farmer,
+                     message=msg
+                 )
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -473,7 +491,12 @@ class AdminStatsView(viewsets.ViewSet):
             "total_products": Product.objects.count(),
             "total_orders": Order.objects.count(),
             "total_revenue": Order.objects.filter(status='DELIVERED').aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            "pending_complaints": Complaint.objects.filter(is_resolved=False).count()
+            "pending_complaints": Complaint.objects.filter(is_resolved=False).count(),
+            "farmers_by_wilaya": list(Farm.objects.filter(is_approved=True).values('wilaya').annotate(count=Count('farmer', distinct=True)).order_by('-count')[:10]),
+            "top_selling_products": [
+                {'name': item['product__catalog__name'], 'value': item['total_quantity'] or 0}
+                for item in Order.objects.exclude(status=Order.Status.CANCELLED).values('product__catalog__name').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')[:5]
+            ]
         }
         return Response(stats)
 

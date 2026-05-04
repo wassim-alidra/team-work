@@ -37,7 +37,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ['id', 'farmer', 'farmer_name', 'name', 'description', 'farm', 'farm_name', 'farm_wilaya', 'catalog', 'catalog_name', 'catalog_unit', 'catalog_image', 'price_per_kg', 'quantity_available', 'quality_grade', 'avg_rating', 'rating_count', 'created_at', 'updated_at']
         read_only_fields = ('farmer',)
 
     def create(self, validated_data):
@@ -64,6 +64,15 @@ class OrderSerializer(serializers.ModelSerializer):
     product_unit = serializers.ReadOnlyField(source='product.catalog.unit')
     farmer_wilaya = serializers.SerializerMethodField()
     buyer_wilaya = serializers.CharField(source='buyer.wilaya', read_only=True)
+    product_image = serializers.SerializerMethodField()
+
+    def get_product_image(self, obj):
+        if obj.product and obj.product.catalog and obj.product.catalog.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.product.catalog.image.url)
+            return obj.product.catalog.image.url
+        return None
 
     def get_farmer_wilaya(self, obj):
         # Use the farm's wilaya if available, otherwise the farmer's registered wilaya
@@ -78,7 +87,7 @@ class OrderSerializer(serializers.ModelSerializer):
         return obj.delivery.transporter.username if hasattr(obj, 'delivery') and obj.delivery.transporter else "N/A"
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['id', 'buyer', 'buyer_name', 'buyer_wilaya', 'product', 'product_name', 'product_image', 'product_unit', 'farmer_name', 'farmer_wilaya', 'quantity', 'total_price', 'status', 'delivery_status', 'transporter_name', 'rating', 'rating_comment', 'created_at', 'delivered_at']
         read_only_fields = ('buyer', 'total_price')
 
     def create(self, validated_data):

@@ -97,6 +97,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
         price_per_kg: "",
         quantity_available: "",
         farm: "",
+        quality_grade: "HIGH",
     });
     const [selectedCatalogItem, setSelectedCatalogItem] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -273,6 +274,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             price_per_kg: product.price_per_kg,
             quantity_available: product.quantity_available,
             farm: product.farm,
+            quality_grade: product.quality_grade || "HIGH",
         });
         if (activeTab !== "products") {
             setActiveTab("products");
@@ -304,6 +306,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 price_per_kg: "",
                 quantity_available: "",
                 farm: farms.length > 0 ? farms[0].id : "",
+                quality_grade: "HIGH",
             });
             fetchProducts();
             fetchStats();
@@ -639,6 +642,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                         <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Product Details</th>
                                         <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Quantity </th>
                                         <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Market Price</th>
+                                        <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Quality</th>
                                         <th className="py-3 px-4 font-label-caps text-label-caps text-outline uppercase">Status</th>
                                        <th className="py-3 pl-2 pr-4 font-label-caps text-label-caps text-outline uppercase text-left"> Action</th>
                                     </tr>
@@ -660,6 +664,15 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-semibold text-primary">{p.price_per_kg} DA/kg</span>
                                                 </div>
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <span className={`inline-block px-2 py-1 rounded text-xs font-bold uppercase ${
+                                                    p.quality_grade === 'HIGH' ? 'bg-green-100 text-green-700 border border-green-200' :
+                                                    p.quality_grade === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 border border-yellow-200' :
+                                                    'bg-red-100 text-red-700 border border-red-200'
+                                                }`}>
+                                                    {p.quality_grade || 'HIGH'}
+                                                </span>
                                             </td>
                                             <td className="py-3 px-4">
                                                 {p.quantity_available > 0 ? (
@@ -713,6 +726,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     price_per_kg: "",
                                     quantity_available: "",
                                     farm: farms.length > 0 ? farms[0].id : "",
+                                    quality_grade: "HIGH",
                                 });
                             }} className="text-sm text-primary hover:underline">Cancel Edit</button>
                         )}
@@ -745,6 +759,14 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             <label className="block text-sm font-medium text-on-surface mb-1">Available Quantity</label>
                             <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-on-surface mb-1">Quality Grade</label>
+                            <select name="quality_grade" value={formData.quality_grade} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
+                                <option value="HIGH">High (Premium)</option>
+                                <option value="MEDIUM">Medium (Standard)</option>
+                                <option value="LOW">Low (Basic)</option>
+                            </select>
+                        </div>
                         <div className="col-span-1 md:col-span-2 mt-2">
                             <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>
                                 {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product to Market")}
@@ -758,8 +780,9 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                     <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
                         <div className="col-span-4">Product Details</div>
                         <div className="col-span-2">Quantity</div>
-                        <div className="col-span-3">Market Price</div>
-                        <div className="col-span-2">Status</div>
+                        <div className="col-span-2">Market Price</div>
+                        <div className="col-span-2">Quality</div>
+                        <div className="col-span-1">Status</div>
                         <div className="col-span-1 text-right">Actions</div>
                     </div>
                     <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
@@ -778,11 +801,21 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                     <span className="md:hidden font-label-caps text-label-caps text-outline">Quantity</span>
                                     <span className="font-body-md text-body-md text-on-surface">{p.quantity_available} kg</span>
                                 </div>
-                                <div className="md:col-span-3 flex md:block justify-between items-center">
+                                <div className="md:col-span-2 flex md:block justify-between items-center">
                                     <span className="md:hidden font-label-caps text-label-caps text-outline">Price</span>
                                     <span className="font-body-md text-body-md text-on-surface font-medium">{p.price_per_kg} DA / kg</span>
                                 </div>
                                 <div className="md:col-span-2 flex md:block justify-between items-center">
+                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Quality</span>
+                                    <span className={`inline-flex px-2 py-0.5 rounded font-label-caps text-[10px] border uppercase ${
+                                        p.quality_grade === 'HIGH' ? 'bg-green-50 text-green-700 border-green-200' :
+                                        p.quality_grade === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                        'bg-red-50 text-red-700 border-red-200'
+                                    }`}>
+                                        {p.quality_grade || 'HIGH'}
+                                    </span>
+                                </div>
+                                <div className="md:col-span-1 flex md:block justify-between items-center">
                                     <span className="md:hidden font-label-caps text-label-caps text-outline">Status</span>
                                     {p.quantity_available > 0 ? (
                                         <span className="inline-flex bg-primary-container text-on-primary-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
