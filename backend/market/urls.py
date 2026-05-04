@@ -5,7 +5,7 @@ from .views import (
     ComplaintViewSet, NotificationViewSet, AdminStatsView, UserListViewSet,
     ProductCatalogViewSet, CategoryViewSet, PriceHistoryViewSet, EquipmentViewSet, EquipmentBookingViewSet
 )
-
+from .views import OfficialProductPriceView
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='product')
 router.register(r'equipment', EquipmentViewSet, basename='equipment')
@@ -22,4 +22,5 @@ router.register(r'users-list', UserListViewSet, basename='users-list')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('official-price/', OfficialProductPriceView.as_view(), name='official-price'),
 ]

@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.serializers import ValidationError
 from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory, Equipment, EquipmentBooking
 from .serializers import (
@@ -662,4 +663,28 @@ class EquipmentBookingViewSet(viewsets.ModelViewSet):
         else:
             super().perform_update(serializer)
 
+class OfficialProductPriceView(APIView):
+    permission_classes = [permissions.AllowAny]
 
+    def get(self, request):
+        product_name = request.query_params.get('product', '').strip()
+        if not product_name:
+            return Response({"error": "Product name is required"}, status=400)
+
+        # First try exact match
+        catalog_item = ProductCatalog.objects.filter(name__iexact=product_name).first()
+        
+        # Second try partial match (e.g., "tomato" finds "Tomatoes")
+        if not catalog_item:
+            catalog_item = ProductCatalog.objects.filter(name__icontains=product_name).first()
+
+        if catalog_item:
+            return Response({
+                "product": catalog_item.name,
+                "unit": catalog_item.unit,
+                "min_price": float(catalog_item.min_price) if catalog_item.min_price else None,
+                "max_price": float(catalog_item.max_price) if catalog_item.max_price else None,
+                "season": catalog_item.season,
+                "year": catalog_item.year
+            })
+        return Response({"error": "Product not found"}, status=404)
