@@ -27,6 +27,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     farmer_name = serializers.CharField(source='farmer.username', read_only=True)
+    farmer_phone = serializers.CharField(source='farmer.phone_number', read_only=True)
     name = serializers.ReadOnlyField()
     description = serializers.ReadOnlyField()
     catalog_name = serializers.SerializerMethodField()
@@ -37,7 +38,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Product
-        fields = ['id', 'farmer', 'farmer_name', 'name', 'description', 'farm', 'farm_name', 'farm_wilaya', 'catalog', 'catalog_name', 'catalog_unit', 'catalog_image', 'price_per_kg', 'quantity_available', 'quality_grade', 'avg_rating', 'rating_count', 'created_at', 'updated_at']
+        fields = ['id', 'farmer', 'farmer_name', 'farmer_phone', 'name', 'description', 'farm', 'farm_name', 'farm_wilaya', 'catalog', 'catalog_name', 'catalog_unit', 'catalog_image', 'price_per_kg', 'quantity_available', 'quality_grade', 'avg_rating', 'rating_count', 'created_at', 'updated_at']
         read_only_fields = ('farmer',)
 
     def create(self, validated_data):

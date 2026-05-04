@@ -27,6 +27,7 @@ const Register = () => {
         username: '',
         password: '',
         email: '',
+        phone_number: '',
         role: 'FARMER',
         wilaya: '',
         farm_name: '',
@@ -135,9 +136,15 @@ const Register = () => {
                         </div>
                     </div>
 
-                    <div>
-                        <label className="auth-form-label">Email Address</label>
-                        <input type="email" name="email" placeholder="Enter your email" onChange={handleChange} required />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', marginBottom: '1rem' }}>
+                        <div>
+                            <label className="auth-form-label">Email Address</label>
+                            <input type="email" name="email" placeholder="Enter your email" onChange={handleChange} required />
+                        </div>
+                        <div>
+                            <label className="auth-form-label">Phone Number</label>
+                            <input type="tel" name="phone_number" placeholder="e.g. 0555001122" onChange={handleChange} required />
+                        </div>
                     </div>
 
                     <div>

@@ -4,6 +4,7 @@ import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, Cred
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import ProductPurchaseModal from "../../pages/ProductPurchaseModal";
+import ProductDetailsModal from "../../pages/ProductDetailsModal";
 
 const BuyerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
@@ -29,6 +30,7 @@ const BuyerDashboard = ({ activeTab }) => {
 
     // Modal state
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [ratingModalOpen, setRatingModalOpen] = useState(false);
     const [orderToRate, setOrderToRate] = useState(null);
@@ -340,12 +342,24 @@ const BuyerDashboard = ({ activeTab }) => {
                                             <p className="font-body-sm text-body-sm text-on-surface-variant">{p.price_per_kg} DA / {p.catalog_unit || 'kg'}</p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => addToCart(p)}
-                                        className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
-                                    >
-                                        <ShoppingCart size={24} color="white" strokeWidth={3} />
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedProduct(p);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                            className="w-10 h-10 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center justify-center transition-all text-primary"
+                                            title="View Details"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                        </button>
+                                        <button
+                                            onClick={() => addToCart(p)}
+                                            className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+                                        >
+                                            <ShoppingCart size={24} color="white" strokeWidth={3} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -476,14 +490,26 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <span className="font-h3 text-h3 text-primary">{p.price_per_kg} DA</span>
                                         <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
                                     </div>
-                                    {p.quantity_available > 0 && (
+                                    <div className="flex gap-2">
                                         <button
-                                            onClick={() => addToCart(p)}
-                                            className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+                                            onClick={() => {
+                                                setSelectedProduct(p);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                            className="w-10 h-10 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center justify-center transition-all text-primary"
+                                            title="View Details"
                                         >
-                                            <ShoppingCart size={24} color="white" strokeWidth={3} />
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                                         </button>
-                                    )}
+                                        {p.quantity_available > 0 && (
+                                            <button
+                                                onClick={() => addToCart(p)}
+                                                className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
+                                            >
+                                                <ShoppingCart size={24} color="white" strokeWidth={3} />
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </article>
@@ -671,6 +697,12 @@ const BuyerDashboard = ({ activeTab }) => {
     return (
         <>
             {content}
+            {detailsModalOpen && (
+                <ProductDetailsModal
+                    product={selectedProduct}
+                    onClose={() => setDetailsModalOpen(false)}
+                />
+            )}
             {purchaseModalOpen && (
                 <ProductPurchaseModal
                     product={selectedProduct}

@@ -66,10 +66,12 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     # Multiple farms support
     farms_data = serializers.CharField(required=False, write_only=True)
+    
+    phone_number = serializers.CharField(required=True, max_length=20)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'role', 'wilaya', 'farm_name', 'location', 
+        fields = ('username', 'email', 'password', 'role', 'wilaya', 'phone_number', 'farm_name', 'location', 
                   'company_name', 'vehicle_type', 'license_plate', 'capacity',
                   'farmer_card_file', 'commercial_register_file', 'driving_license_file', 'car_license_file',
                   'farms_data')
