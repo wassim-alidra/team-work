@@ -1,11 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Avg
 from users.models import User
 from market.models import Order, ProductCatalog
 from farms.models import Farm
-
 from django.db.models.functions import TruncWeek
 
 class FarmersByWilayaView(APIView):
@@ -73,6 +72,26 @@ class ProductWeeklySalesView(APIView):
             {
                 'week': item['week'].strftime('%Y-%m-%d'), 
                 'quantity': item['total_quantity'] or 0
+            }
+            for item in stats
+        ]
+        
+        return Response(formatted_stats)
+
+class TopRatedFarmersView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        # Top 5 farmers by average rating (only from delivered orders with ratings)
+        stats = Order.objects.filter(status=Order.Status.DELIVERED, rating__isnull=False) \
+            .values('product__farmer__username') \
+            .annotate(avg_rating=Avg('rating')) \
+            .order_by('-avg_rating')[:5]
+        
+        formatted_stats = [
+            {
+                'username': item['product__farmer__username'], 
+                'rating': round(item['avg_rating'], 2)
             }
             for item in stats
         ]
