@@ -134,6 +134,9 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             fetchEquipment();
             fetchEquipmentBookings();
         }
+        if (activeTab === "notifications") {
+            api.post("market/notifications/mark_all_as_read/").catch(console.error);
+        }
     }, [activeTab]);
 
     const fetchEquipment = async () => {

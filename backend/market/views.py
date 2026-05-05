@@ -207,7 +207,11 @@ class OrderViewSet(viewsets.ModelViewSet):
         product.quantity_available -= quantity
         product.save()
         
-        serializer.save(buyer=self.request.user)
+        order = serializer.save(buyer=self.request.user)
+        Notification.objects.create(
+            recipient=order.product.farmer,
+            message=f"New order received for {order.product.catalog.name} ({order.quantity}kg) from {self.request.user.username}."
+        )
 
     def perform_update(self, serializer):
         user = self.request.user
@@ -230,6 +234,18 @@ class OrderViewSet(viewsets.ModelViewSet):
                  serializer.save()
             else:
                 raise permissions.PermissionDenied("You do not have permission to update this order status.")
+            
+            # Send notification after status update
+            Notification.objects.create(
+                recipient=order.buyer,
+                message=f"Your order #{order.id} for {order.product.catalog.name} has been updated to: {new_status}."
+            )
+            # Also notify farmer if they didn't do the action (e.g. Admin or Buyer cancellation)
+            if user.role != User.Role.FARMER:
+                Notification.objects.create(
+                    recipient=order.product.farmer,
+                    message=f"Order #{order.id} for {order.product.catalog.name} status updated to: {new_status}."
+                )
         else:
              # Check if rating is being updated
              rating_updated = 'rating' in serializer.validated_data
@@ -442,6 +458,18 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise ValidationError({"detail": str(e)})
 
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        was_resolved = instance.is_resolved
+        updated_instance = serializer.save()
+        
+        if updated_instance.is_resolved and not was_resolved:
+            from .models import Notification
+            Notification.objects.create(
+                recipient=updated_instance.user,
+                message=f"Your complaint regarding '{updated_instance.subject}' has been marked as RESOLVED. Thank you for your patience."
+            )
+
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all().order_by('-id')
     serializer_class = NotificationSerializer
@@ -450,6 +478,18 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Notification.objects.filter(recipient=self.request.user)
+
+    @action(detail=False, methods=['post'])
+    def mark_all_as_read(self, request):
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return Response({"detail": "All notifications marked as read."}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save()
+        return Response({"detail": "Notification marked as read."}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def send_broadcast(self, request):

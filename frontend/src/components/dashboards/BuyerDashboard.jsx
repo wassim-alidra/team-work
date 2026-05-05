@@ -38,7 +38,10 @@ const BuyerDashboard = ({ activeTab }) => {
     const [ratingComment, setRatingComment] = useState("");
 
     useEffect(() => {
-        if (activeTab === "notifications") fetchNotifications();
+        if (activeTab === "notifications") {
+            fetchNotifications();
+            api.post("market/notifications/mark_all_as_read/").catch(console.error);
+        }
         fetchMyOrders(myOrdersPage);
         fetchStats();
         fetchCategories();
@@ -491,23 +494,34 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedProduct(p);
-                                                setDetailsModalOpen(true);
-                                            }}
-                                            className="w-10 h-10 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center justify-center transition-all text-primary"
-                                            title="View Details"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                        </button>
+                                       <button
+    onClick={() => {
+        setSelectedProduct(p);
+        setDetailsModalOpen(true);
+    }}
+    className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90"
+    title="View Details"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="10" x2="12" y2="16" />
+        <circle cx="12" cy="7" r="1" />
+    </svg>
+</button>
                                         {p.quantity_available > 0 && (
-                                            <button
-                                                onClick={() => addToCart(p)}
-                                                className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
-                                            >
-                                                <ShoppingCart size={24} color="white" strokeWidth={3} />
-                                            </button>
+                                           <button  onClick={() => addToCart(p)} class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90">
+<span class="material-symbols-outlined text-[28px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
                                         )}
                                     </div>
                                 </div>
@@ -716,9 +730,11 @@ const BuyerDashboard = ({ activeTab }) => {
                         {/* Header */}
                         <div className="p-6 border-b border-outline-variant/10 flex justify-between items-center">
                             <h3 className="font-h3 text-h3 text-on-surface">Rate Your Purchase</h3>
-                            <button onClick={() => setRatingModalOpen(false)} className="p-2 hover:bg-surface-variant rounded-full transition-colors">
-                                <AlertCircle size={20} className="rotate-45 text-outline" />
-                            </button>
+                             <button className="bg-white text-red-600 hover:text-red-600 hover:bg-red-100 p-1 rounded-full transition-colors"onClick={() => setRatingModalOpen(false)}>
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
+
+
                         </div>
 
                         {/* Product Info Section */}
@@ -779,12 +795,7 @@ const BuyerDashboard = ({ activeTab }) => {
 
                         {/* Footer */}
                         <div className="p-6 pt-0 flex gap-3">
-                            <button 
-                                onClick={() => setRatingModalOpen(false)}
-                                className="flex-1 px-4 py-3 rounded-xl font-button text-button text-on-surface border border-outline-variant hover:bg-surface-variant/20 transition-all active:scale-95"
-                            >
-                                Cancel
-                            </button>
+                            <button className="px-5 py-2.5 rounded-lg font-button text-button  bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-colors"onClick={() => setRatingModalOpen(false)}>Cancel</button>
                             <button
                                 onClick={handleSubmitRating}
                                 disabled={loading}

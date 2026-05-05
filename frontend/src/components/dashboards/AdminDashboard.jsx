@@ -7,6 +7,8 @@ import Pagination from "../common/Pagination";
 import { Search } from "lucide-react";
 import SetisticsDashboard from "../setistics/SetisticsDashboard";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
+import ProductDetailsModal from "../../pages/ProductDetailsModal";
+import { Star } from "lucide-react";
 
 const COLORS = ['#1A3A34', '#2D6A4F', '#40916C', '#52B788', '#74C69D'];
 
@@ -55,6 +57,16 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
     const [selectedFarm, setSelectedFarm] = useState(null);
 
 
+    const [adminNotifications, setAdminNotifications] = useState([]);
+
+    // Marketplace State
+    const [products, setProducts] = useState([]);
+    const [productsCount, setProductsCount] = useState(0);
+    const [productsPage, setProductsPage] = useState(1);
+    const [filters, setFilters] = useState({ search: "", category: "all", priceRange: "all" });
+    const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
     const getIconComponent = (name, size = 24) => {
         const icons = { Leaf, Apple, Wheat, Drumstick, GlassWater, Flower, Sprout };
         const Icon = icons[name] || Leaf;
@@ -68,7 +80,20 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
         if (activeTab === "catalog") { fetchCatalog(null, null, catalogPage); fetchCategories(); }
         if (activeTab === "categories") fetchCategories();
         if (activeTab === "farm-approvals") fetchAllFarms();
-    }, [activeTab, usersPage, complaintsPage, catalogPage]);
+        if (activeTab === "admin-notifications") fetchAdminNotifications();
+        if (activeTab === "products") { fetchProducts(productsPage); fetchCategories(); }
+    }, [activeTab, usersPage, complaintsPage, catalogPage, productsPage, filters]);
+
+    const fetchAdminNotifications = async () => {
+        try {
+            const res = await api.get("market/notifications/");
+            setAdminNotifications(res.data.results || res.data);
+            // Mark all as read when viewing
+            api.post("market/notifications/mark_all_as_read/").catch(console.error);
+        } catch (err) {
+            console.error("Error fetching admin notifications:", err);
+        }
+    };
 
     const fetchAllFarms = async () => {
         setFarmLoading(true);
@@ -308,13 +333,54 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
         }
     };
 
-    const handleResolveComplaint = async (id) => {
+    const fetchProducts = async (page = 1) => {
         try {
-            await api.patch(`market/complaints/${id}/`, { is_resolved: true });
-            fetchComplaints();
+            let url = "market/products/";
+            const params = new URLSearchParams();
+            if (filters.search) params.append("search", filters.search);
+            if (filters.category && filters.category !== "all") params.append("category", filters.category);
+            if (filters.priceRange && filters.priceRange !== "all") {
+                if (filters.priceRange === "under_100") {
+                    params.append("max_price", "100");
+                } else if (filters.priceRange === "100_500") {
+                    params.append("min_price", "100");
+                    params.append("max_price", "500");
+                } else if (filters.priceRange === "over_500") {
+                    params.append("min_price", "500");
+                }
+            }
+            params.append("page", page);
+            url += `?${params.toString()}`;
+
+            const res = await api.get(url);
+            if (res.data && res.data.results) {
+                setProducts(res.data.results);
+                setProductsCount(res.data.count);
+            } else if (Array.isArray(res.data)) {
+                setProducts(res.data);
+                setProductsCount(res.data.length);
+            } else {
+                setProducts([]);
+                setProductsCount(0);
+            }
         } catch (err) {
             console.error(err);
         }
+    };
+
+    const renderStars = (rating) => {
+        return (
+            <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                        key={star}
+                        size={14}
+                        className={star <= Math.round(rating) ? "fill-amber-400 text-amber-400" : "text-outline-variant"}
+                    />
+                ))}
+                {rating > 0 && <span className="text-xs font-bold text-on-surface ml-1">{Number(rating).toFixed(1)}</span>}
+            </div>
+        );
     };
 
     if (activeTab === "dashboard") {
@@ -489,6 +555,10 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                         <div className="space-y-3">
                            <button onClick={() => setActiveTab("users")} className="w-full text-left font-button text-button bg-primary text-on-primary rounded-lg px-4 py-3 hover:bg-primary/90 transition-colors flex justify-between items-center">
                                 Review Users
+                                <ChevronRight size={18} />
+                            </button>
+                            <button onClick={() => setActiveTab("products")} className="w-full text-left font-button text-button bg-primary-container text-on-primary-container rounded-lg px-4 py-3 hover:bg-primary-container/80 transition-colors flex justify-between items-center">
+                                Explore Marketplace
                                 <ChevronRight size={18} />
                             </button>
                             <button onClick={() => setActiveTab("catalog")} className="w-full text-left font-button text-button bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 hover:bg-secondary-container/80 transition-colors flex justify-between items-center">
@@ -1490,8 +1560,188 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
         );
     }
 
+    if (activeTab === "admin-notifications") {
+        return (
+            <div className="max-w-[1000px] mx-auto px-6 py-8 animate-in">
+                <header className="mb-xl text-center">
+                    <div className="w-16 h-16 bg-primary-container/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span className="material-symbols-outlined text-[32px]">notifications_active</span>
+                    </div>
+                    <h1 className="font-h1 text-h1 text-on-surface mb-2">Administrative Alerts</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant">Real-time system updates and action-required notifications.</p>
+                </header>
+
+                <div className="space-y-4">
+                    {adminNotifications.map(n => (
+                        <div 
+                            key={n.id} 
+                            className={`bg-surface-container-lowest rounded-2xl p-6 shadow-[0_4px_20px_rgba(26,58,52,0.05)] border transition-all flex gap-5 items-start ${!n.is_read ? 'border-primary bg-primary-container/5 shadow-md' : 'border-outline-variant/30 opacity-80'}`}
+                        >
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                                <span className="material-symbols-outlined">{!n.is_read ? 'priority_high' : 'notifications'}</span>
+                            </div>
+                            <div className="flex-1">
+                                <div className="flex justify-between items-start mb-2">
+                                    <p className={`font-body-lg text-body-lg ${!n.is_read ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>
+                                        {n.message}
+                                    </p>
+                                    {!n.is_read && <span className="bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">New</span>}
+                                </div>
+                                <div className="flex items-center gap-2 text-on-surface-variant text-xs font-medium uppercase tracking-tighter">
+                                    <span className="material-symbols-outlined text-sm">schedule</span>
+                                    {new Date(n.created_at).toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+
+                    {adminNotifications.length === 0 && (
+                        <div className="bg-surface-container-lowest rounded-2xl p-20 text-center border border-dashed border-outline-variant/50">
+                            <span className="material-symbols-outlined text-[64px] text-outline-variant mb-4">check_circle</span>
+                            <h3 className="font-h3 text-h3 text-on-surface mb-2">Inbox is Clear</h3>
+                            <p className="text-on-surface-variant">No administrative alerts found at this moment.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
     if (activeTab === "setistics") {
         return <SetisticsDashboard />;
+    }
+
+    if (activeTab === "products") {
+        return (
+            <div className="max-w-[1400px] w-full mx-auto px-lg md:px-xl py-lg animate-in space-y-xl">
+                <section className="space-y-lg">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                        <div>
+                            <h1 className="font-h1 text-h1 text-on-surface">Marketplace Oversight</h1>
+                            <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Monitor agricultural commodity listings and seller activity across the national platform.</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
+                        <div className="relative w-full">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={20} />
+                            <input
+                                className="w-full pl-12 pr-4 py-4 rounded-lg border-2 border-outline-variant/30 bg-surface focus:outline-none focus:ring-0 focus:border-primary font-body-md text-body-md text-on-surface transition-colors"
+                                placeholder="Search products..."
+                                type="text"
+                                value={filters.search}
+                                onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1">
+                                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase">Category</label>
+                                <select
+                                    className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-0"
+                                    value={filters.category}
+                                    onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                                >
+                                    <option value="all">All Categories</option>
+                                    {categories.map(c => (
+                                        <option key={c.id} value={c.id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="font-label-caps text-label-caps text-on-surface-variant uppercase">Price Range / kg</label>
+                                <select
+                                    className="w-full px-3 py-2 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:border-primary focus:ring-0"
+                                    value={filters.priceRange}
+                                    onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
+                                >
+                                    <option value="all">Any Price</option>
+                                    <option value="under_100">Under 100 DA</option>
+                                    <option value="100_500">100 DA - 500 DA</option>
+                                    <option value="over_500">Over 500 DA</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+                    {products.map(p => (
+                        <article key={p.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,58,52,0.05)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow duration-300 border border-outline-variant/10 flex flex-col group cursor-pointer">
+                            <div className="h-48 w-full bg-surface-variant relative overflow-hidden flex items-center justify-center text-4xl text-primary font-bold">
+                                {p.catalog_image ? (
+                                    <img src={p.catalog_image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                ) : (
+                                    (p.name?.[0] || 'P')
+                                )}
+                                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                                    <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm w-fit">
+                                        <CheckCircle size={14} /> Verified
+                                    </span>
+                                    <span className={`px-2 py-1 backdrop-blur-sm font-label-caps text-label-caps rounded border flex items-center gap-1 shadow-sm w-fit ${
+                                        p.quality_grade === 'HIGH' ? 'bg-green-500/90 text-white border-green-400' :
+                                        p.quality_grade === 'MEDIUM' ? 'bg-yellow-500/90 text-white border-yellow-400' :
+                                        'bg-red-500/90 text-white border-red-400'
+                                    }`}>
+                                        {p.quality_grade || 'HIGH'} Quality
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="p-5 flex flex-col flex-1">
+                                <h3 className="font-body-lg text-body-lg font-semibold text-on-surface line-clamp-2 mb-2">{p.name || "Unnamed Product"}</h3>
+                                <p className="font-body-sm text-body-sm text-on-surface-variant mb-1 flex-1">By: {p.farmer_name}</p>
+                                <p className="font-body-sm text-body-sm text-outline mb-4">
+                                    {p.quantity_available > 0 ? (
+                                        <>
+                                            {p.quantity_available} {p.catalog_unit || 'kg'} available
+                                            {p.quantity_available < 5 && <span className="text-error font-bold ml-2">Low Stock!</span>}
+                                        </>
+                                    ) : (
+                                        <span className="text-error font-bold">Out of Stock</span>
+                                    )}
+                                </p>
+                                <div className="flex items-end justify-between mt-auto">
+                                    <div className="flex flex-col">
+                                        <div className="mb-2">
+                                            {renderStars(p.avg_rating || 0)}
+                                            {p.rating_count > 0 && <span className="text-[10px] text-outline">({p.rating_count} reviews)</span>}
+                                        </div>
+                                        <span className="font-h3 text-h3 text-primary">{p.price_per_kg} DA</span>
+                                        <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedProduct(p);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                            className="px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white flex items-center gap-2 transition-all font-button text-button"
+                                            title="View Details"
+                                        >
+                                            <Eye size={18} />
+                                            Details
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                    {products.length === 0 && <p className="col-span-full text-center text-on-surface-variant py-8">No products found matching your filters.</p>}
+                </section>
+                <Pagination
+                    currentPage={productsPage}
+                    totalCount={productsCount}
+                    pageSize={10}
+                    onPageChange={setProductsPage}
+                />
+                
+                {detailsModalOpen && (
+                    <ProductDetailsModal
+                        product={selectedProduct}
+                        onClose={() => setDetailsModalOpen(false)}
+                    />
+                )}
+            </div>
+        );
     }
 
     return null;

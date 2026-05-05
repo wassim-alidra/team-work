@@ -47,6 +47,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "farm-approvals", label: "Farm Approvals", icon: <Landmark size={18} /> },
     { key: "categories", label: "Categories", icon: <LayoutGrid size={18} /> },
     { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
+    { key: "products", label: "Marketplace", icon: <ShoppingCart size={18} /> },
     { key: "catalog", label: "Official Prices", icon: <Package size={18} /> },
     { key: "notifications", label: "Farmer Alerts", icon: <Bell size={18} /> },
     { key: "admin-notifications", label: "Notifications", icon: <Bell size={18} /> },

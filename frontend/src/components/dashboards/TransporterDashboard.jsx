@@ -31,7 +31,10 @@ const TransporterDashboard = ({ activeTab }) => {
         if (activeTab === "dashboard" || activeTab === "status") fetchMyDeliveries(null, myDeliveriesPage);
         if (activeTab === "history") fetchMyDeliveries("DELIVERED", myDeliveriesPage);
         if (activeTab === "earnings") fetchEarnings();
-        if (activeTab === "notifications") fetchNotifications();
+        if (activeTab === "notifications") {
+            fetchNotifications();
+            api.post("market/notifications/mark_all_as_read/").catch(console.error);
+        }
         if (activeTab === "profile") {
             setProfileForm({
                 vehicle_type: user.profile?.vehicle_type || "",

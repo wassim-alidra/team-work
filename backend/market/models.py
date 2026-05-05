@@ -135,20 +135,41 @@ class Delivery(models.Model):
             self.delivery_fee = max(Decimal('5.00'), self.order.total_price * Decimal('0.10'))
         
         # Sync status with Order
+        from .models import Notification
         if self.status == 'ASSIGNED':
             self.order.status = Order.Status.ACCEPTED
+            # Notify Buyer and Farmer
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Order #{self.order.id} has been accepted and a transporter ({self.transporter.username}) has been assigned."
+            )
+            Notification.objects.create(
+                recipient=self.order.product.farmer,
+                message=f"Transporter {self.transporter.username} has been assigned to pick up Order #{self.order.id}."
+            )
         elif self.status == 'ON_WAY':
             self.order.status = Order.Status.ON_WAY
             # Notify Farmer that transporter is coming
-            from .models import Notification
             Notification.objects.create(
                 recipient=self.order.product.farmer,
                 message=f"Transporter is now ON WAY to your farm to pick up: {self.order.product.catalog.name} (Order #{self.order.id}). Please be ready!"
             )
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Transporter is now on their way to the farm to pick up your order #{self.order.id}."
+            )
         elif self.status == 'CHARGING':
             self.order.status = Order.Status.CHARGING
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Your order #{self.order.id} is currently being loaded onto the transport vehicle."
+            )
         elif self.status == 'NEAR_ARRIVAL':
             self.order.status = Order.Status.NEAR_ARRIVAL
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"The transporter is near your delivery location with order #{self.order.id}. Please be ready to receive it!"
+            )
         elif self.status == 'DELIVERED':
             self.order.status = Order.Status.DELIVERED
             if not self.delivery_date:
@@ -157,6 +178,16 @@ class Delivery(models.Model):
             if not self.order.delivered_at:
                 from django.utils import timezone
                 self.order.delivered_at = timezone.now()
+            
+            # Notify Both
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Success! Your order #{self.order.id} has been delivered. Please rate your experience!"
+            )
+            Notification.objects.create(
+                recipient=self.order.product.farmer,
+                message=f"Order #{self.order.id} has been successfully delivered to the buyer."
+            )
         
         self.order.save()
         super().save(*args, **kwargs)

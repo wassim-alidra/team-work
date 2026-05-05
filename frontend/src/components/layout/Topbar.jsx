@@ -70,8 +70,13 @@ const Topbar = ({ user, setActiveTab }) => {
   };
 
   const markAllAsRead = async () => {
-    // Optional: backend might need an endpoint for this. 
-    // For now, we just navigate to notifications where they might be marked as read.
+    try {
+      await api.post("market/notifications/mark_all_as_read/");
+      setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    } catch (err) {
+      console.error("Error marking notifications as read:", err);
+    }
     handleNotificationClick();
   };
 
