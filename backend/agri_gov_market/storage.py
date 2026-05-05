@@ -11,16 +11,5 @@ class AutoOptimizedMediaCloudinaryStorage(MediaCloudinaryStorage):
             return 'video'
         return 'image'
 
-    def _get_url(self, name):
-        name = self._prepend_prefix(name)
-        resource_type = self._get_resource_type(name)
-        cloudinary_resource = cloudinary.CloudinaryResource(
-            name,
-            default_resource_type=resource_type
-        )
-        
-        # Apply automatic format and quality only to images
-        if resource_type == 'image':
-            return cloudinary_resource.build_url(fetch_format='auto', quality='auto')
-        
-        return cloudinary_resource.url
+    # Removed custom _get_url to use base class implementation
+    pass

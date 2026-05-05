@@ -4,7 +4,9 @@ import {
     PieChart, Pie, Legend
 } from 'recharts';
 import api from '../../api/axios';
-import { Users, Package, ShoppingBag, BarChart3, ChevronDown, Star } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { Users, Package, ShoppingBag, BarChart3, ChevronDown, Star, Download } from 'lucide-react';
 
 const COLORS = ['#1A3A34', '#2D6A4F', '#40916C', '#52B788', '#74C69D'];
 
@@ -21,6 +23,67 @@ const SetisticsDashboard = () => {
     useEffect(() => {
         fetchAllStats();
     }, []);
+
+    const generatePDF = () => {
+        const doc = new jsPDF();
+        const timestamp = new Date().toLocaleString();
+        
+        // Add Header
+        doc.setFontSize(20);
+        doc.setTextColor(26, 58, 52); // #1A3A34
+        doc.text("AgriGov National Statistics Report", 14, 22);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Generated on: ${timestamp}`, 14, 30);
+        doc.text("Confidential Administrative Data", 14, 35);
+        
+        let currentY = 45;
+
+        // Table 1: Wilaya Distribution
+        doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0);
+        doc.text("1. Farmers by Wilaya", 14, currentY);
+        autoTable(doc, {
+            startY: currentY + 5,
+            head: [['Wilaya', 'Farmer Count']],
+            body: farmersData.map(d => [d.wilaya, d.count]),
+            theme: 'striped',
+            headStyles: { fillColor: [26, 58, 52] }
+        });
+        currentY = doc.lastAutoTable.finalY + 15;
+
+        // Table 2: Product Sales
+        doc.text("2. Product Sales Distribution", 14, currentY);
+        autoTable(doc, {
+            startY: currentY + 5,
+            head: [['Product Name', 'Total Quantity Sold']],
+            body: salesData.map(d => [d.name, d.value]),
+            theme: 'striped',
+            headStyles: { fillColor: [45, 106, 79] }
+        });
+        currentY = doc.lastAutoTable.finalY + 15;
+
+        // Table 3: Top Rated Farmers
+        doc.text("3. Top Rated Farmers", 14, currentY);
+        autoTable(doc, {
+            startY: currentY + 5,
+            head: [['Farmer Username', 'Average Rating']],
+            body: ratedFarmersData.map(d => [d.username, `${d.rating} / 5.0`]),
+            theme: 'striped',
+            headStyles: { fillColor: [64, 145, 108] }
+        });
+
+        // Footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.text(`Page ${i} of ${pageCount} - AgriGov Platform Dashboard`, 105, 290, { align: 'center' });
+        }
+
+        doc.save(`AgriGov_Stats_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+    };
 
     const fetchAllStats = async () => {
         setLoading(true);
@@ -76,9 +139,18 @@ const SetisticsDashboard = () => {
 
     return (
         <div className="space-y-lg p-lg animate-in pb-xl">
-            <header className="mb-xl">
-                <h1 className="font-h1 text-h1 text-on-surface mb-xs">National Agricultural Statistics</h1>
-                <p className="font-body-lg text-body-lg text-on-surface-variant">Comprehensive data analysis of farmers, sales, and product trends.</p>
+            <header className="mb-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="font-h1 text-h1 text-on-surface mb-xs">National Agricultural Statistics</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant">Comprehensive data analysis of farmers, sales, and product trends.</p>
+                </div>
+                <button 
+                    onClick={generatePDF}
+                    className="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-xl font-button text-button hover:bg-primary/90 transition-all shadow-md active:scale-95"
+                >
+                    <Download size={20} />
+                    Download Report
+                </button>
             </header>
 
             {/* Row 1: Top Wilayas and Sales Distribution */}

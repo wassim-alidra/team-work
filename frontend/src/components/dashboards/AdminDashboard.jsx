@@ -1069,7 +1069,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                     <div className="w-16 h-16 bg-primary-fixed/30 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
                         <span className="material-symbols-outlined text-[32px]">campaign</span>
                     </div>
-                    <h1 className="font-h1 text-h1 text-on-surface mb-xs">Official Broadcast</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface mb-xs">Alert Users</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg mx-auto">Issue ministerial directives and critical announcements directly to platform actors.</p>
                 </div>
 

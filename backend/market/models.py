@@ -65,6 +65,7 @@ class Product(models.Model):
     price_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_available = models.FloatField(help_text="Quantity in kg")
     quality_grade = models.CharField(max_length=10, choices=QualityGrade.choices, default=QualityGrade.HIGH)
+    image = models.ImageField(upload_to='product_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -150,9 +151,10 @@ class Delivery(models.Model):
         elif self.status == 'ON_WAY':
             self.order.status = Order.Status.ON_WAY
             # Notify Farmer that transporter is coming
+            product_name = self.order.product.name if self.order.product else "Product"
             Notification.objects.create(
                 recipient=self.order.product.farmer,
-                message=f"Transporter is now ON WAY to your farm to pick up: {self.order.product.catalog.name} (Order #{self.order.id}). Please be ready!"
+                message=f"Transporter is now ON WAY to your farm to pick up: {product_name} (Order #{self.order.id}). Please be ready!"
             )
             Notification.objects.create(
                 recipient=self.order.buyer,

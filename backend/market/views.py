@@ -11,6 +11,8 @@ from .serializers import (
 from users.models import User
 from django.db.models import Sum, Count
 from farms.models import Farm
+import traceback
+import sys
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
@@ -80,10 +82,10 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         if user.is_authenticated and hasattr(user, 'role') and user.role == User.Role.FARMER:
             # Farmers see all their own products
-            queryset = Product.objects.filter(farmer=user)
+            queryset = Product.objects.filter(farmer=user).select_related('farmer', 'farm', 'catalog', 'catalog__category')
         else:
             # Buyers and others only see properly catalogued products from approved farms
-            queryset = Product.objects.filter(catalog__isnull=False)
+            queryset = Product.objects.filter(catalog__isnull=False).select_related('farmer', 'farm', 'catalog', 'catalog__category')
 
         search = self.request.query_params.get('search')
         if search:
@@ -106,6 +108,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def _validate_price(self, serializer):
         catalog = serializer.validated_data.get('catalog')
         price = serializer.validated_data.get('price_per_kg')
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Validating price: {price} for catalog: {catalog}\n")
         if catalog and price is not None:
             if catalog.min_price is not None and price < catalog.min_price:
                 raise ValidationError(
@@ -116,7 +120,22 @@ class ProductViewSet(viewsets.ModelViewSet):
                     {"price_per_kg": f"Price too high. Maximum allowed for '{catalog.name}' is {catalog.max_price} DA/kg."}
                 )
 
+    def create(self, request, *args, **kwargs):
+        try:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ATTEMPTING CREATE --- User: {request.user.username}\n")
+                f.write(f"Data: {request.data}\n")
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write("\n--- ERROR IN VIEWSET CREATE ---\n")
+                traceback.print_exc(file=f)
+            raise e
+
     def perform_create(self, serializer):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Validated Data: {serializer.validated_data}\n")
+            
         if self.request.user.role != User.Role.FARMER:
              raise permissions.PermissionDenied("Only farmers can add products.")
         
@@ -125,7 +144,14 @@ class ProductViewSet(viewsets.ModelViewSet):
             raise ValidationError({"farm": "You can only list products for your own farms."})
             
         self._validate_price(serializer)
+        
+        with open("backend_errors.log", "a") as f:
+            f.write("Validation passed. Saving...\n")
+            
         serializer.save(farmer=self.request.user)
+        
+        with open("backend_errors.log", "a") as f:
+            f.write("Save successful.\n")
 
     def perform_update(self, serializer):
         if self.get_object().farmer != self.request.user:
@@ -208,17 +234,43 @@ class OrderViewSet(viewsets.ModelViewSet):
         product.save()
         
         order = serializer.save(buyer=self.request.user)
-        Notification.objects.create(
-            recipient=order.product.farmer,
-            message=f"New order received for {order.product.catalog.name} ({order.quantity}kg) from {self.request.user.username}."
-        )
+        try:
+            product_name = order.product.name if order.product else "Product"
+            Notification.objects.create(
+                recipient=order.product.farmer,
+                message=f"New order received for {product_name} ({order.quantity}kg) from {self.request.user.username}."
+            )
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"New order notification failed: {str(e)}\n")
+
+    def update(self, request, *args, **kwargs):
+        try:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ATTEMPTING ORDER UPDATE --- User: {request.user.username}\n")
+                f.write(f"Data: {request.data}\n")
+            return super().update(request, *args, **kwargs)
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write("\n--- ERROR IN ORDER VIEWSET UPDATE ---\n")
+                traceback.print_exc(file=f)
+            raise e
 
     def perform_update(self, serializer):
         user = self.request.user
         order = self.get_object()
+        
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Updating order #{order.id}. Current Status: {order.status}. User Role: {user.role}\n")
+            
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
+            with open("backend_errors.log", "a") as f:
+                f.write(f"New Status: {new_status}\n")
+                
             if user.role == User.Role.FARMER and order.product.farmer == user:
+                 with open("backend_errors.log", "a") as f:
+                    f.write("User is farmer and owns product. Proceeding...\n")
                  if new_status == 'CANCELLED' and order.status != 'CANCELLED':
                      order.product.quantity_available += order.quantity
                      order.product.save()
@@ -233,19 +285,31 @@ class OrderViewSet(viewsets.ModelViewSet):
             elif user.role == User.Role.ADMIN:
                  serializer.save()
             else:
+                with open("backend_errors.log", "a") as f:
+                    f.write(f"Permission denied. Farmer comparison: {order.product.farmer == user}\n")
                 raise permissions.PermissionDenied("You do not have permission to update this order status.")
             
             # Send notification after status update
-            Notification.objects.create(
-                recipient=order.buyer,
-                message=f"Your order #{order.id} for {order.product.catalog.name} has been updated to: {new_status}."
-            )
+            try:
+                product_name = order.product.name if order.product else "Product"
+                Notification.objects.create(
+                    recipient=order.buyer,
+                    message=f"Your order #{order.id} for {product_name} has been updated to: {new_status}."
+                )
+            except Exception as e:
+                with open("backend_errors.log", "a") as f:
+                    f.write(f"Notification creation failed: {str(e)}\n")
             # Also notify farmer if they didn't do the action (e.g. Admin or Buyer cancellation)
             if user.role != User.Role.FARMER:
-                Notification.objects.create(
-                    recipient=order.product.farmer,
-                    message=f"Order #{order.id} for {order.product.catalog.name} status updated to: {new_status}."
-                )
+                try:
+                    product_name = order.product.name if order.product else "Product"
+                    Notification.objects.create(
+                        recipient=order.product.farmer,
+                        message=f"Order #{order.id} for {product_name} status updated to: {new_status}."
+                    )
+                except Exception as e:
+                    with open("backend_errors.log", "a") as f:
+                        f.write(f"Farmer notification failed: {str(e)}\n")
         else:
              # Check if rating is being updated
              rating_updated = 'rating' in serializer.validated_data
@@ -477,7 +541,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        return Notification.objects.filter(recipient=self.request.user)
+        return Notification.objects.filter(recipient=self.request.user).order_by('-id')
 
     @action(detail=False, methods=['post'])
     def mark_all_as_read(self, request):

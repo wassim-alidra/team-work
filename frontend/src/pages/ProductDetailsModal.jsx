@@ -23,9 +23,14 @@ const ProductDetailsModal = ({ product, onClose }) => {
                     <div className="flex flex-col gap-6">
                         {/* Product Info */}
                         <div className="flex gap-4 items-start">
-                            <div className="w-24 h-24 rounded-lg bg-surface-variant flex items-center justify-center overflow-hidden shrink-0 border border-outline-variant/30">
-                                {product.catalog_image ? (
-                                    <img src={product.catalog_image} alt={product.name} className="w-full h-full object-cover" />
+                            <div className="w-24 h-24 rounded-lg bg-surface-variant flex items-center justify-center overflow-hidden shrink-0 border border-outline-variant/30 relative">
+                                {product.product_image ? (
+                                    <img src={product.product_image} alt={product.name} className="w-full h-full object-cover" />
+                                ) : product.catalog_image ? (
+                                    <>
+                                        <img src={product.catalog_image} alt={product.name} className="w-full h-full object-cover" />
+                                        <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-[8px] py-0.5 text-center font-bold">DEFAULT PHOTO</div>
+                                    </>
                                 ) : (
                                     <span className="text-3xl text-primary font-bold">{product.name?.[0] || 'P'}</span>
                                 )}

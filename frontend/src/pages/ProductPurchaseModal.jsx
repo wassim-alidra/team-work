@@ -68,9 +68,14 @@ const ProductPurchaseModal = ({ product, onClose, onSuccess }) => {
                 ) : (
                     <div className="ppm-content">
                         <div className="ppm-product-card">
-                            <div className="ppm-img-container">
-                                {product.catalog_image ? (
-                                    <img src={product.catalog_image} alt={product.name} />
+                            <div className="ppm-img-container relative">
+                                {product.product_image ? (
+                                    <img src={product.product_image} alt={product.name} />
+                                ) : product.catalog_image ? (
+                                    <>
+                                        <img src={product.catalog_image} alt={product.name} />
+                                        <div className="absolute inset-x-0 bottom-0 bg-black/50 text-white text-[8px] py-0.5 text-center font-bold">DEFAULT PHOTO</div>
+                                    </>
                                 ) : (
                                     product.name?.[0] || 'P'
                                 )}

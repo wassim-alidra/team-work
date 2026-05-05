@@ -63,7 +63,7 @@ const Topbar = ({ user, setActiveTab }) => {
   const handleNotificationClick = () => {
     setNotificationsOpen(false);
     if (setActiveTab) {
-      setActiveTab("notifications");
+      setActiveTab("admin-notifications");
     } else {
       navigate("/dashboard?tab=notifications");
     }

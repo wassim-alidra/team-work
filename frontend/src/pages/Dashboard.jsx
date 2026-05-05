@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 import FarmerDashboard from "../components/dashboards/FarmerDashboard";
 import BuyerDashboard from "../components/dashboards/BuyerDashboard";
@@ -11,16 +11,21 @@ import "../styles/dashboard.css";
 
 const Dashboard = () => {
     const { user } = useContext(AuthContext);
-    const [activeTab, setActiveTab] = useState("dashboard");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = searchParams.get("tab") || "dashboard";
     const location = useLocation();
 
+    const setActiveTab = (tab) => {
+        setSearchParams({ tab });
+    };
+
     useEffect(() => {
-        if (location.state?.activeTab) {
+        // Handle legacy state if any, but prioritize URL
+        if (location.state?.activeTab && !searchParams.get("tab")) {
             setActiveTab(location.state.activeTab);
-            // Clear the state so it doesn't persist on refresh
             window.history.replaceState({}, document.title);
         }
-    }, [location]);
+    }, [location, searchParams]);
 
     if (!user) return <div className="loading">Loading...</div>;
     

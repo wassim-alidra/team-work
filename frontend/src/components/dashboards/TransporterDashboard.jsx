@@ -5,6 +5,7 @@ import AuthContext from "../../context/AuthContext";
 import RouteMapModal from "./RouteMapModal";
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
+import OrderDetailsModal from "../common/OrderDetailsModal";
 
 const TransporterDashboard = ({ activeTab }) => {
     const { user, setUser } = useContext(AuthContext);
@@ -25,6 +26,10 @@ const TransporterDashboard = ({ activeTab }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
+    
+    // Order Details Modal state
+    const [orderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
+    const [selectedOrderForDetails, setSelectedOrderForDetails] = useState(null);
 
     useEffect(() => {
         if (activeTab === "dashboard" || activeTab === "requests") fetchAvailableOrders(availableOrdersPage);
@@ -167,6 +172,8 @@ const TransporterDashboard = ({ activeTab }) => {
         }
     };
 
+    let content = null;
+
     // ─────────────────── DASHBOARD TAB ───────────────────
     if (activeTab === "dashboard") {
         const stats = [
@@ -176,7 +183,7 @@ const TransporterDashboard = ({ activeTab }) => {
             { label: "Earnings", value: `${earningsData.total_earnings || 0} DA`, icon: <DollarSign />, color: "bg-tertiary-container text-on-tertiary-container" }
         ];
 
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-xl animate-in">
                 <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
                     {stats.map((s, i) => (
@@ -203,8 +210,16 @@ const TransporterDashboard = ({ activeTab }) => {
                                             <div className="flex items-center justify-between">
                                                 <strong>Order #{d.order}</strong>
                                                 <div className="flex items-center gap-2">
-                                                    <button onClick={() => handleDownloadPDF(d.id)} className="text-primary hover:text-tertiary transition-colors" title="Download PDF">
-                                                        <FileText size={14} />
+                                                    <button 
+                                                        className="px-3 py-1.5 rounded-lg font-button text-[10px] bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95 border border-outline-variant/30"
+                                                        title="View Full Details & Download PDF"
+                                                        onClick={() => {
+                                                            setSelectedOrderForDetails(d.order_details);
+                                                            setOrderDetailsModalOpen(true);
+                                                        }}
+                                                    >
+                                                        <FileText size={12} />
+                                                        View Info
                                                     </button>
                                                     <span className={`bg-secondary-fixed text-on-secondary-fixed-variant px-sm py-xs rounded-full font-label-caps text-label-caps inline-flex items-center gap-xs`}>
                                                         <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> {d.status}
@@ -286,7 +301,7 @@ const TransporterDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "requests") {
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Available Delivery Requests</h1>
@@ -374,7 +389,7 @@ const TransporterDashboard = ({ activeTab }) => {
     if (activeTab === "status") {
         const active = myDeliveries.filter(d => d.status !== "DELIVERED");
         const paginatedActive = active.slice((statusPage - 1) * 10, statusPage * 10);
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Update Delivery Status</h1>
@@ -387,11 +402,15 @@ const TransporterDashboard = ({ activeTab }) => {
                                 <h3 className="font-h3 text-h3 text-on-surface">Order #{d.order}</h3>
                                 <div className="flex items-center gap-2">
                                     <button 
-                                        onClick={() => handleDownloadPDF(d.id)}
-                                        className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                                        title="Download Order PDF"
+                                        className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95 border border-outline-variant/30"
+                                        title="View Full Details & Download PDF"
+                                        onClick={() => {
+                                            setSelectedOrderForDetails(d.order_details);
+                                            setOrderDetailsModalOpen(true);
+                                        }}
                                     >
-                                        <FileText size={20} />
+                                        <FileText size={14} />
+                                        View Info
                                     </button>
                                     <span className={`px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-caps text-label-caps rounded-full flex items-center gap-1`}>
                                         <Truck size={16} /> {d.status}
@@ -459,7 +478,7 @@ const TransporterDashboard = ({ activeTab }) => {
 
     if (activeTab === "history") {
         const history = myDeliveries.filter(d => d.status === "DELIVERED");
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Delivery History</h1>
@@ -490,10 +509,15 @@ const TransporterDashboard = ({ activeTab }) => {
                                         </td>
                                         <td className="p-4">
                                             <button 
-                                                onClick={() => handleDownloadPDF(d.id)}
-                                                className="flex items-center gap-2 text-primary hover:text-tertiary transition-colors font-medium text-sm"
+                                                className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95 border border-outline-variant/30"
+                                                title="View Full Details & Download PDF"
+                                                onClick={() => {
+                                                    setSelectedOrderForDetails(d.order_details);
+                                                    setOrderDetailsModalOpen(true);
+                                                }}
                                             >
-                                                <FileText size={16} /> PDF
+                                                <FileText size={14} />
+                                                View Info
                                             </button>
                                         </td>
                                     </tr>
@@ -514,7 +538,7 @@ const TransporterDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "earnings") {
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex items-center gap-6">
@@ -566,7 +590,7 @@ const TransporterDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "notifications") {
-        return (
+        content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Notifications</h1>
@@ -595,7 +619,7 @@ const TransporterDashboard = ({ activeTab }) => {
     }
 
     if (activeTab === "profile") {
-        return (
+        content = (
             <div className="max-w-2xl mx-auto space-y-md animate-in">
                 <div className="mb-6">
                     <h1 className="font-h1 text-h1 text-on-surface">Vehicle Profile</h1>
@@ -640,7 +664,17 @@ const TransporterDashboard = ({ activeTab }) => {
         );
     }
 
-    return null;
+    return (
+        <>
+            {content}
+            <OrderDetailsModal 
+                order={selectedOrderForDetails}
+                isOpen={orderDetailsModalOpen}
+                onClose={() => setOrderDetailsModalOpen(false)}
+                userRole="TRANSPORTER"
+            />
+        </>
+    );
 };
 
 export default TransporterDashboard;

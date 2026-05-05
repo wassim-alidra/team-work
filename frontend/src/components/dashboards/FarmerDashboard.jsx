@@ -5,6 +5,8 @@ import "../../styles/dashboard.css";
 import "../../styles/equipment_provider.css";
 import Pagination from "../common/Pagination";
 import AskAgriButton from '../chat/AskAgriButton';
+import OrderDetailsModal from "../common/OrderDetailsModal";
+import FarmerStatistics from "./FarmerStatistics";
 
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar", lat: 27.8727, lon: -0.2929 },
@@ -110,6 +112,11 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const [farmImage, setFarmImage] = useState(null);
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [priceHistory, setPriceHistory] = useState([]);
+    const [productImage, setProductImage] = useState(null);
+    
+    // Order Details Modal state
+    const [orderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
     // Weather Feature States
     const [weatherData, setWeatherData] = useState(null);
@@ -295,15 +302,36 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             return;
         }
 
+        const data = new FormData();
+        if (formData.catalog) data.append("catalog", formData.catalog);
+        if (formData.price_per_kg) data.append("price_per_kg", formData.price_per_kg);
+        if (formData.quantity_available) data.append("quantity_available", formData.quantity_available);
+        if (formData.farm) data.append("farm", formData.farm);
+        if (formData.quality_grade) data.append("quality_grade", formData.quality_grade);
+        
+        if (productImage) {
+            data.append("image", productImage);
+        }
+
+        // Debug: Log FormData content
+        for (let pair of data.entries()) {
+            console.log(pair[0]+ ': ' + pair[1]); 
+        }
+
         try {
+            const config = {
+                headers: { "Content-Type": undefined }
+            };
+
             if (editingProduct) {
-                await api.put(`market/products/${editingProduct.id}/`, formData);
+                await api.patch(`market/products/${editingProduct.id}/`, data, config);
                 alert("Product updated successfully!");
             } else {
-                await api.post("market/products/", formData);
+                await api.post("market/products/", data, config);
                 alert("Product added to your inventory!");
             }
             setEditingProduct(null);
+            setProductImage(null);
             setFormData({
                 catalog: "",
                 price_per_kg: "",
@@ -315,7 +343,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             fetchStats();
         } catch (err) {
             console.error("Error saving product:", err);
-            alert("Error saving product. Please ensure all fields are correct.");
+            const errorMsg = err.response?.data 
+                ? (typeof err.response.data === 'object' 
+                    ? Object.entries(err.response.data).map(([k, v]) => `${k}: ${v}`).join('\n') 
+                    : err.response.data)
+                : "Error saving product. Please ensure all fields are correct.";
+            alert(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -655,7 +688,13 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                         <tr key={p.id} className="border-b border-surface-variant hover:bg-surface transition-colors">
 <td   className="md:col-span-4 flex items-center gap-md">
                                                 <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
-                                                   {p.catalog_image ? <img src={p.catalog_image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-outline">inventory_2</span>}
+                                                    {p.product_image ? (
+                                                        <img src={p.product_image} className="w-full h-full object-cover" />
+                                                    ) : p.catalog_image ? (
+                                                        <img src={p.catalog_image} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="material-symbols-outlined text-outline">inventory_2</span>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
@@ -770,6 +809,49 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                 <option value="LOW">Low (Basic)</option>
                             </select>
                         </div>
+                        <div className="col-span-1 md:col-span-2">
+                            <label className="block text-sm font-medium text-on-surface mb-1">Product Photo (Optional)</label>
+                            <div className="flex items-center gap-4">
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    onChange={(e) => setProductImage(e.target.files[0])} 
+                                    className="hidden" 
+                                    id="product-image-upload" 
+                                />
+                                <label 
+                                    htmlFor="product-image-upload" 
+                                    className="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors border border-outline-variant/30"
+                                >
+                                    <ImageIcon size={18} />
+                                    {productImage ? productImage.name : (editingProduct?.product_image ? "Change Photo" : "Choose Photo")}
+                                </label>
+                                {(productImage || editingProduct?.product_image) && (
+                                    <div className="flex items-center gap-2">
+                                        {(productImage || editingProduct?.product_image) && (
+                                            <div className="w-10 h-10 rounded border border-outline-variant/30 overflow-hidden bg-surface-container">
+                                                <img 
+                                                    src={productImage ? URL.createObjectURL(productImage) : editingProduct.product_image} 
+                                                    className="w-full h-full object-cover" 
+                                                    alt="Preview"
+                                                />
+                                            </div>
+                                        )}
+                                        <button 
+                                            type="button" 
+                                            onClick={() => {
+                                                setProductImage(null);
+                                                // If we want to allow removing the image entirely, we'd need a flag or set image to ""
+                                            }} 
+                                            className="text-xs text-error hover:underline"
+                                        >
+                                            {productImage ? "Remove New" : ""}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <p className="text-[10px] text-on-surface-variant mt-1">Upload a custom photo for your product. If not provided, the default system photo will be used.</p>
+                        </div>
                         <div className="col-span-1 md:col-span-2 mt-2">
                             <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>
                                 {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product to Market")}
@@ -793,7 +875,13 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             <div key={p.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
                                 <div className="md:col-span-4 flex items-center gap-md">
                                     <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
-                                        {p.catalog_image ? <img src={p.catalog_image} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-outline">inventory_2</span>}
+                                        {p.product_image ? (
+                                            <img src={p.product_image} className="w-full h-full object-cover" />
+                                        ) : p.catalog_image ? (
+                                            <img src={p.catalog_image} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-outline">inventory_2</span>
+                                        )}
                                     </div>
                                     <div>
                                         <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
@@ -892,8 +980,19 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                             <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="text-error hover:text-on-error-container p-1" title="Reject"><span className="material-symbols-outlined">cancel</span></button>
                                         </>
                                     )}
-                                    {o.status === 'ACCEPTED' && <span className="text-xs text-on-surface-variant">Wait for Transporter</span>}
-                                    {o.status === 'DELIVERED' && <span className="material-symbols-outlined text-primary">check_circle</span>}
+                                    {o.status !== 'PENDING' && (
+                                        <button 
+                                            className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"
+                                            title="View Full Details & Download PDF"
+                                            onClick={() => {
+                                                setSelectedOrder(o);
+                                                setOrderDetailsModalOpen(true);
+                                            }}
+                                        >
+                                            <FileText size={14} />
+                                            View Info
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -1353,6 +1452,8 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </form>
             </div>
         );
+    } else if (activeTab === "setistics") {
+        content = <FarmerStatistics />;
     }
 
     return (
@@ -1410,6 +1511,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </div>
             )}
             <AskAgriButton />
+            <OrderDetailsModal 
+                order={selectedOrder}
+                isOpen={orderDetailsModalOpen}
+                onClose={() => setOrderDetailsModalOpen(false)}
+                userRole="FARMER"
+            />
         </>
     );
 };

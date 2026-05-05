@@ -5,6 +5,8 @@ import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import ProductPurchaseModal from "../../pages/ProductPurchaseModal";
 import ProductDetailsModal from "../../pages/ProductDetailsModal";
+import OrderDetailsModal from "../common/OrderDetailsModal";
+import { FileText } from "lucide-react";
 
 const BuyerDashboard = ({ activeTab }) => {
     const [products, setProducts] = useState([]);
@@ -27,6 +29,7 @@ const BuyerDashboard = ({ activeTab }) => {
     const [filters, setFilters] = useState({ search: "", category: "all", priceRange: "all" });
     const [cart, setCart] = useState(null); // Simple one-item cart
     const [loading, setLoading] = useState(false);
+    const [productsLoading, setProductsLoading] = useState(false);
 
     // Modal state
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
@@ -36,30 +39,50 @@ const BuyerDashboard = ({ activeTab }) => {
     const [orderToRate, setOrderToRate] = useState(null);
     const [ratingValue, setRatingValue] = useState(5);
     const [ratingComment, setRatingComment] = useState("");
+    
+    const [orderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
 
+    // Debounced search state
+    const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(filters.search);
+        }, 300); // 300ms for snappier feel
+
+        return () => clearTimeout(timer);
+    }, [filters.search]);
+
+    // 1. Initial/Permanent data
+    useEffect(() => {
+        fetchCategories();
+        const savedCart = localStorage.getItem("buyer_cart");
+        if (savedCart) setCart(JSON.parse(savedCart));
+    }, []);
+
+    // 2. Tab-specific data fetching
     useEffect(() => {
         if (activeTab === "notifications") {
             fetchNotifications();
             api.post("market/notifications/mark_all_as_read/").catch(console.error);
+        } else if (activeTab === "dashboard") {
+            fetchStats();
+            fetchProducts(1); // Dashboard highlights
+        } else if (activeTab === "orders" || activeTab === "tracking") {
+            fetchMyOrders(myOrdersPage);
+        } else if (activeTab === "products") {
+            fetchProducts(productsPage);
         }
-        fetchMyOrders(myOrdersPage);
-        fetchStats();
-        fetchCategories();
-        // Load cart from local storage
-        const savedCart = localStorage.getItem("buyer_cart");
-        if (savedCart) setCart(JSON.parse(savedCart));
-    }, [activeTab, myOrdersPage]);
-
-    useEffect(() => {
-        if (activeTab === "products" || activeTab === "dashboard") fetchProducts(productsPage);
-    }, [activeTab, filters, productsPage]);
+    }, [activeTab, myOrdersPage, debouncedSearch, filters.category, filters.priceRange, productsPage]);
 
 
     const fetchProducts = async (page = 1) => {
+        setProductsLoading(true);
         try {
             let url = "market/products/";
             const params = new URLSearchParams();
-            if (filters.search) params.append("search", filters.search);
+            if (debouncedSearch) params.append("search", debouncedSearch);
             if (filters.category && filters.category !== "all") params.append("category", filters.category);
             if (filters.priceRange && filters.priceRange !== "all") {
                 if (filters.priceRange === "under_100") {
@@ -75,23 +98,20 @@ const BuyerDashboard = ({ activeTab }) => {
             url += `?${params.toString()}`;
 
             const res = await api.get(url);
-            console.log("API response products:", res.data); // Added for debugging
-
             if (res.data && res.data.results) {
                 setProducts(res.data.results);
                 setProductsCount(res.data.count);
-                console.log("products array to render:", res.data.results);
             } else if (Array.isArray(res.data)) {
                 setProducts(res.data);
                 setProductsCount(res.data.length);
-                console.log("products array to render:", res.data);
             } else {
                 setProducts([]);
                 setProductsCount(0);
-                console.log("products mapping fallback - set empty.");
             }
         } catch (err) {
             console.error(err);
+        } finally {
+            setProductsLoading(false);
         }
     };
 
@@ -338,7 +358,11 @@ const BuyerDashboard = ({ activeTab }) => {
                                 <div key={p.id} className="bg-surface-bright rounded-lg p-md border border-outline-variant/20 flex items-center justify-between group">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded bg-surface-variant overflow-hidden flex items-center justify-center font-bold text-primary">
-                                            {p.catalog_image ? <img src={p.catalog_image} alt={p.name} className="w-full h-full object-cover" /> : (p.name?.[0] || 'P')}
+                                            {p.product_image ? (
+                                                <img src={p.product_image} alt={p.name} className="w-full h-full object-cover" />
+                                            ) : p.catalog_image ? (
+                                                <img src={p.catalog_image} alt={p.name} className="w-full h-full object-cover" />
+                                            ) : (p.name?.[0] || 'P')}
                                         </div>
                                         <div>
                                             <strong className="font-body-lg text-body-lg font-medium text-on-surface">{p.name || "Unnamed Product"}</strong>
@@ -449,19 +473,23 @@ const BuyerDashboard = ({ activeTab }) => {
                     </div>
                 </section>
 
-                <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md">
+                <section className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md transition-opacity duration-300 ${productsLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                     {products.map(p => (
                         <article key={p.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,58,52,0.05)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow duration-300 border border-outline-variant/10 flex flex-col group cursor-pointer">
-                            <div className="h-48 w-full bg-surface-variant relative overflow-hidden flex items-center justify-center text-4xl text-primary font-bold">
-                                {p.catalog_image ? (
-                                    <img src={p.catalog_image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                             <div className="h-48 w-full bg-surface-variant relative overflow-hidden flex items-center justify-center text-4xl text-primary font-bold">
+                                 {p.product_image ? (
+                                    <img src={p.product_image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                ) : p.catalog_image ? (
+                                    <img src={p.catalog_image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 ) : (
                                     (p.name?.[0] || 'P')
                                 )}
                                 <div className="absolute top-3 left-3 flex flex-col gap-2">
-                                    <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm w-fit">
-                                        <CheckCircle size={14} /> Verified
-                                    </span>
+                                    {p.is_default_image && (
+                                        <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm w-fit">
+                                            <AlertCircle size={14} /> Default Photo
+                                        </span>
+                                    )}
                                     <span className={`px-2 py-1 backdrop-blur-sm font-label-caps text-label-caps rounded border flex items-center gap-1 shadow-sm w-fit ${
                                         p.quality_grade === 'HIGH' ? 'bg-green-500/90 text-white border-green-400' :
                                         p.quality_grade === 'MEDIUM' ? 'bg-yellow-500/90 text-white border-yellow-400' :
@@ -594,8 +622,20 @@ const BuyerDashboard = ({ activeTab }) => {
                                                         {o.rating ? `Rated ${o.rating} ★` : "Rate Product"}
                                                     </button>
                                                 )}
-                                                {!['PENDING', 'DELIVERED'].includes(o.status) && (
-                                                    <span className="text-outline text-sm">No actions</span>
+                                                {!['PENDING', 'DELIVERED', 'CANCELLED'].includes(o.status) && (
+                                                    <button 
+                                                        className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"
+                                                        onClick={() => {
+                                                            setSelectedOrder(o);
+                                                            setOrderDetailsModalOpen(true);
+                                                        }}
+                                                    >
+                                                        <FileText size={14} />
+                                                        View Info
+                                                    </button>
+                                                )}
+                                                {o.status === 'CANCELLED' && (
+                                                     <span className="text-error text-sm font-medium">Cancelled</span>
                                                 )}
                                             </div>
                                         </td>
@@ -647,6 +687,7 @@ const BuyerDashboard = ({ activeTab }) => {
                                         <span className={['CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Loading</span>
                                         <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
                                     </div>
+
                                     <div className="w-full bg-surface-variant rounded-full h-2 relative">
                                         <div
                                             className="bg-primary h-2 rounded-full transition-all duration-500"
@@ -807,6 +848,13 @@ const BuyerDashboard = ({ activeTab }) => {
                     </div>
                 </div>
             )}
+            {/* Order Details Modal */}
+            <OrderDetailsModal 
+                order={selectedOrder}
+                isOpen={orderDetailsModalOpen}
+                onClose={() => setOrderDetailsModalOpen(false)}
+                userRole="BUYER"
+            />
         </>
     );
 };

@@ -28,6 +28,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
     { key: "equipment", label: "Equipment Rental", icon: <Wrench size={18} /> },
     { key: "prices", label: "Official Prices", icon: <Package size={18} /> },
+    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
     { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
   ];
@@ -45,13 +46,12 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
     { key: "dashboard", label: "Overview", icon: <Home size={18} /> },
     { key: "users", label: "Users Management", icon: <Users size={18} /> },
     { key: "farm-approvals", label: "Farm Approvals", icon: <Landmark size={18} /> },
+    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
     { key: "categories", label: "Categories", icon: <LayoutGrid size={18} /> },
     { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
-    { key: "products", label: "Marketplace", icon: <ShoppingCart size={18} /> },
     { key: "catalog", label: "Official Prices", icon: <Package size={18} /> },
-    { key: "notifications", label: "Farmer Alerts", icon: <Bell size={18} /> },
+    { key: "notifications", label: "Alert Users", icon: <Bell size={18} /> },
     { key: "admin-notifications", label: "Notifications", icon: <Bell size={18} /> },
-    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
   ];
 
   const genericItems = [

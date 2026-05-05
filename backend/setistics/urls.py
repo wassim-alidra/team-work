@@ -1,5 +1,8 @@
 from django.urls import path
-from .views import FarmersByWilayaView, TopSellingProductsView, StatsProductsListView, ProductWeeklySalesView, TopRatedFarmersView
+from .views import (
+    FarmersByWilayaView, TopSellingProductsView, StatsProductsListView, 
+    ProductWeeklySalesView, TopRatedFarmersView, FarmerStatsView
+)
 
 urlpatterns = [
     path('farmers-by-wilaya/', FarmersByWilayaView.as_view(), name='farmers-by-wilaya'),
@@ -7,4 +10,5 @@ urlpatterns = [
     path('products-list/', StatsProductsListView.as_view(), name='stats-products-list'),
     path('product-weekly-sales/', ProductWeeklySalesView.as_view(), name='product-weekly-sales'),
     path('top-rated-farmers/', TopRatedFarmersView.as_view(), name='top-rated-farmers'),
+    path('farmer-stats/', FarmerStatsView.as_view(), name='farmer-stats'),
 ]

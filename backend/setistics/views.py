@@ -97,3 +97,77 @@ class TopRatedFarmersView(APIView):
         ]
         
         return Response(formatted_stats)
+
+class FarmerStatsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != User.Role.FARMER:
+            return Response({"error": "Only farmers can access these stats"}, status=403)
+        
+        user = request.user
+        
+        # 1. Top 5 Products Sold (Pie Chart)
+        top_selling = Order.objects.filter(product__farmer=user) \
+            .exclude(status=Order.Status.CANCELLED) \
+            .values('product__catalog__name') \
+            .annotate(total_quantity=Sum('quantity')) \
+            .order_by('-total_quantity')[:5]
+        
+        top_selling_formatted = [
+            {'name': item['product__catalog__name'], 'value': item['total_quantity'] or 0}
+            for item in top_selling
+        ]
+
+        # 2. Sales this week (Bar Chart)
+        from django.utils import timezone
+        from datetime import timedelta
+        start_of_week = timezone.now().date() - timedelta(days=timezone.now().weekday())
+        
+        from django.db.models.functions import TruncDay
+        weekly_sales = Order.objects.filter(
+            product__farmer=user, 
+            created_at__date__gte=start_of_week
+        ).exclude(status=Order.Status.CANCELLED) \
+        .annotate(day=TruncDay('created_at')) \
+        .values('day') \
+        .annotate(total=Sum('quantity')) \
+        .order_by('day')
+        
+        # Helper to ensure all days of the week are present
+        days_of_week = []
+        for i in range(7):
+            day = start_of_week + timedelta(days=i)
+            days_of_week.append(day.strftime('%Y-%m-%d'))
+            
+        weekly_sales_formatted = []
+        # item['day'] is a datetime object from TruncDay, convert to YYYY-MM-DD string
+        sales_dict = {item['day'].strftime('%Y-%m-%d'): item['total'] for item in weekly_sales}
+        
+        days_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        for i, day_str in enumerate(days_of_week):
+            val = sales_dict.get(day_str) or 0
+            weekly_sales_formatted.append({
+                'name': days_names[i],
+                'value': float(val)
+            })
+
+        # 3. Top Rated Products (Horizontal Bar Chart)
+        top_rated = Order.objects.filter(product__farmer=user, rating__isnull=False) \
+            .values('product__catalog__name') \
+            .annotate(avg_rating=Avg('rating')) \
+            .order_by('-avg_rating')[:5]
+            
+        top_rated_formatted = [
+            {
+                'name': item['product__catalog__name'],
+                'rating': round(item['avg_rating'], 2)
+            }
+            for item in top_rated
+        ]
+
+        return Response({
+            "top_selling": top_selling_formatted,
+            "weekly_sales": weekly_sales_formatted,
+            "top_rated": top_rated_formatted
+        })
