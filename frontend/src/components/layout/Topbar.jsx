@@ -1,11 +1,11 @@
-import { Bell, Search, ChevronDown, User, LogOut } from "lucide-react";
+import { Bell, ChevronDown, User, LogOut, Menu } from "lucide-react";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
 
 import api from "../../api/axios";
 
-const Topbar = ({ user, setActiveTab }) => {
+const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
   const { logoutUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -92,9 +92,18 @@ const Topbar = ({ user, setActiveTab }) => {
 
   return (
     <header className="dashboard-topbar">
+      {/* Hamburger menu (mobile only) */}
+      <button
+        className="topbar-hamburger"
+        onClick={onMenuToggle}
+        aria-label="Open navigation menu"
+      >
+        <Menu size={22} />
+      </button>
+
       <div className="topbar-left">
         <h1>Dashboard</h1>
-        <p>Welcome back, {user?.username}</p>
+        <p className="topbar-welcome">Welcome back, {user?.username}</p>
       </div>
 
       <div className="topbar-right">
@@ -150,7 +159,7 @@ const Topbar = ({ user, setActiveTab }) => {
                 src={
                   user.profile_image.startsWith("http")
                     ? user.profile_image
-                    : `http://localhost:8000${user.profile_image}`
+                    : `http://${window.location.hostname}:8000${user.profile_image}`
                 }
                 alt="Profile"
                 className="w-full h-full object-cover rounded-full"
@@ -159,7 +168,7 @@ const Topbar = ({ user, setActiveTab }) => {
               user?.username?.charAt(0)?.toUpperCase() || "U"
             )}
           </div>
-          <div className="topbar-user-info" onClick={() => setDropdownOpen(!dropdownOpen)}>
+          <div className="topbar-user-info topbar-user-info--desktop" onClick={() => setDropdownOpen(!dropdownOpen)}>
             <span>{user?.username}</span>
             <small>{roleLabels[user?.role] || user?.role}</small>
           </div>

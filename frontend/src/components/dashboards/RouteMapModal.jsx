@@ -142,6 +142,9 @@ const RouteMapModal = ({ order, onClose, onAccept }) => {
           </div>
           <button className="rmap-close-btn" onClick={onClose} title="Close">✕</button>
         </div>
+        
+        {/* ── Scrollable Body ── */}
+        <div className="rmap-body">
 
         {/* ── Order Info Grid ── */}
         <div className="rmap-order-info">
@@ -299,6 +302,8 @@ const RouteMapModal = ({ order, onClose, onAccept }) => {
             )}
           </MapContainer>
         </div>
+        
+        </div> {/* End of rmap-body */}
 
         {/* ── Footer ── */}
         <div className="rmap-footer">

@@ -345,3 +345,46 @@
 }
 
 .rmap-map-wrapper .leaflet-popup-tip { background: #1e293b; }
+
+/* ---- Mobile Compactness ---- */
+@media (max-width: 600px) {
+  .rmap-header {
+    padding: 14px 16px;
+  }
+
+  .rmap-order-info {
+    grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+  }
+
+  .rmap-info-cell {
+    padding: 8px 12px;
+  }
+
+  .rmap-info-cell .cell-value {
+    font-size: 0.8rem;
+  }
+
+  .rmap-stats {
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .rmap-stat-chip {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+
+  .rmap-wilaya-badge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+  
+  .rmap-map-wrapper {
+    min-height: 240px;
+  }
+  
+  .rmap-map-wrapper .leaflet-container {
+    min-height: 240px;
+  }
+}

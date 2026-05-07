@@ -9,3 +9,24 @@ Save successful.
 --- ATTEMPTING ORDER UPDATE --- User: buyer3
 Data: {'rating': 4, 'rating_comment': 'goood orange'}
 Updating order #30. Current Status: DELIVERED. User Role: BUYER
+
+--- ATTEMPTING ORDER UPDATE --- User: buyer3
+Data: {'status': 'CANCELLED'}
+Updating order #61. Current Status: PENDING. User Role: BUYER
+New Status: CANCELLED
+Notification creation failed: cannot access local variable 'Notification' where it is not associated with a value
+Farmer notification failed: cannot access local variable 'Notification' where it is not associated with a value
+
+--- ATTEMPTING ORDER UPDATE --- User: famer5
+Data: {'status': 'ACCEPTED'}
+Updating order #62. Current Status: PENDING. User Role: FARMER
+New Status: ACCEPTED
+User is farmer and owns product. Proceeding...
+Notification creation failed: cannot access local variable 'Notification' where it is not associated with a value
+
+--- ATTEMPTING ORDER UPDATE --- User: famer5
+Data: {'status': 'ACCEPTED'}
+Updating order #63. Current Status: PENDING. User Role: FARMER
+New Status: ACCEPTED
+User is farmer and owns product. Proceeding...
+Notification creation failed: cannot access local variable 'Notification' where it is not associated with a value

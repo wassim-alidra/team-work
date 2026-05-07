@@ -512,22 +512,21 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                         </div>
                         <div className="flex items-center justify-between mb-md z-10">
                             <h2 className="font-h3 text-h3 text-on-surface">Climate Widget</h2>
-                            <select
-                                className="bg-surface border border-outline-variant rounded-lg px-2 py-1 text-sm font-medium text-on-surface focus:outline-none focus:border-primary"
-                                value={selectedWilaya.id}
-                                onChange={(e) => {
-                                    const w = ALGERIA_WILAYAS.find(wilaya => String(wilaya.id) === String(e.target.value));
-                                    setSelectedWilaya(w);
-                                }}
-                            >
-                                {ALGERIA_WILAYAS.map(w => (
-                                    <option key={w.id} value={w.id}>{w.name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="flex items-center justify-between mb-md z-10">
-                            <h2 className="font-h3 text-h3 text-on-surface">Climate Widget</h2>
-                            <span className="material-symbols-outlined text-primary">thermostat</span>
+                            <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">thermostat</span>
+                                <select
+                                    className="bg-surface border border-outline-variant rounded-lg px-2 py-1 text-sm font-medium text-on-surface focus:outline-none focus:border-primary"
+                                    value={selectedWilaya.id}
+                                    onChange={(e) => {
+                                        const w = ALGERIA_WILAYAS.find(wilaya => String(wilaya.id) === String(e.target.value));
+                                        setSelectedWilaya(w);
+                                    }}
+                                >
+                                    {ALGERIA_WILAYAS.map(w => (
+                                        <option key={w.id} value={w.id}>{w.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         <div className="z-10">
                             {loadingWeather ? (
@@ -686,19 +685,21 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                 <tbody>
                                     {products.length > 0 ? products.slice(0, 5).map(p => (
                                         <tr key={p.id} className="border-b border-surface-variant hover:bg-surface transition-colors">
-<td   className="md:col-span-4 flex items-center gap-md">
-                                                <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
-                                                    {p.product_image ? (
-                                                        <img src={p.product_image} className="w-full h-full object-cover" />
-                                                    ) : p.catalog_image ? (
-                                                        <img src={p.catalog_image} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <span className="material-symbols-outlined text-outline">inventory_2</span>
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
-                                                   <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
+                                            <td className="py-3 px-4">
+                                                <div className="flex items-center gap-md">
+                                                    <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
+                                                        {p.product_image ? (
+                                                            <img src={p.product_image} className="w-full h-full object-cover" />
+                                                        ) : p.catalog_image ? (
+                                                            <img src={p.catalog_image} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="material-symbols-outlined text-outline">inventory_2</span>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
+                                                       <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="py-3 px-4 text-on-surface-variant">{p.quantity_available} kg</td>
@@ -861,79 +862,85 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                 </div>
 
                 {/* Inventory Data Grid */}
-                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
-                    <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
-                        <div className="col-span-4">Product Details</div>
-                        <div className="col-span-2">Quantity</div>
-                        <div className="col-span-2">Market Price</div>
-                        <div className="col-span-2">Quality</div>
-                        <div className="col-span-1">Status</div>
-                        <div className="col-span-1 text-right">Actions</div>
-                    </div>
-                    <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
-                        {products.map(p => (
-                            <div key={p.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
-                                <div className="md:col-span-4 flex items-center gap-md">
-                                    <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
-                                        {p.product_image ? (
-                                            <img src={p.product_image} className="w-full h-full object-cover" />
-                                        ) : p.catalog_image ? (
-                                            <img src={p.catalog_image} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="material-symbols-outlined text-outline">inventory_2</span>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
-                                        <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
-                                    </div>
-                                </div>
-                                <div className="md:col-span-2 flex md:block justify-between items-center">
-                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Quantity</span>
-                                    <span className="font-body-md text-body-md text-on-surface">{p.quantity_available} kg</span>
-                                </div>
-                                <div className="md:col-span-2 flex md:block justify-between items-center">
-                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Price</span>
-                                    <span className="font-body-md text-body-md text-on-surface font-medium">{p.price_per_kg} DA / kg</span>
-                                </div>
-                                <div className="md:col-span-2 flex md:block justify-between items-center">
-                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Quality</span>
-                                    <span className={`inline-flex px-2 py-0.5 rounded font-label-caps text-[10px] border uppercase ${
-                                        p.quality_grade === 'HIGH' ? 'bg-green-50 text-green-700 border-green-200' :
-                                        p.quality_grade === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                                        'bg-red-50 text-red-700 border-red-200'
-                                    }`}>
-                                        {p.quality_grade || 'HIGH'}
-                                    </span>
-                                </div>
-                                <div className="md:col-span-1 flex md:block justify-between items-center">
-                                    <span className="md:hidden font-label-caps text-label-caps text-outline">Status</span>
-                                    {p.quantity_available > 0 ? (
-                                        <span className="inline-flex bg-primary-container text-on-primary-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
-                                            Available
-                                        </span>
-                                    ) : (
-                                        <span className="inline-flex bg-error-container text-on-error-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
-                                            Out of Stock
-                                        </span>
-                                    )}
-                                    {p.quantity_available > 0 && p.quantity_available < 5 && (
-                                        <div className="text-[10px] text-error font-bold mt-1">Low Stock!</div>
-                                    )}
-                                </div>
-                                <div className="md:col-span-1 flex justify-end gap-sm md:gap-xs border-t md:border-none pt-4 md:pt-0 mt-2 md:mt-0 border-outline-variant/20">
-                                    <button onClick={() => handleEditProduct(p)} className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container"
-                                        title="View Price Timeline">
-                                        <span className="material-symbols-outlined">edit</span>
-                                    </button>
-                                    <button onClick={() => handleDeleteProduct(p.id)} className="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container"
-                                        title="Remove Entry">
-                                        <span className="material-symbols-outlined">delete</span>
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                        {products.length === 0 && <p className="p-4 text-center text-on-surface-variant text-sm">No products added yet.</p>}
+                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden mb-4">
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[800px] text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                                    <th className="px-lg py-sm font-medium">Product Details</th>
+                                    <th className="px-lg py-sm font-medium">Quantity</th>
+                                    <th className="px-lg py-sm font-medium">Market Price</th>
+                                    <th className="px-lg py-sm font-medium">Quality</th>
+                                    <th className="px-lg py-sm font-medium">Status</th>
+                                    <th className="px-lg py-sm font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {products.map(p => (
+                                    <tr key={p.id} className="border-b border-outline-variant/20 hover:bg-surface-bright transition-colors">
+                                        <td className="px-lg py-md">
+                                            <div className="flex items-center gap-md">
+                                                <div className="w-12 h-12 rounded bg-surface-container-high flex items-center justify-center overflow-hidden shrink-0">
+                                                    {p.product_image ? (
+                                                        <img src={p.product_image} className="w-full h-full object-cover" />
+                                                    ) : p.catalog_image ? (
+                                                        <img src={p.catalog_image} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span className="material-symbols-outlined text-outline">inventory_2</span>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-h3 text-h3 text-primary">{p.name || "Unnamed Product"}</h3>
+                                                    <p className="font-body-sm text-body-sm text-on-surface-variant">📍 {p.farm_name || "Unknown Farm"}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-lg py-md font-body-md text-on-surface">{p.quantity_available} kg</td>
+                                        <td className="px-lg py-md font-body-md text-on-surface font-medium">{p.price_per_kg} DA / kg</td>
+                                        <td className="px-lg py-md">
+                                            <span className={`inline-flex px-2 py-0.5 rounded font-label-caps text-[10px] border uppercase ${
+                                                p.quality_grade === 'HIGH' ? 'bg-green-50 text-green-700 border-green-200' :
+                                                p.quality_grade === 'MEDIUM' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                                                'bg-red-50 text-red-700 border-red-200'
+                                            }`}>
+                                                {p.quality_grade || 'HIGH'}
+                                            </span>
+                                        </td>
+                                        <td className="px-lg py-md">
+                                            <div className="flex flex-col items-start gap-1">
+                                                {p.quantity_available > 0 ? (
+                                                    <span className="inline-flex bg-primary-container text-on-primary-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
+                                                        Available
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex bg-error-container text-on-error-container rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider">
+                                                        Out of Stock
+                                                    </span>
+                                                )}
+                                                {p.quantity_available > 0 && p.quantity_available < 5 && (
+                                                    <span className="text-[10px] text-error font-bold">Low Stock!</span>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-lg py-md text-right">
+                                            <div className="flex justify-end gap-xs">
+                                                <button onClick={() => handleEditProduct(p)} className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container" title="Edit Product">
+                                                    <span className="material-symbols-outlined">edit</span>
+                                                </button>
+                                                <button onClick={() => handleDeleteProduct(p.id)} className="text-on-surface-variant hover:text-error transition-colors p-2 rounded-full hover:bg-error-container" title="Remove Entry">
+                                                    <span className="material-symbols-outlined">delete</span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {products.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" className="p-4 text-center text-on-surface-variant text-sm">No products added yet.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <Pagination currentPage={productsPage} totalCount={productsCount} pageSize={10} onPageChange={setProductsPage} />
@@ -949,54 +956,66 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                     </div>
                 </div>
 
-                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
-                    <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
-                        <div className="col-span-2">Order ID</div>
-                        <div className="col-span-3">Product</div>
-                        <div className="col-span-2">Quantity</div>
-                        <div className="col-span-2">Total Price</div>
-                        <div className="col-span-2">Status</div>
-                        <div className="col-span-1 text-right">Action</div>
-                    </div>
-                    <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
-                        {orders.map(o => (
-                            <div key={o.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
-                                <div className="md:col-span-2 font-medium text-on-surface">#{o.id}</div>
-                                <div className="md:col-span-3">
-                                    <div className="font-bold text-on-surface">{o.product_name}</div>
-                                    <div className="text-xs text-on-surface-variant">{o.buyer_name}</div>
-                                </div>
-                                <div className="md:col-span-2 text-on-surface">{o.quantity}kg</div>
-                                <div className="md:col-span-2 font-medium text-primary">{o.total_price} DA</div>
-                                <div className="md:col-span-2">
-                                    <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface-variant' : o.status === 'ACCEPTED' || o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-error-container text-on-error-container'}`}>
-                                        {o.status}
-                                    </span>
-                                </div>
-                                <div className="md:col-span-1 flex justify-end gap-sm">
-                                    {o.status === 'PENDING' && (
-                                        <>
-                                            <button onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')} className="text-primary hover:text-on-primary-fixed-variant p-1" title="Accept"><span className="material-symbols-outlined">check_circle</span></button>
-                                            <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="text-error hover:text-on-error-container p-1" title="Reject"><span className="material-symbols-outlined">cancel</span></button>
-                                        </>
-                                    )}
-                                    {o.status !== 'PENDING' && (
-                                        <button 
-                                            className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"
-                                            title="View Full Details & Download PDF"
-                                            onClick={() => {
-                                                setSelectedOrder(o);
-                                                setOrderDetailsModalOpen(true);
-                                            }}
-                                        >
-                                            <FileText size={14} />
-                                            View Info
-                                        </button>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                        {orders.length === 0 && <p className="p-4 text-center text-on-surface-variant text-sm">No orders yet.</p>}
+                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden mb-4">
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[800px] text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                                    <th className="px-lg py-sm font-medium">Order ID</th>
+                                    <th className="px-lg py-sm font-medium">Product</th>
+                                    <th className="px-lg py-sm font-medium">Quantity</th>
+                                    <th className="px-lg py-sm font-medium">Total Price</th>
+                                    <th className="px-lg py-sm font-medium">Status</th>
+                                    <th className="px-lg py-sm font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {orders.map(o => (
+                                    <tr key={o.id} className="border-b border-outline-variant/20 hover:bg-surface-bright transition-colors">
+                                        <td className="px-lg py-md font-medium text-on-surface">#{o.id}</td>
+                                        <td className="px-lg py-md">
+                                            <div className="font-bold text-on-surface">{o.product_name}</div>
+                                            <div className="text-xs text-on-surface-variant">{o.buyer_name}</div>
+                                        </td>
+                                        <td className="px-lg py-md text-on-surface">{o.quantity}kg</td>
+                                        <td className="px-lg py-md font-medium text-primary">{o.total_price} DA</td>
+                                        <td className="px-lg py-md">
+                                            <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] items-center gap-1 uppercase tracking-wider ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface-variant' : o.status === 'ACCEPTED' || o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-error-container text-on-error-container'}`}>
+                                                {o.status}
+                                            </span>
+                                        </td>
+                                        <td className="px-lg py-md text-right">
+                                            <div className="flex justify-end gap-sm">
+                                                {o.status === 'PENDING' && (
+                                                    <>
+                                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')} className="text-primary hover:text-on-primary-fixed-variant p-1" title="Accept"><span className="material-symbols-outlined">check_circle</span></button>
+                                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="text-error hover:text-on-error-container p-1" title="Reject"><span className="material-symbols-outlined">cancel</span></button>
+                                                    </>
+                                                )}
+                                                {o.status !== 'PENDING' && (
+                                                    <button 
+                                                        className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"
+                                                        title="View Full Details & Download PDF"
+                                                        onClick={() => {
+                                                            setSelectedOrder(o);
+                                                            setOrderDetailsModalOpen(true);
+                                                        }}
+                                                    >
+                                                        <FileText size={14} />
+                                                        View Info
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {orders.length === 0 && (
+                                    <tr>
+                                        <td colSpan="6" className="p-4 text-center text-on-surface-variant text-sm">No orders yet.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <Pagination currentPage={ordersPage} totalCount={ordersCount} pageSize={10} onPageChange={setOrdersPage} />
@@ -1078,36 +1097,42 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                         <p>No official price ranges have been published yet by the Ministry.</p>
                     </div>
                 ) : (
-                    <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden flex flex-col mb-4">
-                        <div className="hidden md:grid grid-cols-12 gap-gutter px-lg py-sm border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider items-center">
-                            <div className="col-span-2">Product</div>
-                            <div className="col-span-3">Description</div>
-                            <div className="col-span-2">Last Update</div>
-                            <div className="col-span-2">Min Price</div>
-                            <div className="col-span-2">Max Price</div>
-                            <div className="col-span-1">History</div>
-                        </div>
-                        <div className="flex flex-col p-4 md:p-0 gap-4 md:gap-0 bg-surface-container-low md:bg-transparent">
-                            {catalog.map(c => (
-                                <div key={c.id} className="bg-surface-container-lowest rounded-xl md:rounded-none p-4 md:px-lg md:py-md md:border-b border-outline-variant/20 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] md:shadow-none hover:bg-surface-bright transition-colors grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-gutter items-center">
-                                    <div className="md:col-span-2 font-bold text-on-surface">{c.name}</div>
-                                    <div className="md:col-span-3 text-on-surface-variant text-sm">{c.description || "—"}</div>
-                                    <div className="md:col-span-2">
-                                        <p className="text-on-surface font-body-sm text-body-sm font-bold">{new Date(c.updated_at).toLocaleString()}</p>
-                                    </div>
-                                    <div className="md:col-span-2 font-medium text-secondary">{c.min_price ? `${c.min_price} DA` : "—"}</div>
-                                    <div className="md:col-span-2 font-medium text-error">{c.max_price ? `${c.max_price} DA` : "—"} <span className="text-[10px] text-outline font-normal">/{c.unit || 'kg'}</span></div>
-                                    <div className="md:col-span-1 flex justify-end">
-                                        <button 
-                                            onClick={() => { setSelectedCatalogItem(c); fetchPriceHistory(c.id); }} 
-                                            className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors"
-                                            title="View Price History"
-                                        >
-                                            <span className="material-symbols-outlined">history</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
+                    <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden mb-4">
+                        <div className="overflow-x-auto">
+                            <table className="w-full min-w-[800px] text-left border-collapse">
+                                <thead>
+                                    <tr className="border-b border-outline-variant/30 bg-surface-bright font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+                                        <th className="px-lg py-sm font-medium">Product</th>
+                                        <th className="px-lg py-sm font-medium">Description</th>
+                                        <th className="px-lg py-sm font-medium">Last Update</th>
+                                        <th className="px-lg py-sm font-medium">Min Price</th>
+                                        <th className="px-lg py-sm font-medium">Max Price</th>
+                                        <th className="px-lg py-sm font-medium text-right">History</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {catalog.map(c => (
+                                        <tr key={c.id} className="border-b border-outline-variant/20 hover:bg-surface-bright transition-colors">
+                                            <td className="px-lg py-md font-bold text-on-surface">{c.name}</td>
+                                            <td className="px-lg py-md text-on-surface-variant text-sm">{c.description || "—"}</td>
+                                            <td className="px-lg py-md">
+                                                <p className="text-on-surface font-body-sm text-body-sm font-bold">{new Date(c.updated_at).toLocaleString()}</p>
+                                            </td>
+                                            <td className="px-lg py-md font-medium text-secondary">{c.min_price ? `${c.min_price} DA` : "—"}</td>
+                                            <td className="px-lg py-md font-medium text-error">{c.max_price ? `${c.max_price} DA` : "—"} <span className="text-[10px] text-outline font-normal">/{c.unit || 'kg'}</span></td>
+                                            <td className="px-lg py-md text-right">
+                                                <button 
+                                                    onClick={() => { setSelectedCatalogItem(c); fetchPriceHistory(c.id); }} 
+                                                    className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors inline-flex"
+                                                    title="View Price History"
+                                                >
+                                                    <span className="material-symbols-outlined">history</span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 )}

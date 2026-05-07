@@ -190,7 +190,7 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
 
             <div className="ep-bento-grid">
                 {/* Sales Performance Chart */}
-                <div className="col-span-12 md:col-span-8 ep-card">
+                <div className="col-span-1 md:col-span-8 ep-card">
                     <div className="flex items-center justify-between mb-lg">
                         <h3 className="ep-h3"><TrendingUp size={24} className="text-secondary" /> Rental Revenue</h3>
                         <div className="flex gap-2">
@@ -219,7 +219,7 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                 </div>
 
                 {/* Inventory Status */}
-                <div className="col-span-12 md:col-span-4 ep-card ep-card-primary">
+                <div className="col-span-1 md:col-span-4 ep-card ep-card-primary">
                     <h3 className="ep-h3 text-white mb-lg"><Package size={24} className="text-secondary-container" /> Fleet Health</h3>
                     <div className="space-y-6">
                         <div className="ep-status-row">
@@ -247,7 +247,7 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                 </div>
 
                 {/* Recent Inquiries/Bookings */}
-                <div className="col-span-12 md:col-span-6 ep-card">
+                <div className="col-span-1 md:col-span-6 ep-card">
                     <div className="flex items-center justify-between mb-lg">
                         <h3 className="ep-h3"><MessageSquare size={24} className="text-secondary" /> Active Inquiries</h3>
                         <button className="text-secondary text-sm font-bold hover:underline">View All</button>
@@ -275,7 +275,7 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                 </div>
 
                 {/* Service Alerts */}
-                <div className="col-span-12 md:col-span-6 ep-card">
+                <div className="col-span-1 md:col-span-6 ep-card">
                     <div className="flex items-center justify-between mb-lg">
                         <h3 className="ep-h3"><Wrench size={24} className="text-error" /> Maintenance Desk</h3>
                         <div className="flex items-center gap-1 bg-error-container text-on-error-container px-2 py-1 rounded text-xs font-bold">

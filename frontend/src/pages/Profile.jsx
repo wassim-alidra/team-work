@@ -134,7 +134,7 @@ const uploadImage = async (file) => {
 const getAvatarUrl = () => {
     if (preview) return preview;
     if (user?.profile_image) {
-        const baseUrl = "http://localhost:8000";
+        const baseUrl = `http://${window.location.hostname}:8000`;
         return user.profile_image.startsWith('http') ? user.profile_image : `${baseUrl}${user.profile_image}`;
     }
     return null;

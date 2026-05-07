@@ -1,6 +1,6 @@
-import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench, Landmark, BarChart2 } from "lucide-react";
+import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench, Landmark, BarChart2, X } from "lucide-react";
 
-const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
+const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMobileOpen }) => {
   const transporterItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
     { key: "requests", label: "Delivery Requests", icon: <Package size={18} /> },
@@ -72,46 +72,83 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   if (user?.role === "ADMIN") menuItems = adminItems;
   if (user?.role === "EQUIPMENT_PROVIDER") menuItems = equipmentProviderItems;
 
-  return (
-    <aside
-      className="dashboard-sidebar"
-      style={{ display: "flex", flexDirection: "column" }}
-    >
-      <div
-        className="sidebar-brand"
-        style={{
-          height: "80px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-          padding: "5px"
-        }}
-      >
-        <img
-          src="/Agrigove web site.PNG"
-          alt="AgriGov Logo"
-          style={{
-            height: "100%",
-            width: "auto",
-            objectFit: "contain"
-          }}
-        />
-      </div>
+  const handleNavClick = (key) => {
+    setActiveTab(key);
+    // Close mobile drawer after navigation
+    if (setMobileOpen) setMobileOpen(false);
+  };
 
-      <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <button
-            key={item.key}
-            className={`sidebar-link ${activeTab === item.key ? "active" : ""}`}
-            onClick={() => setActiveTab(item.key)}
-          >
-            <span className="sidebar-icon">{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </nav>
-    </aside>
+  return (
+    <>
+      {/* Mobile overlay backdrop */}
+      {mobileOpen && (
+        <div
+          className="sidebar-mobile-overlay"
+          onClick={() => setMobileOpen && setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`dashboard-sidebar ${mobileOpen ? "sidebar-mobile-open" : ""}`}
+        style={{ display: "flex", flexDirection: "column" }}
+        aria-label="Sidebar navigation"
+      >
+        {/* Mobile close button */}
+        <button
+          className="sidebar-mobile-close"
+          onClick={() => setMobileOpen && setMobileOpen(false)}
+          aria-label="Close navigation"
+        >
+          <X size={20} />
+        </button>
+
+        <div
+          className="sidebar-brand"
+          style={{
+            height: "80px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            padding: "5px"
+          }}
+        >
+          <img
+            src="/Agrigove web site.PNG"
+            alt="AgriGov Logo"
+            style={{
+              height: "100%",
+              width: "auto",
+              objectFit: "contain"
+            }}
+          />
+        </div>
+
+        <nav className="sidebar-nav">
+          {menuItems.map((item) => (
+            <button
+              key={item.key}
+              className={`sidebar-link ${activeTab === item.key ? "active" : ""}`}
+              onClick={() => handleNavClick(item.key)}
+            >
+              <span className="sidebar-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Logout at bottom */}
+        {logoutUser && (
+          <div className="sidebar-footer">
+            <button className="sidebar-logout" onClick={logoutUser}>
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
+          </div>
+        )}
+      </aside>
+    </>
   );
 };
 
