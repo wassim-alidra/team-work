@@ -543,6 +543,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Notification.objects.filter(recipient=self.request.user).order_by('-id')
 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
     @action(detail=False, methods=['post'])
     def mark_all_as_read(self, request):
         Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)

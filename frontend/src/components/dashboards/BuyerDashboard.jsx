@@ -8,7 +8,7 @@ import ProductDetailsModal from "../../pages/ProductDetailsModal";
 import OrderDetailsModal from "../common/OrderDetailsModal";
 import { FileText } from "lucide-react";
 
-const BuyerDashboard = ({ activeTab }) => {
+const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     const [products, setProducts] = useState([]);
     const [productsCount, setProductsCount] = useState(0);
     const [productsPage, setProductsPage] = useState(1);
@@ -351,7 +351,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     <section className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/10">
                         <div className="flex justify-between items-center mb-6 border-b border-outline-variant/30 pb-4">
                             <h2 className="font-h3 text-h3 text-on-surface">Marketplace Highlights</h2>
-                            <button className="font-button text-button text-secondary hover:text-primary transition-colors" onClick={() => window.location.hash = "products"}>View All</button>
+ <span  onClick={() => setActiveTab("products")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="flex flex-col gap-4">
                             {products.slice(0, 4).map(p => (
@@ -370,22 +370,34 @@ const BuyerDashboard = ({ activeTab }) => {
                                         </div>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedProduct(p);
-                                                setDetailsModalOpen(true);
-                                            }}
-                                            className="w-10 h-10 rounded-full bg-surface-variant hover:bg-outline-variant/30 flex items-center justify-center transition-all text-primary"
-                                            title="View Details"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                                        </button>
-                                        <button
-                                            onClick={() => addToCart(p)}
-                                            className="w-14 h-14 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center shadow-2xl border-2 border-white hover:scale-110 transition-all"
-                                        >
-                                            <ShoppingCart size={24} color="white" strokeWidth={3} />
-                                        </button>
+                                       <button
+    onClick={() => {
+        setSelectedProduct(p);
+        setDetailsModalOpen(true);
+    }}
+    className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90"
+    title="View Details"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="10" x2="12" y2="16" />
+        <circle cx="12" cy="7" r="1" />
+    </svg>
+</button>
+                                       
+                                           <button  onClick={() => addToCart(p)} class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90">
+<span class="material-symbols-outlined text-[28px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
                                     </div>
                                 </div>
                             ))}
@@ -395,6 +407,7 @@ const BuyerDashboard = ({ activeTab }) => {
                     <section className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/10">
                         <div className="flex justify-between items-center mb-6 border-b border-outline-variant/30 pb-4">
                             <h2 className="font-h3 text-h3 text-on-surface">Active Deliveries</h2>
+                            <span onClick={() => setActiveTab("tracking")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="flex flex-col gap-4">
                             {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status)).slice(0, 3).map(o => (

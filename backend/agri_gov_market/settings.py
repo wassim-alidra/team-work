@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'routing',
     'farms',
     'setistics',
+    'iot',
 ]
 
 MIDDLEWARE = [

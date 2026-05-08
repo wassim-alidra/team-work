@@ -114,6 +114,10 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const [priceHistory, setPriceHistory] = useState([]);
     const [productImage, setProductImage] = useState(null);
     
+    // IoT Fire Alert States
+    const [fireAlerts, setFireAlerts] = useState([]);
+    const [isFireAlertOpen, setIsFireAlertOpen] = useState(false);
+
     // Order Details Modal state
     const [orderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -145,6 +149,46 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             api.post("market/notifications/mark_all_as_read/").catch(console.error);
         }
     }, [activeTab]);
+
+    useEffect(() => {
+        // Initial fetch
+        fetchActiveFireAlerts();
+        
+        // Polling for fire alerts
+        const interval = setInterval(() => {
+            fetchActiveFireAlerts();
+        }, 5000);
+        
+        return () => clearInterval(interval);
+    }, []);
+
+    const fetchActiveFireAlerts = async () => {
+        try {
+            const res = await api.get("iot/active-alerts/");
+            if (res.data && res.data.has_fire) {
+                setFireAlerts(res.data.alerts);
+                setIsFireAlertOpen(true);
+            } else {
+                setIsFireAlertOpen(false);
+            }
+        } catch (err) {
+            // Silently handle network errors to avoid console spam when server is down
+            if (err.code === 'ERR_NETWORK' || !err.response) {
+                console.log("Server is offline. Retrying fire check later...");
+            } else {
+                console.error("Error fetching fire alerts:", err);
+            }
+        }
+    };
+
+    const handleResolveAlert = async (alertId) => {
+        try {
+            await api.post(`iot/resolve-alert/${alertId}/`);
+            fetchActiveFireAlerts();
+        } catch (err) {
+            console.error("Error resolving alert:", err);
+        }
+    };
 
     const fetchEquipment = async () => {
         try {
@@ -447,6 +491,17 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             setNotifications(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
+        }
+    };
+
+    const handleDeleteNotification = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this notification?")) return;
+        try {
+            await api.delete(`market/notifications/${id}/`);
+            fetchNotifications();
+        } catch (err) {
+            console.error("Error deleting notification:", err);
+            alert("Failed to delete notification.");
         }
     };
 
@@ -1158,6 +1213,13 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                                 <p className={`text-on-surface ${n.is_read ? '' : 'font-semibold'}`}>{n.message}</p>
                                 <span className="text-xs text-on-surface-variant mt-2 block">{new Date(n.created_at).toLocaleString()}</span>
                             </div>
+                            <button 
+                                onClick={() => handleDeleteNotification(n.id)}
+                                className="p-2 text-error hover:bg-error/20 rounded-full transition-colors bg-error/5"
+                                title="Delete Notification"
+                            >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                            </button>
                         </div>
                     ))}
                     {notifications.length === 0 && <div className="text-center p-8 text-on-surface-variant">No notifications yet.</div>}
@@ -1531,6 +1593,33 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                         </div>
                         <div className="p-4 bg-surface-variant/20 border-t border-outline-variant/30 flex justify-end">
                             <button onClick={() => setShowHistoryModal(false)} className="bg-primary text-on-primary font-button px-6 py-2 rounded-lg hover:bg-tertiary transition-colors">Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {isFireAlertOpen && (
+                <div className="fixed inset-0 bg-red-600/40 backdrop-blur-md z-[200] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border-4 border-red-500">
+                        <div className="p-8 text-center">
+                            <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span className="material-symbols-outlined text-red-600 text-6xl animate-pulse">local_fire_department</span>
+                            </div>
+                            <h2 className="text-3xl font-black text-red-700 mb-4 uppercase tracking-tighter">🔥 FIRE DETECTED! 🔥</h2>
+                            <div className="space-y-4 mb-8">
+                                {fireAlerts.map(alert => (
+                                    <div key={alert.id} className="bg-red-50 p-4 rounded-2xl border border-red-100">
+                                        <p className="font-bold text-red-800 text-xl">{alert.farm_name}</p>
+                                        <p className="text-red-600">Detected at: {new Date(alert.timestamp).toLocaleTimeString()}</p>
+                                        <button 
+                                            onClick={() => handleResolveAlert(alert.id)}
+                                            className="mt-4 w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-lg"
+                                        >
+                                            I HAVE HANDLED THIS
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-red-500 font-medium text-sm">A notification has also been sent to your alert system.</p>
                         </div>
                     </div>
                 </div>

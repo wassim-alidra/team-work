@@ -131,7 +131,7 @@ const Dashboard = () => {
             )}
 
             {user.role === "BUYER" && (
-                <BuyerDashboard activeTab={activeTab} />
+                <BuyerDashboard activeTab={activeTab} setActiveTab={setActiveTab} />
             )}
 
             {user.role === "TRANSPORTER" && (
