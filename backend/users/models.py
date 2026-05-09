@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
+import datetime
 
 class User(AbstractUser):
     class Role(models.TextChoices):
@@ -8,9 +10,13 @@ class User(AbstractUser):
         FARMER = 'FARMER', _('Farmer')
         BUYER = 'BUYER', _('Buyer')
         TRANSPORTER = 'TRANSPORTER', _('Transporter')
+        EQUIPMENT_PROVIDER = 'EQUIPMENT_PROVIDER', _('Equipment Provider')
 
     role = models.CharField(max_length=50, choices=Role.choices, default=Role.FARMER)
     is_deleted = models.BooleanField(default=False)
+    wilaya = models.CharField(max_length=100, blank=True, null=True)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile-image/', null=True, blank=True)
     
     APPROVAL_CHOICES = [
         ('pending', 'Pending'),
@@ -18,21 +24,27 @@ class User(AbstractUser):
     ]
     approval_status = models.CharField(max_length=20, choices=APPROVAL_CHOICES, default='pending')
     def save(self, *args, **kwargs):
-        if self.is_superuser:
+        if self.is_superuser or self.role == self.Role.ADMIN:
             self.role = self.Role.ADMIN
+            self.approval_status = 'approved'
         return super().save(*args, **kwargs)
+
+
 
 class FarmerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='farmer_profile')
-    farm_name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255)
+    # legacy fields, will be replaced by Farm model
+    farm_name = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    farmer_card_file = models.FileField(upload_to='documents/farmers/', null=True, blank=True)
     
     def __str__(self):
-        return f"{self.user.username} - {self.farm_name}"
+        return f"{self.user.username}'s Farmer Profile"
 
 class BuyerProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='buyer_profile')
     company_name = models.CharField(max_length=255, blank=True, null=True)
+    commercial_register_file = models.FileField(upload_to='documents/buyers/', null=True, blank=True)
     
     def __str__(self):
         return self.user.username
@@ -42,6 +54,34 @@ class TransporterProfile(models.Model):
     vehicle_type = models.CharField(max_length=100)
     license_plate = models.CharField(max_length=50)
     capacity = models.FloatField(help_text="Capacity in tons")
+    driving_license_file = models.FileField(upload_to='documents/transporters/driving/', null=True, blank=True)
+    car_license_file = models.FileField(upload_to='documents/transporters/car/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.vehicle_type}"
+
+class EquipmentProviderProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='equipment_provider_profile')
+    company_name = models.CharField(max_length=255)
+    commercial_register_file = models.FileField(upload_to='documents/equipment_providers/', null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.company_name}"
+
+
+class EmailOTP(models.Model):
+    """Stores one-time passwords for email verification."""
+    email = models.EmailField()
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Keep only the latest OTP per email
+        ordering = ['-created_at']
+
+    def is_expired(self):
+        """Returns True if the OTP is older than 5 minutes."""
+        return timezone.now() > self.created_at + datetime.timedelta(minutes=5)
+
+    def __str__(self):
+        return f"OTP for {self.email} ({self.code})"

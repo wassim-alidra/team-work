@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import { ArrowLeft, Search, Package, TrendingUp, AlertCircle, Loader2 } from "lucide-react";
+import Pagination from "../components/common/Pagination";
 
 /**
  * CategoryProductsPage component to show products (catalog items) belonging to an admin category.
@@ -13,15 +14,17 @@ const CategoryProductsPage = () => {
     
     const [category, setCategory] = useState(null);
     const [products, setProducts] = useState([]);
+    const [productsCount, setProductsCount] = useState(0);
+    const [productsPage, setProductsPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchData();
-    }, [id]);
+        fetchData(productsPage);
+    }, [id, productsPage]);
 
-    const fetchData = async () => {
+    const fetchData = async (page = 1) => {
         setLoading(true);
         try {
             // Fetch category details
@@ -29,8 +32,14 @@ const CategoryProductsPage = () => {
             setCategory(catRes.data);
 
             // Fetch catalog items for this category
-            const prodRes = await api.get(`market/catalog/?category=${id}`);
-            setProducts(prodRes.data);
+            const prodRes = await api.get(`market/catalog/?category=${id}&page=${page}`);
+            if (prodRes.data.results) {
+                setProducts(prodRes.data.results);
+                setProductsCount(prodRes.data.count);
+            } else {
+                setProducts(prodRes.data);
+                setProductsCount(prodRes.data.length);
+            }
         } catch (err) {
             console.error("Error fetching category products:", err);
             setError("Failed to load products. Please try again later.");
@@ -44,7 +53,7 @@ const CategoryProductsPage = () => {
     );
 
     return (
-        <DashboardLayout activeTab="categories" setActiveTab={() => navigate("/dashboard")}>
+       <DashboardLayout activeTab="categories">
             <div className="category-products-container animate-fade-in">
                 
                 {/* Header Section */}
@@ -52,7 +61,7 @@ const CategoryProductsPage = () => {
                     <div className="header-left">
                         <button 
                             className="back-btn-modern" 
-                            onClick={() => navigate("/dashboard")}
+                          onClick={() => navigate(-1)}
                         >
                             <ArrowLeft size={18} />
                             <span>Categories</span>
@@ -60,7 +69,7 @@ const CategoryProductsPage = () => {
                         <div className="title-section mt-4">
                             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                                 {loading ? "Loading..." : `${category?.name} Products`}
-                                <span className="cat-count-badge">{filteredProducts.length}</span>
+                                <span className="cat-count-badge">{productsCount}</span>
                             </h1>
                             <p className="text-gray-500 mt-1">Manage official regulated prices and products for this category</p>
                         </div>
@@ -107,6 +116,11 @@ const CategoryProductsPage = () => {
                     <div className="product-grid">
                         {filteredProducts.map(product => (
                             <div key={product.id} className="product-card-saas glass-panel group">
+                                {product.image && (
+                                    <div className="catalog-product-image">
+                                        <img src={product.image} alt={product.name} />
+                                    </div>
+                                )}
                                 <div className="card-content">
                                     <div className="meta-row">
                                         <div className="product-type-badge">Official Listing</div>
@@ -136,6 +150,12 @@ const CategoryProductsPage = () => {
                         ))}
                     </div>
                 )}
+                <Pagination 
+                    currentPage={productsPage}
+                    totalCount={productsCount}
+                    pageSize={10}
+                    onPageChange={setProductsPage}
+                />
             </div>
 
             <style>{`
@@ -174,7 +194,6 @@ const CategoryProductsPage = () => {
 
                 .cat-count-badge {
                     font-size: 0.9rem;
-                    background: #dcfce7;
                     color: #166534;
                     padding: 0.2rem 0.75rem;
                     border-radius: 20px;

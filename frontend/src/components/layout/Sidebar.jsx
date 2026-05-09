@@ -1,21 +1,34 @@
-import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid } from "lucide-react";
+import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench, Landmark, BarChart2, X } from "lucide-react";
 
-const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
+const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMobileOpen }) => {
   const transporterItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
     { key: "requests", label: "Delivery Requests", icon: <Package size={18} /> },
     { key: "status", label: "Update Status", icon: <Truck size={18} /> },
     { key: "history", label: "Delivery History", icon: <Clock size={18} /> },
     { key: "earnings", label: "Earnings", icon: <ShoppingCart size={18} /> },
+    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { key: "profile", label: "Profile", icon: <Sprout size={18} /> },
+  ];
+
+  const equipmentProviderItems = [
+    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
+    { key: "equipment", label: "My Equipment", icon: <Package size={18} /> },
+    { key: "orders", label: "Inquiries", icon: <ShoppingCart size={18} /> },
+    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
     { key: "profile", label: "Profile", icon: <Sprout size={18} /> },
   ];
 
   const farmerItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
+    { key: "farms", label: "My Farms", icon: <LayoutGrid size={18} /> },
     { key: "products", label: "My Products", icon: <Package size={18} /> },
     { key: "orders", label: "My Orders", icon: <ShoppingCart size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
+    { key: "equipment", label: "Equipment Rental", icon: <Wrench size={18} /> },
     { key: "prices", label: "Official Prices", icon: <Package size={18} /> },
+    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
     { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
   ];
@@ -23,7 +36,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const buyerItems = [
     { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
     { key: "products", label: "Marketplace", icon: <Package size={18} /> },
-    { key: "cart", label: "My Cart", icon: <ShoppingCart size={18} /> },
     { key: "orders", label: "My Orders", icon: <Clock size={18} /> },
     { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
@@ -33,10 +45,13 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   const adminItems = [
     { key: "dashboard", label: "Overview", icon: <Home size={18} /> },
     { key: "users", label: "Users Management", icon: <Users size={18} /> },
+    { key: "farm-approvals", label: "Farm Approvals", icon: <Landmark size={18} /> },
+    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
     { key: "categories", label: "Categories", icon: <LayoutGrid size={18} /> },
     { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
     { key: "catalog", label: "Official Prices", icon: <Package size={18} /> },
-    { key: "notifications", label: "Farmer Alerts", icon: <Bell size={18} /> },
+    { key: "notifications", label: "Alert Users", icon: <Bell size={18} /> },
+    { key: "admin-notifications", label: "Notifications", icon: <Bell size={18} /> },
   ];
 
   const genericItems = [
@@ -55,57 +70,85 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser }) => {
   if (user?.role === "FARMER") menuItems = farmerItems;
   if (user?.role === "BUYER") menuItems = buyerItems;
   if (user?.role === "ADMIN") menuItems = adminItems;
+  if (user?.role === "EQUIPMENT_PROVIDER") menuItems = equipmentProviderItems;
+
+  const handleNavClick = (key) => {
+    setActiveTab(key);
+    // Close mobile drawer after navigation
+    if (setMobileOpen) setMobileOpen(false);
+  };
 
   return (
-  <aside 
-  className="dashboard-sidebar"
-  style={{ display: "flex", flexDirection: "column" }}
->
+    <>
+      {/* Mobile overlay backdrop */}
+      {mobileOpen && (
+        <div
+          className="sidebar-mobile-overlay"
+          onClick={() => setMobileOpen && setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-  <div 
-    className="sidebar-brand"
-    style={{
-      height: "80px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-      padding: "5px"
-    }}
-  >
-    <img 
-      src="/Agrigove web site.PNG" 
-      alt="AgriGov Logo"
-      style={{
-        height: "100%",
-        width: "auto",
-        objectFit: "contain"
-      }}
-    />
-  </div>
-
-
-
-      <nav className="sidebar-nav">
-        {menuItems.map((item) => (
-          <button
-            key={item.key}
-            className={`sidebar-link ${activeTab === item.key ? "active" : ""}`}
-            onClick={() => setActiveTab(item.key)}
-          >
-            <span className="sidebar-icon">{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </nav>
-
-      <div className="sidebar-footer">
-        <button className="sidebar-logout" onClick={logoutUser}>
-          <LogOut size={18} />
-          <span>Logout</span>
+      <aside
+        className={`dashboard-sidebar ${mobileOpen ? "sidebar-mobile-open" : ""}`}
+        style={{ display: "flex", flexDirection: "column" }}
+        aria-label="Sidebar navigation"
+      >
+        {/* Mobile close button */}
+        <button
+          className="sidebar-mobile-close"
+          onClick={() => setMobileOpen && setMobileOpen(false)}
+          aria-label="Close navigation"
+        >
+          <X size={20} />
         </button>
-      </div>
-    </aside>
+
+        <div
+          className="sidebar-brand"
+          style={{
+            height: "80px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            padding: "5px"
+          }}
+        >
+          <img
+            src="/Agrigove web site.PNG"
+            alt="AgriGov Logo"
+            style={{
+              height: "100%",
+              width: "auto",
+              objectFit: "contain"
+            }}
+          />
+        </div>
+
+        <nav className="sidebar-nav">
+          {menuItems.map((item) => (
+            <button
+              key={item.key}
+              className={`sidebar-link ${activeTab === item.key ? "active" : ""}`}
+              onClick={() => handleNavClick(item.key)}
+            >
+              <span className="sidebar-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+
+        {/* Logout at bottom */}
+        {logoutUser && (
+          <div className="sidebar-footer">
+            <button className="sidebar-logout" onClick={logoutUser}>
+              <LogOut size={18} />
+              <span>Logout</span>
+            </button>
+          </div>
+        )}
+      </aside>
+    </>
   );
 };
 

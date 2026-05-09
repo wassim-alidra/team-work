@@ -3,6 +3,12 @@ from django.conf import settings
 from users.models import User
 from decimal import Decimal
 
+class Season(models.TextChoices):
+    SPRING = 'SPRING', 'Spring'
+    SUMMER = 'SUMMER', 'Summer'
+    AUTUMN = 'AUTUMN', 'Autumn'
+    WINTER = 'WINTER', 'Winter'
+
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
@@ -22,6 +28,9 @@ class ProductCatalog(models.Model):
     unit = models.CharField(max_length=20, default="kg")
     min_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Minimum price per unit (DA)")
     max_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Maximum price per unit (DA)")
+    season = models.CharField(max_length=20, choices=Season.choices, default=Season.SPRING)
+    year = models.IntegerField(default=2024)
+    image = models.ImageField(upload_to='catalog_images/', null=True, blank=True)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_catalog_items')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -33,6 +42,8 @@ class PriceHistory(models.Model):
     product = models.ForeignKey(ProductCatalog, on_delete=models.CASCADE, related_name='history')
     min_price = models.DecimalField(max_digits=10, decimal_places=2)
     max_price = models.DecimalField(max_digits=10, decimal_places=2)
+    season = models.CharField(max_length=20, choices=Season.choices, default=Season.SPRING)
+    year = models.IntegerField(default=2024)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
@@ -42,13 +53,31 @@ class PriceHistory(models.Model):
     def __str__(self):
         return f"History for {self.product.name} at {self.updated_at}"
 
+class QualityGrade(models.TextChoices):
+    HIGH = 'HIGH', 'High'
+    MEDIUM = 'MEDIUM', 'Medium'
+    LOW = 'LOW', 'Low'
+
 class Product(models.Model):
     farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products', limit_choices_to={'role': User.Role.FARMER})
+    farm = models.ForeignKey('farms.Farm', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
     catalog = models.ForeignKey(ProductCatalog, on_delete=models.CASCADE, related_name='instances', null=True, blank=True)
     price_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
     quantity_available = models.FloatField(help_text="Quantity in kg")
+    quality_grade = models.CharField(max_length=10, choices=QualityGrade.choices, default=QualityGrade.HIGH)
+    image = models.ImageField(upload_to='product_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    @property
+    def avg_rating(self):
+        from django.db.models import Avg
+        result = self.orders.filter(status='DELIVERED', rating__isnull=False).aggregate(Avg('rating'))['rating__avg']
+        return float(result) if result is not None else 0
+
+    @property
+    def rating_count(self):
+        return self.orders.filter(status='DELIVERED', rating__isnull=False).count()
 
     @property
     def name(self):
@@ -65,7 +94,8 @@ class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         ACCEPTED = 'ACCEPTED', 'Accepted'
-        IN_TRANSIT = 'IN_TRANSIT', 'In Transit'
+        ON_WAY = 'ON_WAY', 'On Way to Farm'
+        CHARGING = 'CHARGING', 'Loading'
         DELIVERED = 'DELIVERED', 'Delivered'
         CANCELLED = 'CANCELLED', 'Cancelled'
 
@@ -75,10 +105,18 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    rating = models.IntegerField(null=True, blank=True, choices=[(i, str(i)) for i in range(1, 6)])
+    rating_comment = models.TextField(null=True, blank=True)
+    
     def save(self, *args, **kwargs):
         if not self.total_price:
-            self.total_price = self.product.price_per_kg * Decimal(str(self.quantity)) # Basic calculation
+            self.total_price = self.product.price_per_kg * Decimal(str(self.quantity))
+        
+        if self.status == self.Status.DELIVERED and not self.delivered_at:
+            from django.utils import timezone
+            self.delivered_at = timezone.now()
+            
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -93,21 +131,61 @@ class Delivery(models.Model):
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def save(self, *args, **kwargs):
-        # Default fee is 10% of order total, min 5.00
         if not self.delivery_fee and self.order:
             self.delivery_fee = max(Decimal('5.00'), self.order.total_price * Decimal('0.10'))
         
         # Sync status with Order
-        if self.status == 'IN_TRANSIT':
-            self.order.status = Order.Status.IN_TRANSIT
-            self.order.save()
+        from .models import Notification
+        if self.status == 'ASSIGNED':
+            self.order.status = Order.Status.ACCEPTED
+            # Notify Buyer and Farmer
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Order #{self.order.id} has been accepted and a transporter ({self.transporter.username}) has been assigned."
+            )
+            Notification.objects.create(
+                recipient=self.order.product.farmer,
+                message=f"Transporter {self.transporter.username} has been assigned to pick up Order #{self.order.id}."
+            )
+        elif self.status == 'ON_WAY':
+            self.order.status = Order.Status.ON_WAY
+            # Notify Farmer that transporter is coming
+            product_name = self.order.product.name if self.order.product else "Product"
+            Notification.objects.create(
+                recipient=self.order.product.farmer,
+                message=f"Transporter is now ON WAY to your farm to pick up: {product_name} (Order #{self.order.id}). Please be ready!"
+            )
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Transporter is now on their way to the farm to pick up your order #{self.order.id}."
+            )
+        elif self.status == 'CHARGING':
+            self.order.status = Order.Status.CHARGING
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Your order #{self.order.id} is currently being loaded onto the transport vehicle."
+            )
+
         elif self.status == 'DELIVERED':
             self.order.status = Order.Status.DELIVERED
-            self.order.save()
             if not self.delivery_date:
                 from django.utils import timezone
                 self.delivery_date = timezone.now()
+            if not self.order.delivered_at:
+                from django.utils import timezone
+                self.order.delivered_at = timezone.now()
+            
+            # Notify Both
+            Notification.objects.create(
+                recipient=self.order.buyer,
+                message=f"Success! Your order #{self.order.id} has been delivered. Please rate your experience!"
+            )
+            Notification.objects.create(
+                recipient=self.order.product.farmer,
+                message=f"Order #{self.order.id} has been successfully delivered to the buyer."
+            )
         
+        self.order.save()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -132,3 +210,69 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"To {self.recipient.username}: {self.message[:20]}..."
+
+class Equipment(models.Model):
+    provider = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='equipments', limit_choices_to={'role': User.Role.EQUIPMENT_PROVIDER})
+    name = models.CharField(max_length=255)
+    equipment_type = models.CharField(max_length=100)
+    
+    price_per_day = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    quantity_available = models.IntegerField(default=1)
+    deposit_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    
+    horsepower = models.CharField(max_length=50, null=True, blank=True)
+    weight = models.CharField(max_length=50, null=True, blank=True)
+    year_of_manufacture = models.IntegerField(null=True, blank=True)
+    transmission = models.CharField(max_length=100, null=True, blank=True)
+    max_speed = models.CharField(max_length=50, null=True, blank=True)
+    fuel_type = models.CharField(max_length=50, null=True, blank=True)
+    hours_of_use = models.CharField(max_length=50, null=True, blank=True)
+    
+    location = models.CharField(max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True, help_text="General notes or extra technical details")
+    
+    condition = models.CharField(max_length=100)
+    usage_instructions = models.TextField(blank=True, null=True)
+    is_available = models.BooleanField(default=True)
+    expected_available_date = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.provider.username})"
+
+class EquipmentImage(models.Model):
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='images')
+    image = models.FileField(upload_to='equipment_images/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class EquipmentBooking(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        ACCEPTED = 'ACCEPTED', 'Accepted'
+        REJECTED = 'REJECTED', 'Rejected'
+        COMPLETED = 'COMPLETED', 'Completed'
+
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE, related_name='bookings')
+    farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='equipment_bookings', limit_choices_to={'role': User.Role.FARMER})
+    requested_quantity = models.IntegerField(default=1)
+    rental_days = models.IntegerField(default=1)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    expected_return_date = models.DateTimeField(null=True, blank=True)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if not self.total_price:
+            self.total_price = self.equipment.price_per_day * Decimal(str(self.requested_quantity)) * Decimal(str(self.rental_days))
+        if not self.expected_return_date:
+            from django.utils import timezone
+            from datetime import timedelta
+            self.expected_return_date = timezone.now() + timedelta(days=self.rental_days)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Booking for {self.equipment.name} by {self.farmer.username}"

@@ -21,10 +21,22 @@ from rest_framework_simplejwt.views import (
 )
 from users.views import CustomTokenObtainPairView
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/market/', include('market.urls')),
+    path('api/weather/', include('weather.urls')),
+    path('api/routing/', include('routing.urls')),
+    path('api/farms/', include('farms.urls')),
+    path('api/setistics/', include('setistics.urls')),
+    path('api/chatbot/', include('chatbot.urls')),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/iot/', include('iot.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

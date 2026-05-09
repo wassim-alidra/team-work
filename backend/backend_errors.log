@@ -1,0 +1,1013 @@
+
+--- ATTEMPTING CREATE --- User: famer5
+Data: <QueryDict: {'catalog': ['3'], 'price_per_kg': ['55'], 'quantity_available': ['900'], 'farm': ['7'], 'quality_grade': ['HIGH'], 'image': [<InMemoryUploadedFile: potatoos.jfif (image/jpeg)>]}>
+Validated Data: {'farm': <Farm: farm7 (Tizi Ouzou)>, 'catalog': <ProductCatalog: Potato>, 'price_per_kg': Decimal('55.00'), 'quantity_available': 900.0, 'quality_grade': 'HIGH', 'image': <InMemoryUploadedFile: potatoos.jfif (image/jpeg)>}
+Validating price: 55.00 for catalog: Potato
+Validation passed. Saving...
+Save successful.
+
+--- ATTEMPTING ORDER UPDATE --- User: buyer3
+Data: {'rating': 4, 'rating_comment': 'goood orange'}
+Updating order #30. Current Status: DELIVERED. User Role: BUYER
+
+--- ATTEMPTING ORDER UPDATE --- User: buyer3
+Data: {'status': 'CANCELLED'}
+Updating order #61. Current Status: PENDING. User Role: BUYER
+New Status: CANCELLED
+Notification creation failed: cannot access local variable 'Notification' where it is not associated with a value
+Farmer notification failed: cannot access local variable 'Notification' where it is not associated with a value
+
+--- ATTEMPTING ORDER UPDATE --- User: famer5
+Data: {'status': 'ACCEPTED'}
+Updating order #62. Current Status: PENDING. User Role: FARMER
+New Status: ACCEPTED
+User is farmer and owns product. Proceeding...
+Notification creation failed: cannot access local variable 'Notification' where it is not associated with a value
+
+--- ATTEMPTING ORDER UPDATE --- User: famer5
+Data: {'status': 'ACCEPTED'}
+Updating order #63. Current Status: PENDING. User Role: FARMER
+New Status: ACCEPTED
+User is farmer and owns product. Proceeding...
+Notification creation failed: cannot access local variable 'Notification' where it is not associated with a value
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- ATTEMPTING DELIVERY CREATE --- User: Transporter2
+Data: {'order': 62}
+Delivery accepted successfully.
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- ATTEMPTING DELIVERY CREATE --- User: Transporter2
+Data: {'order': 63}
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+
+--- ATTEMPTING DELIVERY CREATE --- User: Transporter2
+Data: {'order': 63}
+Delivery accepted successfully.
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)

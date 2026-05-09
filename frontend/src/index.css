@@ -3,10 +3,10 @@
   /* Soft farm mint */
   --text-color: #1b4332;
   /* Deep natural green */
-  --primary-color: #2f9e44;
-  /* Fresh crop green */
-  --primary-hover: #2b8a3e;
-  /* Darker leaf green */
+  --primary-color: #10B981;
+  /* Emerald green */
+  --primary-hover: #059669;
+  /* Darker emerald */
   --secondary-color: #a47148;
   /* Earth soil brown */
   --accent-color: #74c69d;
@@ -57,19 +57,20 @@ button {
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 6px -1px rgba(47, 158, 68, 0.2), 0 2px 4px -1px rgba(47, 158, 68, 0.1);
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1);
 }
 
 button:hover {
   background: var(--primary-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(47, 158, 68, 0.3), 0 4px 6px -2px rgba(47, 158, 68, 0.15);
+  transform: scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(16, 185, 129, 0.15);
 }
 
 button:active {
-  transform: translateY(0);
-  box-shadow: 0 4px 6px -1px rgba(47, 158, 68, 0.2);
+  transform: scale(0.98);
+  background: #047857;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
 }
 
 input,
@@ -98,7 +99,7 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px rgba(47, 158, 68, 0.15);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
   background-color: #fff;
 }
 
@@ -120,10 +121,24 @@ textarea:focus {
   padding: 2rem;
 }
 
+.auth-page-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/login-background.png');
+  background-size: 100% 100%;
+  background-position: center;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+}
+
 .auth-container {
   max-width: 450px;
-  margin: 6rem auto;
+  width: 100%;
   padding: 0 1.5rem;
+  margin: 0; /* Centered by wrapper */
 }
 
 .dashboard-grid {
@@ -292,29 +307,62 @@ ul {
   padding: 6px 12px;
   font-size: 0.8rem;
   border-radius: 8px;
-  background: #2f8f3a;
-  color: white;
-  border: none;
+  background: #DCFCE7;
+  color: #065F46;
+  border: 1.5px solid #10B981;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.2s;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-view-small:hover {
-  background: #25702d;
-  transform: translateY(-1px);
+  transform: scale(1.02);
+  background: #10B981;
+  color: white;
 }
 .btn-danger-custom {
-  background: #ef4444;
-  border: none;
-  color: white;
+  background: #FEE2E2;
+  border: 1.5px solid #DC2626;
+  color: #991B1B;
   padding: 0.61rem 1.25rem;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-danger-custom:hover {
-  background: #dc2626;
+  background: #DC2626;
+  color: white;
+  transform: scale(1.02);
 }
+
+.btn-danger-custom:active {
+  transform: scale(0.98);
+}
+   .search-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                }
+                .search-icon {
+                    position: absolute;
+                    left: 1rem;
+                    color: #94a3b8;
+                }
+                .search-input-premium {
+                    width: 100%;
+                    padding: 0.8rem 1rem 0.8rem 3rem;
+                    border-radius: 16px;
+                    border: 1px solid #e2e8f0;
+                    background: white;
+                    font-size: 1rem;
+                    outline: none;
+                    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                }
+                .search-input-premium:focus {
+                    border-color: #2f8f3a;
+                    box-shadow: 0 0 0 4px rgba(47, 143, 58, 0.1);
+                    transform: translateY(-1px);
+                }

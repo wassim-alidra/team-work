@@ -2,19 +2,23 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
-from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory
+from .models import Product, Order, Delivery, Complaint, Notification, ProductCatalog, Category, PriceHistory, Equipment, EquipmentBooking
 from .serializers import (
     ProductSerializer, OrderSerializer, DeliverySerializer, 
     ComplaintSerializer, NotificationSerializer, ProductCatalogSerializer,
-    CategorySerializer, PriceHistorySerializer
+    CategorySerializer, PriceHistorySerializer, EquipmentSerializer, EquipmentBookingSerializer
 )
 from users.models import User
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from farms.models import Farm
+import traceback
+import sys
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all().order_by('name')
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -52,6 +56,8 @@ class ProductCatalogViewSet(viewsets.ModelViewSet):
             product=instance,
             min_price=instance.min_price,
             max_price=instance.max_price,
+            season=instance.season,
+            year=instance.year,
             updated_by=instance.updated_by
         )
         serializer.save(updated_by=self.request.user)
@@ -61,7 +67,7 @@ class PriceHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = PriceHistory.objects.all()
+        queryset = PriceHistory.objects.all().order_by('-id')
         product_id = self.request.query_params.get('product')
         if product_id:
             queryset = queryset.filter(product_id=product_id)
@@ -74,22 +80,36 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        if user.role == User.Role.FARMER:
-            # Farmers see all their own products (even legacy ones)
-            queryset = Product.objects.filter(farmer=user)
+        if user.is_authenticated and hasattr(user, 'role') and user.role == User.Role.FARMER:
+            # Farmers see all their own products
+            queryset = Product.objects.filter(farmer=user).select_related('farmer', 'farm', 'catalog', 'catalog__category')
         else:
-            # Buyers and others only see properly catalogued products
-            queryset = Product.objects.filter(catalog__isnull=False)
+            # Buyers and others only see properly catalogued products from approved farms
+            queryset = Product.objects.filter(catalog__isnull=False).select_related('farmer', 'farm', 'catalog', 'catalog__category')
 
         search = self.request.query_params.get('search')
         if search:
             queryset = queryset.filter(catalog__name__icontains=search)
+            
+        category = self.request.query_params.get('category')
+        if category and category != 'all':
+            queryset = queryset.filter(catalog__category_id=category)
+            
+        min_price = self.request.query_params.get('min_price')
+        if min_price:
+            queryset = queryset.filter(price_per_kg__gte=min_price)
+            
+        max_price = self.request.query_params.get('max_price')
+        if max_price:
+            queryset = queryset.filter(price_per_kg__lte=max_price)
 
         return queryset
 
     def _validate_price(self, serializer):
         catalog = serializer.validated_data.get('catalog')
         price = serializer.validated_data.get('price_per_kg')
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Validating price: {price} for catalog: {catalog}\n")
         if catalog and price is not None:
             if catalog.min_price is not None and price < catalog.min_price:
                 raise ValidationError(
@@ -100,11 +120,38 @@ class ProductViewSet(viewsets.ModelViewSet):
                     {"price_per_kg": f"Price too high. Maximum allowed for '{catalog.name}' is {catalog.max_price} DA/kg."}
                 )
 
+    def create(self, request, *args, **kwargs):
+        try:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ATTEMPTING CREATE --- User: {request.user.username}\n")
+                f.write(f"Data: {request.data}\n")
+            return super().create(request, *args, **kwargs)
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write("\n--- ERROR IN VIEWSET CREATE ---\n")
+                traceback.print_exc(file=f)
+            raise e
+
     def perform_create(self, serializer):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Validated Data: {serializer.validated_data}\n")
+            
         if self.request.user.role != User.Role.FARMER:
              raise permissions.PermissionDenied("Only farmers can add products.")
+        
+        farm = serializer.validated_data.get('farm')
+        if farm and farm.farmer != self.request.user:
+            raise ValidationError({"farm": "You can only list products for your own farms."})
+            
         self._validate_price(serializer)
+        
+        with open("backend_errors.log", "a") as f:
+            f.write("Validation passed. Saving...\n")
+            
         serializer.save(farmer=self.request.user)
+        
+        with open("backend_errors.log", "a") as f:
+            f.write("Save successful.\n")
 
     def perform_update(self, serializer):
         if self.get_object().farmer != self.request.user:
@@ -143,19 +190,49 @@ class ProductViewSet(viewsets.ModelViewSet):
         })
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.all().order_by('-id')
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def dispatch(self, request, *args, **kwargs):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- ORDER VIEWSET DISPATCH --- Method: {request.method}\n")
+            f.write(f"User: {request.user} (Authenticated: {request.user.is_authenticated})\n")
+            f.write(f"Auth Header: {request.headers.get('Authorization', 'MISSING')[:20]}...\n")
+        return super().dispatch(request, *args, **kwargs)
+    def list(self, request, *args, **kwargs):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- ORDER VIEWSET LIST --- User: {request.user}\n")
+        return super().list(request, *args, **kwargs)
+
     def get_queryset(self):
         user = self.request.user
+        queryset = Order.objects.all().order_by('-id')
+        
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- ORDER VIEWSET GET_QUERYSET --- User: {user.username} Role: {user.role}\n")
+
         if user.role == User.Role.BUYER:
-            return Order.objects.filter(buyer=user)
+            queryset = queryset.filter(buyer=user)
         elif user.role == User.Role.FARMER:
-            return Order.objects.filter(product__farmer=user)
+            queryset = queryset.filter(product__farmer=user)
         elif user.role == User.Role.TRANSPORTER:
-            return Order.objects.filter(delivery__transporter=user) # Only assigned
-        return Order.objects.all()
+            queryset = queryset.filter(delivery__transporter=user)
+
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Orders found: {list(queryset.values_list('id', flat=True))}\n")
+
+        tracking = self.request.query_params.get('tracking')
+        if tracking == 'true':
+            from django.utils import timezone
+            from datetime import timedelta
+            from django.db.models import Q
+            time_threshold = timezone.now() - timedelta(minutes=3)
+            queryset = queryset.filter(
+                ~Q(status='DELIVERED') | 
+                Q(status='DELIVERED', delivered_at__gte=time_threshold)
+            )
+        return queryset
 
     def perform_create(self, serializer):
         if self.request.user.role != User.Role.BUYER:
@@ -172,14 +249,44 @@ class OrderViewSet(viewsets.ModelViewSet):
         product.quantity_available -= quantity
         product.save()
         
-        serializer.save(buyer=self.request.user)
+        order = serializer.save(buyer=self.request.user)
+        try:
+            product_name = order.product.name if order.product else "Product"
+            Notification.objects.create(
+                recipient=order.product.farmer,
+                message=f"New order received for {product_name} ({order.quantity}kg) from {self.request.user.username}."
+            )
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"New order notification failed: {str(e)}\n")
+
+    def update(self, request, *args, **kwargs):
+        try:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ATTEMPTING ORDER UPDATE --- User: {request.user.username}\n")
+                f.write(f"Data: {request.data}\n")
+            return super().update(request, *args, **kwargs)
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write("\n--- ERROR IN ORDER VIEWSET UPDATE ---\n")
+                traceback.print_exc(file=f)
+            raise e
 
     def perform_update(self, serializer):
         user = self.request.user
         order = self.get_object()
+        
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Updating order #{order.id}. Current Status: {order.status}. User Role: {user.role}\n")
+            
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
+            with open("backend_errors.log", "a") as f:
+                f.write(f"New Status: {new_status}\n")
+                
             if user.role == User.Role.FARMER and order.product.farmer == user:
+                 with open("backend_errors.log", "a") as f:
+                    f.write("User is farmer and owns product. Proceeding...\n")
                  if new_status == 'CANCELLED' and order.status != 'CANCELLED':
                      order.product.quantity_available += order.quantity
                      order.product.save()
@@ -194,9 +301,49 @@ class OrderViewSet(viewsets.ModelViewSet):
             elif user.role == User.Role.ADMIN:
                  serializer.save()
             else:
+                with open("backend_errors.log", "a") as f:
+                    f.write(f"Permission denied. Farmer comparison: {order.product.farmer == user}\n")
                 raise permissions.PermissionDenied("You do not have permission to update this order status.")
+            
+            # Send notification after status update
+            try:
+                product_name = order.product.name if order.product else "Product"
+                Notification.objects.create(
+                    recipient=order.buyer,
+                    message=f"Your order #{order.id} for {product_name} has been updated to: {new_status}."
+                )
+            except Exception as e:
+                with open("backend_errors.log", "a") as f:
+                    f.write(f"Notification creation failed: {str(e)}\n")
+            # Also notify farmer if they didn't do the action (e.g. Admin or Buyer cancellation)
+            if user.role != User.Role.FARMER:
+                try:
+                    product_name = order.product.name if order.product else "Product"
+                    Notification.objects.create(
+                        recipient=order.product.farmer,
+                        message=f"Order #{order.id} for {product_name} status updated to: {new_status}."
+                    )
+                except Exception as e:
+                    with open("backend_errors.log", "a") as f:
+                        f.write(f"Farmer notification failed: {str(e)}\n")
         else:
-             super().perform_update(serializer)
+             # Check if rating is being updated
+             rating_updated = 'rating' in serializer.validated_data
+             
+             if rating_updated and order.rating is not None:
+                 raise ValidationError({"detail": "This order has already been rated."})
+                 
+             serializer.save()
+             
+             if rating_updated:
+                 order = self.get_object()
+                 msg = f"Buyer {order.buyer.username} rated your product {order.product.catalog.name} with {order.rating} stars."
+                 if order.rating_comment:
+                     msg += f" Comment: \"{order.rating_comment}\""
+                 Notification.objects.create(
+                     recipient=order.product.farmer,
+                     message=msg
+                 )
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -207,7 +354,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         user = request.user
         buyer_orders = Order.objects.filter(buyer=user)
         total_orders = buyer_orders.count()
-        pending_deliveries = buyer_orders.filter(status__in=['ACCEPTED', 'IN_TRANSIT']).count()
+        pending_deliveries = buyer_orders.filter(status__in=['ACCEPTED', 'ON_WAY']).count()
         delivered_count = buyer_orders.filter(status='DELIVERED').count()
         total_spent = sum(o.total_price for o in buyer_orders.filter(status='DELIVERED'))
         
@@ -219,49 +366,176 @@ class OrderViewSet(viewsets.ModelViewSet):
         })
 
 class DeliveryViewSet(viewsets.ModelViewSet):
-    queryset = Delivery.objects.all()
+    queryset = Delivery.objects.all().order_by('-id')
     serializer_class = DeliverySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def dispatch(self, request, *args, **kwargs):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- DELIVERY VIEWSET DISPATCH --- Method: {request.method}\n")
+            f.write(f"User: {request.user} (Authenticated: {request.user.is_authenticated})\n")
+            if hasattr(request.user, 'role'):
+                f.write(f"User Role: {request.user.role}\n")
+        return super().dispatch(request, *args, **kwargs)
+
+
     def get_queryset(self):
-        user = self.request.user
-        queryset = Delivery.objects.all()
-        if user.role == User.Role.TRANSPORTER:
-            queryset = queryset.filter(transporter=user)
-        
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
+        try:
+            user = self.request.user
+            queryset = Delivery.objects.all()
+            if user.role == User.Role.TRANSPORTER:
+                queryset = queryset.filter(transporter=user)
             
-        return queryset
+            status_filter = self.request.query_params.get('status')
+            if status_filter:
+                queryset = queryset.filter(status=status_filter)
+                
+            return queryset
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ERROR IN DELIVERY GET_QUERYSET ---\n")
+                import traceback
+                traceback.print_exc(file=f)
+            raise e
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ERROR IN DELIVERY LIST ---\n")
+                import traceback
+                traceback.print_exc(file=f)
+            raise e
 
     def perform_create(self, serializer):
+         with open("backend_errors.log", "a") as f:
+             f.write(f"\n--- ATTEMPTING DELIVERY CREATE --- User: {self.request.user}\n")
+             f.write(f"Data: {self.request.data}\n")
+
          if self.request.user.role != User.Role.TRANSPORTER:
              raise permissions.PermissionDenied("Only transporters can accept deliveries.")
+         
+         # Ensure transporter has only ONE active mission at a time
+         active_statuses = ['ASSIGNED', 'CHARGING', 'ON_WAY']
+         if Delivery.objects.filter(transporter=self.request.user, status__in=active_statuses).exists():
+             raise ValidationError({"detail": "You already have an active mission"})
+             
          serializer.save(transporter=self.request.user)
+         with open("backend_errors.log", "a") as f:
+             f.write(f"Delivery accepted successfully.\n")
+
 
     def perform_update(self, serializer):
         user = self.request.user
         delivery = self.get_object()
         
         if user.role != User.Role.TRANSPORTER or delivery.transporter != user:
-             raise permissions.PermissionDenied("You can only update your own assigned deliveries.")
+            raise permissions.PermissionDenied("You can only update your own assigned deliveries.")
         
         # Valid status transitions
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
-            if delivery.status == 'ASSIGNED' and new_status != 'IN_TRANSIT':
-                raise permissions.PermissionDenied("From ASSIGNED, you must move to IN_TRANSIT.")
-            if delivery.status == 'IN_TRANSIT' and new_status != 'DELIVERED':
-                raise permissions.PermissionDenied("From IN_TRANSIT, you must move to DELIVERED.")
+            status_order = ['ASSIGNED', 'ON_WAY', 'CHARGING', 'DELIVERED']
+            
+            if delivery.status in status_order and new_status in status_order:
+                current_idx = status_order.index(delivery.status)
+                new_idx = status_order.index(new_status)
+                if new_idx <= current_idx:
+                    raise permissions.PermissionDenied(f"Cannot move status backwards or to the same status (from {delivery.status} to {new_status}).")
+            elif new_status not in status_order:
+                 raise permissions.PermissionDenied(f"Invalid status: {new_status}")
         
         serializer.save()
+
+    @action(detail=True, methods=['get'])
+    def download_pdf(self, request, pk=None):
+        delivery = self.get_object()
+        order = delivery.order
+        
+        from django.http import HttpResponse
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+        from io import BytesIO
+        
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # Header
+        p.setFont("Helvetica-Bold", 20)
+        p.drawCentredString(width/2, height - 50, "AgriGov Delivery Receipt")
+        
+        p.setFont("Helvetica", 12)
+        p.drawCentredString(width/2, height - 70, f"Order ID: #{order.id}")
+        p.line(50, height - 85, width - 50, height - 85)
+        
+        # Content
+        y = height - 120
+        line_height = 20
+        
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Order Details")
+        y -= 25
+        
+        p.setFont("Helvetica", 12)
+        details = [
+            ("Order ID:", f"#{order.id}"),
+            ("Product:", order.product.catalog.name if order.product.catalog else "N/A"),
+            ("Quantity:", f"{order.quantity} kg"),
+            ("Total Price:", f"{order.total_price} DA"),
+            ("Buyer:", order.buyer.username),
+            ("Farmer:", order.product.farmer.username),
+        ]
+        
+        for label, value in details:
+            p.drawString(70, y, label)
+            p.drawString(200, y, value)
+            y -= line_height
+            
+        y -= 20
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Delivery Details")
+        y -= 25
+        
+        p.setFont("Helvetica", 12)
+        delivery_details = [
+            ("Transporter:", delivery.transporter.username),
+            ("Status:", delivery.status),
+            ("Fee:", f"{delivery.delivery_fee} DA"),
+            ("Delivery Date:", delivery.delivery_date.strftime("%Y-%m-%d %H:%M") if delivery.delivery_date else "N/A"),
+        ]
+        
+        for label, value in delivery_details:
+            p.drawString(70, y, label)
+            p.drawString(200, y, value)
+            y -= line_height
+            
+        # Footer
+        p.setFont("Helvetica-Oblique", 10)
+        p.drawCentredString(width/2, 50, "Thank you for using AgriGov Logistics Platform.")
+        
+        p.showPage()
+        p.save()
+        
+        pdf = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="delivery_{delivery.id}.pdf"'
+        response.write(pdf)
+        return response
 
     @action(detail=False, methods=['get'])
     def available_orders(self, request):
         """List orders ready for delivery assignment"""
-        orders = Order.objects.filter(status='ACCEPTED', delivery__isnull=True)
-        serializer = OrderSerializer(orders, many=True)
+        queryset = Order.objects.filter(status='ACCEPTED', delivery__isnull=True)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+             serializer = OrderSerializer(page, many=True)
+             return self.get_paginated_response(serializer.data)
+        
+        serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
@@ -280,7 +554,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         })
 
 class ComplaintViewSet(viewsets.ModelViewSet):
-    queryset = Complaint.objects.all()
+    queryset = Complaint.objects.all().order_by('-id')
     serializer_class = ComplaintSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -296,13 +570,46 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         except Exception as e:
             raise ValidationError({"detail": str(e)})
 
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        was_resolved = instance.is_resolved
+        updated_instance = serializer.save()
+        
+        if updated_instance.is_resolved and not was_resolved:
+            Notification.objects.create(
+
+                recipient=updated_instance.user,
+                message=f"Your complaint regarding '{updated_instance.subject}' has been marked as RESOLVED. Thank you for your patience."
+            )
+
 class NotificationViewSet(viewsets.ModelViewSet):
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.all().order_by('-id')
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
-        return Notification.objects.filter(recipient=self.request.user)
+        return Notification.objects.filter(recipient=self.request.user).order_by('-id')
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def perform_destroy(self, instance):
+        instance.delete()
+
+    @action(detail=False, methods=['post'])
+    def mark_all_as_read(self, request):
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+        return Response({"detail": "All notifications marked as read."}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def mark_as_read(self, request, pk=None):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save()
+        return Response({"detail": "Notification marked as read."}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def send_broadcast(self, request):
@@ -344,7 +651,12 @@ class AdminStatsView(viewsets.ViewSet):
             "total_products": Product.objects.count(),
             "total_orders": Order.objects.count(),
             "total_revenue": Order.objects.filter(status='DELIVERED').aggregate(Sum('total_price'))['total_price__sum'] or 0,
-            "pending_complaints": Complaint.objects.filter(is_resolved=False).count()
+            "pending_complaints": Complaint.objects.filter(is_resolved=False).count(),
+            "farmers_by_wilaya": list(Farm.objects.filter(is_approved=True).values('wilaya').annotate(count=Count('farmer', distinct=True)).order_by('-count')[:10]),
+            "top_selling_products": [
+                {'name': item['product__catalog__name'], 'value': item['total_quantity'] or 0}
+                for item in Order.objects.exclude(status=Order.Status.CANCELLED).values('product__catalog__name').annotate(total_quantity=Sum('quantity')).order_by('-total_quantity')[:5]
+            ]
         }
         return Response(stats)
 
@@ -375,12 +687,29 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
             }
             if u.role == User.Role.FARMER and hasattr(u, 'farmer_profile'):
                 item['extra_info'] = f"Farm: {u.farmer_profile.farm_name}"
+                item['documents'] = []
+                if u.farmer_profile.farmer_card_file:
+                    item['documents'].append({'name': 'Farmer Card', 'url': request.build_absolute_uri(u.farmer_profile.farmer_card_file.url)})
             elif u.role == User.Role.BUYER and hasattr(u, 'buyer_profile'):
                 item['extra_info'] = f"Company: {u.buyer_profile.company_name}"
+                item['documents'] = []
+                if u.buyer_profile.commercial_register_file:
+                    item['documents'].append({'name': 'Commercial Register', 'url': request.build_absolute_uri(u.buyer_profile.commercial_register_file.url)})
             elif u.role == User.Role.TRANSPORTER and hasattr(u, 'transporter_profile'):
                 item['extra_info'] = f"Vehicle: {u.transporter_profile.vehicle_type}"
+                item['documents'] = []
+                if u.transporter_profile.driving_license_file:
+                    item['documents'].append({'name': 'Driving License', 'url': request.build_absolute_uri(u.transporter_profile.driving_license_file.url)})
+                if u.transporter_profile.car_license_file:
+                    item['documents'].append({'name': 'Car License', 'url': request.build_absolute_uri(u.transporter_profile.car_license_file.url)})
+            elif u.role == User.Role.EQUIPMENT_PROVIDER and hasattr(u, 'equipment_provider_profile'):
+                item['extra_info'] = f"Machinery Co: {u.equipment_provider_profile.company_name}"
+                item['documents'] = []
+                if u.equipment_provider_profile.commercial_register_file:
+                    item['documents'].append({'name': 'Business License', 'url': request.build_absolute_uri(u.equipment_provider_profile.commercial_register_file.url)})
             else:
                 item['extra_info'] = ''
+                item['documents'] = []
             data.append(item)
         return Response(data)
 
@@ -420,4 +749,100 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
         user.approval_status = 'approved'
         user.save()
         return Response({"detail": "User approved successfully."})
+
+class EquipmentViewSet(viewsets.ModelViewSet):
+    serializer_class = EquipmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # Auto-restore expired bookings
+        from django.utils import timezone
+        from .models import EquipmentBooking
+        expired_bookings = EquipmentBooking.objects.filter(status='ACCEPTED', expected_return_date__lte=timezone.now())
+        for booking in expired_bookings:
+            equipment = booking.equipment
+            equipment.quantity_available += booking.requested_quantity
+            equipment.is_available = True
+            equipment.save()
+            booking.status = 'COMPLETED'
+            booking.save()
+
+        if user.role == User.Role.EQUIPMENT_PROVIDER:
+            return Equipment.objects.filter(provider=user)
+        # Farmers and others can browse equipment
+        queryset = Equipment.objects.all()
+        is_available = self.request.query_params.get('is_available')
+        if is_available:
+            queryset = queryset.filter(is_available=is_available.lower() == 'true')
+        return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.role != User.Role.EQUIPMENT_PROVIDER:
+             raise permissions.PermissionDenied("Only equipment providers can add equipment.")
+        serializer.save(provider=self.request.user)
+
+    def perform_update(self, serializer):
+        if self.get_object().provider != self.request.user:
+            raise permissions.PermissionDenied("You can only edit your own equipment.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.provider != self.request.user:
+            raise permissions.PermissionDenied("You can only delete your own equipment.")
+        instance.delete()
+
+class EquipmentBookingViewSet(viewsets.ModelViewSet):
+    serializer_class = EquipmentBookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == User.Role.FARMER:
+            return EquipmentBooking.objects.filter(farmer=user).order_by('-created_at')
+        elif user.role == User.Role.EQUIPMENT_PROVIDER:
+            return EquipmentBooking.objects.filter(equipment__provider=user).order_by('-created_at')
+        return EquipmentBooking.objects.none()
+
+    def perform_create(self, serializer):
+        if self.request.user.role != User.Role.FARMER:
+            raise permissions.PermissionDenied("Only farmers can book equipment.")
+            
+        equipment = serializer.validated_data['equipment']
+        requested_quantity = serializer.validated_data.get('requested_quantity', 1)
+        
+        if equipment.quantity_available < requested_quantity:
+            raise ValidationError({"detail": f"Only {equipment.quantity_available} units available."})
+            
+        booking = serializer.save(farmer=self.request.user)
+        # Create notification for provider
+        Notification.objects.create(
+            recipient=booking.equipment.provider,
+            message=f"New booking request from {self.request.user.username} for {booking.equipment.name}."
+        )
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        booking = self.get_object()
+        
+        if 'status' in serializer.validated_data:
+            new_status = serializer.validated_data['status']
+            if user.role == User.Role.EQUIPMENT_PROVIDER and booking.equipment.provider == user:
+                if new_status == 'ACCEPTED' and booking.status == 'PENDING':
+                    if booking.equipment.quantity_available >= booking.requested_quantity:
+                        booking.equipment.quantity_available -= booking.requested_quantity
+                        booking.equipment.save()
+                    else:
+                        raise ValidationError({"detail": "Not enough available quantity to accept this booking."})
+                serializer.save()
+                Notification.objects.create(
+                    recipient=booking.farmer,
+                    message=f"Your booking for {booking.equipment.name} has been {new_status.lower()}."
+                )
+            else:
+                 super().perform_update(serializer)
+        else:
+            super().perform_update(serializer)
+
 

@@ -2,20 +2,34 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
-from .models import FarmerProfile, BuyerProfile, TransporterProfile
+from .models import FarmerProfile, BuyerProfile, TransporterProfile, EquipmentProviderProfile
+from farms.models import Farm
+import json
 
 User = get_user_model()
 
+from farms.serializers import FarmSerializer
+
 class UserSerializer(serializers.ModelSerializer):
+    has_active_mission = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'role', 'password')
+        fields = ('id', 'username', 'email', 'role', 'wilaya', 'date_joined', 'profile_image', 'approval_status', 'password', 'has_active_mission')
+        read_only_fields = ('date_joined', 'has_active_mission')
         extra_kwargs = {'password': {'write_only': True}}
+    
+    def get_has_active_mission(self, obj):
+        if obj.role != User.Role.TRANSPORTER:
+            return False
+        # Import Delivery here to avoid circular imports
+        from market.models import Delivery
+        active_statuses = ['ASSIGNED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL']
+        return Delivery.objects.filter(transporter=obj, status__in=active_statuses).exists()
     
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-
 class FarmerProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = FarmerProfile
@@ -34,6 +48,7 @@ class TransporterProfileSerializer(serializers.ModelSerializer):
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     role = serializers.ChoiceField(choices=User.Role.choices)
+    email = serializers.EmailField(required=True)
     
     # Optional profile fields
     farm_name = serializers.CharField(required=False, allow_blank=True)
@@ -42,45 +57,99 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     vehicle_type = serializers.CharField(required=False, allow_blank=True)
     license_plate = serializers.CharField(required=False, allow_blank=True)
     capacity = serializers.FloatField(required=False)
+    
+    # Optional profile files
+    farmer_card_file = serializers.FileField(required=False)
+    commercial_register_file = serializers.FileField(required=False)
+    driving_license_file = serializers.FileField(required=False)
+    car_license_file = serializers.FileField(required=False)
+
+    # Multiple farms support
+    farms_data = serializers.CharField(required=False, write_only=True)
+    
+    phone_number = serializers.CharField(required=True, max_length=20)
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'role', 'farm_name', 'location', 
-                  'company_name', 'vehicle_type', 'license_plate', 'capacity')
+        fields = ('username', 'email', 'password', 'role', 'wilaya', 'phone_number', 'farm_name', 'location', 
+                  'company_name', 'vehicle_type', 'license_plate', 'capacity',
+                  'farmer_card_file', 'commercial_register_file', 'driving_license_file', 'car_license_file',
+                  'farms_data')
 
     def create(self, validated_data):
         role = validated_data.get('role')
-        # Extract profile data
-        profile_data = {k: v for k, v in validated_data.items() if k not in ['username', 'email', 'password', 'role']}
-        user_data = {k: v for k, v in validated_data.items() if k in ['username', 'email', 'password', 'role']}
+        # Extract profile data + files
+        profile_keys = ['farm_name', 'location', 'company_name', 'vehicle_type', 'license_plate', 'capacity',
+                        'farmer_card_file', 'commercial_register_file', 'driving_license_file', 'car_license_file']
+        profile_data = {k: v for k, v in validated_data.items() if k in profile_keys}
+        user_data = {k: v for k, v in validated_data.items() if k not in profile_keys and k != 'role' and k != 'farms_data'}
         
+        user_data['role'] = role
         user = User.objects.create_user(**user_data)
 
         if role == User.Role.FARMER:
             FarmerProfile.objects.create(
                 user=user,
                 farm_name=profile_data.get('farm_name', ''),
-                location=profile_data.get('location', '')
+                location=profile_data.get('location', ''),
+                farmer_card_file=profile_data.get('farmer_card_file')
             )
+            
+            # Handle Farms
+            farms_json = validated_data.get('farms_data')
+            if farms_json:
+                try:
+                    farms = json.loads(farms_json)
+                    for farm_item in farms[:5]: # Max 5 farms
+                        Farm.objects.create(
+                            farmer=user,
+                            name=farm_item.get('name'),
+                            wilaya=farm_item.get('wilaya'),
+                            location=farm_item.get('location', '')
+                        )
+                except (json.JSONDecodeError, TypeError):
+                    # If parsing fails, at least create the default farm from legacy fields if any
+                    if profile_data.get('farm_name'):
+                        Farm.objects.create(
+                            farmer=user,
+                            name=profile_data.get('farm_name'),
+                            wilaya=user.wilaya,
+                            location=profile_data.get('location', '')
+                        )
+            elif profile_data.get('farm_name'):
+                # Single farm fallback
+                Farm.objects.create(
+                    farmer=user,
+                    name=profile_data.get('farm_name'),
+                    wilaya=user.wilaya,
+                    location=profile_data.get('location', '')
+                )
         elif role == User.Role.BUYER:
             BuyerProfile.objects.create(
                 user=user,
-                company_name=profile_data.get('company_name', '')
+                company_name=profile_data.get('company_name', ''),
+                commercial_register_file=profile_data.get('commercial_register_file')
             )
         elif role == User.Role.TRANSPORTER:
             TransporterProfile.objects.create(
                 user=user,
                 vehicle_type=profile_data.get('vehicle_type', ''),
                 license_plate=profile_data.get('license_plate', ''),
-                capacity=profile_data.get('capacity', 0)
+                capacity=profile_data.get('capacity', 0),
+                driving_license_file=profile_data.get('driving_license_file'),
+                car_license_file=profile_data.get('car_license_file')
+            )
+        elif role == User.Role.EQUIPMENT_PROVIDER:
+            EquipmentProviderProfile.objects.create(
+                user=user,
+                company_name=profile_data.get('company_name', ''),
+                commercial_register_file=profile_data.get('commercial_register_file')
             )
         
         return user
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
-        # We check the user object directly before the standard validation attempts authentication.
-        # This prevents the generic "No active account found" error from hiding our specific messages.
         username = attrs.get(self.username_field)
         password = attrs.get("password")
         
@@ -89,8 +158,23 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             if hasattr(user, 'is_deleted') and user.is_deleted:
                 raise AuthenticationFailed("This account has been deleted and is no longer accessible.")
             if not user.is_active:
+                # Distinguish between: email not yet verified vs admin-suspended
+                from .models import EmailOTP
+                if EmailOTP.objects.filter(email=user.email).exists():
+                    raise AuthenticationFailed(
+                        "Please verify your email before logging in. "
+                        "Check your inbox for the 6-digit code."
+                    )
                 raise AuthenticationFailed("Your account has been suspended. Please contact the administrator.")
-            if getattr(user, 'approval_status', 'approved') == 'pending':
-                raise AuthenticationFailed("Your account is pending admin approval.")
                 
         return super().validate(attrs)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
+
+    def validate(self, data):
+        if data['new_password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "New passwords must match."})
+        return data
