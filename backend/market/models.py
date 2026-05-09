@@ -96,7 +96,6 @@ class Order(models.Model):
         ACCEPTED = 'ACCEPTED', 'Accepted'
         ON_WAY = 'ON_WAY', 'On Way to Farm'
         CHARGING = 'CHARGING', 'Loading'
-        NEAR_ARRIVAL = 'NEAR_ARRIVAL', 'Close to Arrival'
         DELIVERED = 'DELIVERED', 'Delivered'
         CANCELLED = 'CANCELLED', 'Cancelled'
 
@@ -166,12 +165,7 @@ class Delivery(models.Model):
                 recipient=self.order.buyer,
                 message=f"Your order #{self.order.id} is currently being loaded onto the transport vehicle."
             )
-        elif self.status == 'NEAR_ARRIVAL':
-            self.order.status = Order.Status.NEAR_ARRIVAL
-            Notification.objects.create(
-                recipient=self.order.buyer,
-                message=f"The transporter is near your delivery location with order #{self.order.id}. Please be ready to receive it!"
-            )
+
         elif self.status == 'DELIVERED':
             self.order.status = Order.Status.DELIVERED
             if not self.delivery_date:

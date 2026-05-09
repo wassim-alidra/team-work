@@ -194,9 +194,24 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def dispatch(self, request, *args, **kwargs):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- ORDER VIEWSET DISPATCH --- Method: {request.method}\n")
+            f.write(f"User: {request.user} (Authenticated: {request.user.is_authenticated})\n")
+            f.write(f"Auth Header: {request.headers.get('Authorization', 'MISSING')[:20]}...\n")
+        return super().dispatch(request, *args, **kwargs)
+    def list(self, request, *args, **kwargs):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- ORDER VIEWSET LIST --- User: {request.user}\n")
+        return super().list(request, *args, **kwargs)
+
     def get_queryset(self):
         user = self.request.user
         queryset = Order.objects.all().order_by('-id')
+        
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- ORDER VIEWSET GET_QUERYSET --- User: {user.username} Role: {user.role}\n")
+
         if user.role == User.Role.BUYER:
             queryset = queryset.filter(buyer=user)
         elif user.role == User.Role.FARMER:
@@ -204,13 +219,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         elif user.role == User.Role.TRANSPORTER:
             queryset = queryset.filter(delivery__transporter=user)
 
+        with open("backend_errors.log", "a") as f:
+            f.write(f"Orders found: {list(queryset.values_list('id', flat=True))}\n")
+
         tracking = self.request.query_params.get('tracking')
         if tracking == 'true':
             from django.utils import timezone
             from datetime import timedelta
             from django.db.models import Q
-            # 3 minutes for testing/demo as per request, but 3 days was also mentioned.
-            # Following the "Backend Logic" requirement of 3 minutes.
             time_threshold = timezone.now() - timedelta(minutes=3)
             queryset = queryset.filter(
                 ~Q(status='DELIVERED') | 
@@ -321,7 +337,6 @@ class OrderViewSet(viewsets.ModelViewSet):
              
              if rating_updated:
                  order = self.get_object()
-                 from .models import Notification
                  msg = f"Buyer {order.buyer.username} rated your product {order.product.catalog.name} with {order.rating} stars."
                  if order.rating_comment:
                      msg += f" Comment: \"{order.rating_comment}\""
@@ -355,40 +370,73 @@ class DeliveryViewSet(viewsets.ModelViewSet):
     serializer_class = DeliverySerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def dispatch(self, request, *args, **kwargs):
+        with open("backend_errors.log", "a") as f:
+            f.write(f"\n--- DELIVERY VIEWSET DISPATCH --- Method: {request.method}\n")
+            f.write(f"User: {request.user} (Authenticated: {request.user.is_authenticated})\n")
+            if hasattr(request.user, 'role'):
+                f.write(f"User Role: {request.user.role}\n")
+        return super().dispatch(request, *args, **kwargs)
+
+
     def get_queryset(self):
-        user = self.request.user
-        queryset = Delivery.objects.all()
-        if user.role == User.Role.TRANSPORTER:
-            queryset = queryset.filter(transporter=user)
-        
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
+        try:
+            user = self.request.user
+            queryset = Delivery.objects.all()
+            if user.role == User.Role.TRANSPORTER:
+                queryset = queryset.filter(transporter=user)
             
-        return queryset
+            status_filter = self.request.query_params.get('status')
+            if status_filter:
+                queryset = queryset.filter(status=status_filter)
+                
+            return queryset
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ERROR IN DELIVERY GET_QUERYSET ---\n")
+                import traceback
+                traceback.print_exc(file=f)
+            raise e
+
+    def list(self, request, *args, **kwargs):
+        try:
+            return super().list(request, *args, **kwargs)
+        except Exception as e:
+            with open("backend_errors.log", "a") as f:
+                f.write(f"\n--- ERROR IN DELIVERY LIST ---\n")
+                import traceback
+                traceback.print_exc(file=f)
+            raise e
 
     def perform_create(self, serializer):
+         with open("backend_errors.log", "a") as f:
+             f.write(f"\n--- ATTEMPTING DELIVERY CREATE --- User: {self.request.user}\n")
+             f.write(f"Data: {self.request.data}\n")
+
          if self.request.user.role != User.Role.TRANSPORTER:
              raise permissions.PermissionDenied("Only transporters can accept deliveries.")
          
          # Ensure transporter has only ONE active mission at a time
-         active_statuses = ['ASSIGNED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL']
+         active_statuses = ['ASSIGNED', 'CHARGING', 'ON_WAY']
          if Delivery.objects.filter(transporter=self.request.user, status__in=active_statuses).exists():
              raise ValidationError({"detail": "You already have an active mission"})
              
          serializer.save(transporter=self.request.user)
+         with open("backend_errors.log", "a") as f:
+             f.write(f"Delivery accepted successfully.\n")
+
 
     def perform_update(self, serializer):
         user = self.request.user
         delivery = self.get_object()
         
         if user.role != User.Role.TRANSPORTER or delivery.transporter != user:
-             raise permissions.PermissionDenied("You can only update your own assigned deliveries.")
+            raise permissions.PermissionDenied("You can only update your own assigned deliveries.")
         
         # Valid status transitions
         if 'status' in serializer.validated_data:
             new_status = serializer.validated_data['status']
-            status_order = ['ASSIGNED', 'ON_WAY', 'CHARGING', 'NEAR_ARRIVAL', 'DELIVERED']
+            status_order = ['ASSIGNED', 'ON_WAY', 'CHARGING', 'DELIVERED']
             
             if delivery.status in status_order and new_status in status_order:
                 current_idx = status_order.index(delivery.status)
@@ -528,8 +576,8 @@ class ComplaintViewSet(viewsets.ModelViewSet):
         updated_instance = serializer.save()
         
         if updated_instance.is_resolved and not was_resolved:
-            from .models import Notification
             Notification.objects.create(
+
                 recipient=updated_instance.user,
                 message=f"Your complaint regarding '{updated_instance.subject}' has been marked as RESOLVED. Thank you for your patience."
             )

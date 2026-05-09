@@ -1077,7 +1077,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             </div>
         );
     } else if (activeTab === "tracking") {
-        const activeTracking = orders.filter(o => ['ACCEPTED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
+        const activeTracking = orders.filter(o => ['ACCEPTED', 'CHARGING', 'ON_WAY', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         content = (
             <div className="animate-in w-full pb-20 md:pb-0">

@@ -208,13 +208,13 @@ const TransporterDashboard = ({ activeTab }) => {
                                     {myDeliveries.filter(d => d.status !== "DELIVERED").slice(0, 3).map(d => (
                                         <div key={d.id} className="relative pl-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-outline-variant/30 flex flex-col gap-md mb-4 border-b border-outline-variant/20 pb-4">
                                             <div className="flex items-center justify-between">
-                                                <strong>Order #{d.order}</strong>
+                                                <strong>Order #{d.order.id}</strong>
                                                 <div className="flex items-center gap-2">
                                                     <button 
                                                         className="px-3 py-1.5 rounded-lg font-button text-[10px] bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95 border border-outline-variant/30"
                                                         title="View Full Details & Download PDF"
                                                         onClick={() => {
-                                                            setSelectedOrderForDetails(d.order_details);
+                                                            setSelectedOrderForDetails(d.order);
                                                             setOrderDetailsModalOpen(true);
                                                         }}
                                                     >
@@ -399,13 +399,13 @@ const TransporterDashboard = ({ activeTab }) => {
                     {paginatedActive.map(d => (
                         <div key={d.id} className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
                             <div className="flex items-center justify-between mb-2">
-                                <h3 className="font-h3 text-h3 text-on-surface">Order #{d.order}</h3>
+                                <h3 className="font-h3 text-h3 text-on-surface">Order #{d.order.id}</h3>
                                 <div className="flex items-center gap-2">
                                     <button 
                                         className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95 border border-outline-variant/30"
                                         title="View Full Details & Download PDF"
                                         onClick={() => {
-                                            setSelectedOrderForDetails(d.order_details);
+                                            setSelectedOrderForDetails(d.order);
                                             setOrderDetailsModalOpen(true);
                                         }}
                                     >
@@ -438,15 +438,14 @@ const TransporterDashboard = ({ activeTab }) => {
                             </div>
 
                             <div className="flex justify-end border-t border-outline-variant/20 pt-4">
-                                {['ASSIGNED', 'ON_WAY', 'CHARGING', 'NEAR_ARRIVAL'].includes(d.status) && (
+                                {['ASSIGNED', 'ON_WAY', 'CHARGING'].includes(d.status) && (
                                     <button 
                                         className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm active:scale-95"
                                         onClick={() => {
                                             const nextStatus = {
                                                 'ASSIGNED': 'ON_WAY',
                                                 'ON_WAY': 'CHARGING',
-                                                'CHARGING': 'DELIVERED',
-                                                'NEAR_ARRIVAL': 'DELIVERED'
+                                                'CHARGING': 'DELIVERED'
                                             }[d.status];
                                             handleUpdateStatus(d.id, nextStatus);
                                         }}
@@ -500,7 +499,7 @@ const TransporterDashboard = ({ activeTab }) => {
                             <tbody className="divide-y divide-outline-variant/10">
                                 {history.map(d => (
                                     <tr key={d.id} className="hover:bg-surface-bright transition-colors">
-                                        <td className="p-4 font-body-md text-on-surface">Order #{d.order}</td>
+                                        <td className="p-4 font-body-md text-on-surface">Order #{d.order.id}</td>
                                         <td className="p-4 font-body-md text-on-surface-variant">{d.product_name}</td>
                                         <td className="p-4 font-body-md text-on-surface-variant">{new Date(d.delivery_date).toLocaleDateString()}</td>
                                         <td className="p-4 font-body-md font-bold text-primary">{d.delivery_fee} DA</td>
@@ -512,7 +511,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                                 className="px-4 py-2 rounded-lg font-button text-xs bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95 border border-outline-variant/30"
                                                 title="View Full Details & Download PDF"
                                                 onClick={() => {
-                                                    setSelectedOrderForDetails(d.order_details);
+                                                    setSelectedOrderForDetails(d.order);
                                                     setOrderDetailsModalOpen(true);
                                                 }}
                                             >
@@ -571,7 +570,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                         <ClipboardList size={20} />
                                     </div>
                                     <div>
-                                        <p className="font-body-md text-body-md text-on-surface font-medium">Order #{d.order}</p>
+                                        <p className="font-body-md text-body-md text-on-surface font-medium">Order #{d.order.id}</p>
                                         <p className="font-body-sm text-body-sm text-on-surface-variant">{d.product_name}</p>
                                     </div>
                                 </div>

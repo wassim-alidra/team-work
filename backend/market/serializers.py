@@ -27,6 +27,7 @@ class ProductCatalogSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     farmer_name = serializers.CharField(source='farmer.username', read_only=True)
+    farmer_username = serializers.CharField(source='farmer.username', read_only=True)
     farmer_phone = serializers.CharField(source='farmer.phone_number', read_only=True)
     name = serializers.ReadOnlyField()
     description = serializers.ReadOnlyField()
@@ -37,10 +38,11 @@ class ProductSerializer(serializers.ModelSerializer):
     is_default_image = serializers.SerializerMethodField()
     farm_name = serializers.CharField(source='farm.name', read_only=True)
     farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
+    farmer_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
     
     class Meta:
         model = Product
-        fields = ['id', 'farmer', 'farmer_name', 'farmer_phone', 'name', 'description', 'farm', 'farm_name', 'farm_wilaya', 'catalog', 'catalog_name', 'catalog_unit', 'catalog_image', 'product_image', 'is_default_image', 'price_per_kg', 'quantity_available', 'quality_grade', 'avg_rating', 'rating_count', 'created_at', 'updated_at', 'image']
+        fields = ['id', 'farmer', 'farmer_name', 'farmer_username', 'farmer_phone', 'name', 'description', 'farm', 'farm_name', 'farm_wilaya', 'farmer_wilaya', 'catalog', 'catalog_name', 'catalog_unit', 'catalog_image', 'product_image', 'is_default_image', 'price_per_kg', 'quantity_available', 'quality_grade', 'avg_rating', 'rating_count', 'created_at', 'updated_at', 'image']
         read_only_fields = ('farmer',)
 
     def create(self, validated_data):
@@ -70,6 +72,8 @@ class ProductSerializer(serializers.ModelSerializer):
         return obj.catalog.name if obj.catalog else "Unnamed Product"
 
 class OrderSerializer(serializers.ModelSerializer):
+    buyer = serializers.SerializerMethodField()
+    product = ProductSerializer(read_only=True)
     buyer_name = serializers.CharField(source='buyer.username', read_only=True)
     product_name = serializers.CharField(source='product.catalog.name', read_only=True)
     farmer_name = serializers.CharField(source='product.farmer.username', read_only=True)
@@ -83,8 +87,14 @@ class OrderSerializer(serializers.ModelSerializer):
     transporter_phone = serializers.SerializerMethodField()
     product_image = serializers.SerializerMethodField()
 
+    def get_buyer(self, obj):
+        return {
+            "id": obj.buyer.id,
+            "username": obj.buyer.username,
+            "wilaya": obj.buyer.wilaya
+        }
+
     def get_product_image(self, obj):
-        # Use product image if available, else catalog image
         image = None
         if obj.product and obj.product.image:
             image = obj.product.image
@@ -99,7 +109,6 @@ class OrderSerializer(serializers.ModelSerializer):
         return None
 
     def get_farmer_wilaya(self, obj):
-        # Use the farm's wilaya if available, otherwise the farmer's registered wilaya
         if obj.product and obj.product.farm:
             return obj.product.farm.wilaya
         return obj.product.farmer.wilaya if obj.product and obj.product.farmer else None
@@ -114,6 +123,7 @@ class OrderSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'delivery') and obj.delivery.transporter:
             return obj.delivery.transporter.phone_number
         return "N/A"
+
     class Meta:
         model = Order
         fields = ['id', 'buyer', 'buyer_name', 'buyer_phone', 'buyer_wilaya', 'product', 'product_name', 'product_image', 'product_unit', 'farmer_name', 'farmer_phone', 'farmer_wilaya', 'quantity', 'total_price', 'status', 'delivery_status', 'transporter_name', 'transporter_phone', 'rating', 'rating_comment', 'created_at', 'delivered_at']
@@ -123,21 +133,32 @@ class OrderSerializer(serializers.ModelSerializer):
         validated_data['buyer'] = self.context['request'].user
         return super().create(validated_data)
 
+class TransporterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
+
 class DeliverySerializer(serializers.ModelSerializer):
-    order_details = OrderSerializer(source='order', read_only=True)
-    buyer_name = serializers.CharField(source='order.buyer.username', read_only=True)
-    farmer_name = serializers.CharField(source='order.product.farmer.username', read_only=True)
-    product_name = serializers.CharField(source='order.product.catalog.name', read_only=True)
-    order_details = OrderSerializer(source='order', read_only=True)
+    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
+    transporter = TransporterSerializer(read_only=True)
+    delivery_fee = serializers.FloatField(read_only=True)
     farmer_name = serializers.CharField(source='order.product.farmer.username', read_only=True)
     farmer_phone = serializers.CharField(source='order.product.farmer.phone_number', read_only=True)
     buyer_name = serializers.CharField(source='order.buyer.username', read_only=True)
     buyer_phone = serializers.CharField(source='order.buyer.phone_number', read_only=True)
+    product_name = serializers.CharField(source='order.product.catalog.name', read_only=True)
 
     class Meta:
         model = Delivery
-        fields = ['id', 'transporter', 'order', 'order_details', 'pickup_date', 'delivery_date', 'status', 'delivery_fee', 'product_name', 'farmer_name', 'farmer_phone', 'buyer_name', 'buyer_phone']
+        fields = ['id', 'transporter', 'order', 'pickup_date', 'delivery_date', 'status', 'delivery_fee', 'product_name', 'farmer_name', 'farmer_phone', 'buyer_name', 'buyer_phone']
         read_only_fields = ('transporter',)
+
+    def to_representation(self, instance):
+        """Display full order details in GET responses."""
+        representation = super().to_representation(instance)
+        representation['order'] = OrderSerializer(instance.order, context=self.context).data
+        return representation
+
 
 class ComplaintSerializer(serializers.ModelSerializer):
     user_name = serializers.CharField(source='user.username', read_only=True)

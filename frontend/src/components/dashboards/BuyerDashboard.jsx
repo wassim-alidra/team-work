@@ -410,7 +410,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                             <span onClick={() => setActiveTab("tracking")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="flex flex-col gap-4">
-                            {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status)).slice(0, 3).map(o => (
+                            {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT'].includes(o.status)).slice(0, 3).map(o => (
                                 <div key={o.id} className="bg-surface-bright rounded-lg p-md border border-outline-variant/20 flex flex-col gap-2">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -423,7 +423,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                                     </div>
                                 </div>
                             ))}
-                            {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT', 'NEAR_ARRIVAL'].includes(o.status)).length === 0 && (
+                            {myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'IN_TRANSIT'].includes(o.status)).length === 0 && (
                                 <p className="font-body-md text-on-surface-variant p-4 text-center bg-surface-variant/30 rounded-lg">No active deliveries.</p>
                             )}
                         </div>
@@ -613,7 +613,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                                         <td className="p-4 font-body-md font-bold text-primary">{o.total_price} DA</td>
                                         <td className="p-4">
                                             <span className={`px-3 py-1 rounded-full font-label-caps text-xs ${o.status === 'PENDING' ? 'bg-surface-variant text-on-surface' :
-                                                ['ACCEPTED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
+                                                ['ACCEPTED', 'CHARGING', 'ON_WAY'].includes(o.status) ? 'bg-secondary-container text-on-secondary-container' :
                                                     o.status === 'DELIVERED' ? 'bg-primary-fixed text-on-primary-fixed' :
                                                         'bg-error-container text-on-error-container'
                                                 }`}>
@@ -670,7 +670,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     }
 
     if (activeTab === "tracking") {
-        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'ON_WAY', 'NEAR_ARRIVAL', 'DELIVERED'].includes(o.status));
+        const activeTracking = myOrders.filter(o => ['ACCEPTED', 'CHARGING', 'ON_WAY', 'DELIVERED'].includes(o.status));
         const paginatedTracking = activeTracking.slice((trackingPage - 1) * 10, trackingPage * 10);
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
