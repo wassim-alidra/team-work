@@ -1,5 +1,7 @@
 import requests
 import datetime
+from market.models import Notification
+from farms.models import Farm
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
@@ -108,3 +110,41 @@ class WeatherDashboardView(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=500)
+class DeviceControlView(WeatherDashboardView):
+    def get(self, request):
+        response = super().get(request)
+
+        if response.status_code != 200:
+            return response
+
+        data = response.data
+
+        is_needed = data.get("soil", {}).get("is_needed", False)
+
+        recommendation = data.get(
+            "soil",
+            {}
+        ).get(
+            "irrigation_recommendation",
+            "No recommendation"
+        )
+
+        farm_id = request.query_params.get("farm_id")
+
+        if is_needed and farm_id:
+            try:
+                farm = Farm.objects.get(id=farm_id)
+
+                Notification.objects.create(
+                    recipient=farm.farmer,
+                    message=f"Automatic irrigation started for {farm.name}. {recommendation}"
+                )
+
+            except Farm.DoesNotExist:
+                pass
+
+        return Response({
+            "pump_on": is_needed,
+            "relay": 1 if is_needed else 0,
+            "message": recommendation
+        })

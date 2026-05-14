@@ -125,8 +125,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     // Weather Feature States
     const [weatherData, setWeatherData] = useState(null);
     const [loadingWeather, setLoadingWeather] = useState(true);
-    const [selectedWilaya, setSelectedWilaya] = useState(ALGERIA_WILAYAS[15]); // Default to Algiers
-
+const [selectedFarm, setSelectedFarm] = useState(null);
     useEffect(() => {
         fetchProducts(productsPage);
         fetchOrders(ordersPage);
@@ -136,9 +135,11 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
         fetchFarms();
     }, [activeTab, productsPage, ordersPage, catalogPage]);
 
-    useEffect(() => {
+   useEffect(() => {
+    if (selectedFarm) {
         fetchWeatherData();
-    }, [selectedWilaya]);
+    }
+}, [selectedFarm]);
 
     useEffect(() => {
         if (activeTab === "equipment") {
@@ -149,7 +150,11 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
             api.post("market/notifications/mark_all_as_read/").catch(console.error);
         }
     }, [activeTab]);
-
+   useEffect(() => {
+    if (farms.length > 0 && !selectedFarm) {
+        setSelectedFarm(farms[0]);
+    }
+}, [farms, selectedFarm]);
     useEffect(() => {
         // Initial fetch
         fetchActiveFireAlerts();
@@ -227,16 +232,28 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     };
 
     const fetchWeatherData = async () => {
-        setLoadingWeather(true);
-        try {
-            const res = await api.get(`weather/?lat=${selectedWilaya.lat}&lon=${selectedWilaya.lon}`);
-            setWeatherData(res.data);
-        } catch (err) {
-            console.error("Error fetching weather:", err);
-        } finally {
-            setLoadingWeather(false);
+    if (!selectedFarm) return;
+
+    setLoadingWeather(true);
+
+    try {
+        const wilayaData = ALGERIA_WILAYAS.find(
+            w => w.name.toLowerCase() === selectedFarm.wilaya.toLowerCase()
+        );
+
+        if (!wilayaData) {
+            console.error("Wilaya not found:", selectedFarm.wilaya);
+            return;
         }
-    };
+
+        const res = await api.get(`weather/?lat=${wilayaData.lat}&lon=${wilayaData.lon}`);
+        setWeatherData(res.data);
+    } catch (err) {
+        console.error("Error fetching weather:", err);
+    } finally {
+        setLoadingWeather(false);
+    }
+};
 
     const fetchCatalog = async (page = 1) => {
         try {
@@ -569,18 +586,24 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
                             <h2 className="font-h3 text-h3 text-on-surface">Climate Widget</h2>
                             <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">thermostat</span>
-                                <select
-                                    className="bg-surface border border-outline-variant rounded-lg px-2 py-1 text-sm font-medium text-on-surface focus:outline-none focus:border-primary"
-                                    value={selectedWilaya.id}
-                                    onChange={(e) => {
-                                        const w = ALGERIA_WILAYAS.find(wilaya => String(wilaya.id) === String(e.target.value));
-                                        setSelectedWilaya(w);
-                                    }}
-                                >
-                                    {ALGERIA_WILAYAS.map(w => (
-                                        <option key={w.id} value={w.id}>{w.name}</option>
-                                    ))}
-                                </select>
+                               <select
+    className="bg-surface border border-outline-variant rounded-lg px-2 py-1 text-sm font-medium text-on-surface focus:outline-none focus:border-primary"
+    value={selectedFarm?.id || ""}
+    onChange={(e) => {
+        const farm = farms.find(f => String(f.id) === String(e.target.value));
+        setSelectedFarm(farm);
+    }}
+>
+    {farms.length > 0 ? (
+        farms.map(farm => (
+            <option key={farm.id} value={farm.id}>
+                {farm.name} - {farm.wilaya}
+            </option>
+        ))
+    ) : (
+        <option value="">No farms</option>
+    )}
+</select>
                             </div>
                         </div>
                         <div className="z-10">

@@ -1560,52 +1560,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
         );
     }
 
-    if (activeTab === "admin-notifications") {
-        return (
-            <div className="max-w-[1000px] mx-auto px-6 py-8 animate-in">
-                <header className="mb-xl text-center">
-                    <div className="w-16 h-16 bg-primary-container/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                        <span className="material-symbols-outlined text-[32px]">notifications_active</span>
-                    </div>
-                    <h1 className="font-h1 text-h1 text-on-surface mb-2">Administrative Alerts</h1>
-                    <p className="font-body-lg text-body-lg text-on-surface-variant">Real-time system updates and action-required notifications.</p>
-                </header>
-
-                <div className="space-y-4">
-                    {adminNotifications.map(n => (
-                        <div 
-                            key={n.id} 
-                            className={`bg-surface-container-lowest rounded-2xl p-6 shadow-[0_4px_20px_rgba(26,58,52,0.05)] border transition-all flex gap-5 items-start ${!n.is_read ? 'border-primary bg-primary-container/5 shadow-md' : 'border-outline-variant/30 opacity-80'}`}
-                        >
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${!n.is_read ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'}`}>
-                                <span className="material-symbols-outlined">{!n.is_read ? 'priority_high' : 'notifications'}</span>
-                            </div>
-                            <div className="flex-1">
-                                <div className="flex justify-between items-start mb-2">
-                                    <p className={`font-body-lg text-body-lg ${!n.is_read ? 'font-bold text-on-surface' : 'text-on-surface-variant'}`}>
-                                        {n.message}
-                                    </p>
-                                    {!n.is_read && <span className="bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">New</span>}
-                                </div>
-                                <div className="flex items-center gap-2 text-on-surface-variant text-xs font-medium uppercase tracking-tighter">
-                                    <span className="material-symbols-outlined text-sm">schedule</span>
-                                    {new Date(n.created_at).toLocaleString()}
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-
-                    {adminNotifications.length === 0 && (
-                        <div className="bg-surface-container-lowest rounded-2xl p-20 text-center border border-dashed border-outline-variant/50">
-                            <span className="material-symbols-outlined text-[64px] text-outline-variant mb-4">check_circle</span>
-                            <h3 className="font-h3 text-h3 text-on-surface mb-2">Inbox is Clear</h3>
-                            <p className="text-on-surface-variant">No administrative alerts found at this moment.</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        );
-    }
+  
 
     if (activeTab === "setistics") {
         return <SetisticsDashboard />;
