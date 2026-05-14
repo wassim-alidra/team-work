@@ -1,16 +1,16 @@
 :root {
-  --bg-color: #ecfdf5;
-  /* Soft farm mint */
-  --text-color: #1b4332;
-  /* Deep natural green */
-  --primary-color: #10B981;
-  /* Emerald green */
-  --primary-hover: #059669;
-  /* Darker emerald */
+  --bg-color: #f0f7f4;
+  /* Premium light green tint */
+  --text-color: #012d1d;
+  /* Institutional dark green */
+  --primary-color: #012d1d;
+  /* Dark green */
+  --primary-hover: #116c4a;
+  /* Forest green */
   --secondary-color: #a47148;
   /* Earth soil brown */
-  --accent-color: #74c69d;
-  /* Light plant green */
+  --accent-color: #116c4a;
+  /* Forest green accent */
   --glass-bg: rgba(255, 255, 255, 0.75);
   --glass-border: rgba(255, 255, 255, 0.55);
   --glass-shadow: 0 8px 32px 0 rgba(34, 139, 34, 0.1);
@@ -25,8 +25,8 @@ body {
   background-color: #f8fafc;
   color: #1e293b;
   background: 
-    radial-gradient(circle at top left, rgba(116, 198, 157, 0.15) 0%, transparent 40%),
-    radial-gradient(circle at bottom right, rgba(47, 158, 68, 0.1) 0%, #f0fdf4 60%);
+    radial-gradient(circle at top left, rgba(1, 45, 29, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at bottom right, rgba(17, 108, 74, 0.05) 0%, #f0f7f4 60%);
   background-attachment: fixed;
   min-height: 100vh;
 }
@@ -37,12 +37,12 @@ h3 {
   font-weight: 700;
   letter-spacing: -0.025em;
   margin-bottom: 1rem;
-  color: #1b5e20;
+  color: #012d1d;
 }
 
 h1 {
   font-size: 2.5rem;
-  background: linear-gradient(to right, #2f9e44, #2b8a3e);
+  background: linear-gradient(to right, #012d1d, #116c4a);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -127,11 +127,9 @@ textarea:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/login-background.png');
-  background-size: 100% 100%;
-  background-position: center;
-  background-attachment: scroll;
-  background-repeat: no-repeat;
+  background-color: #eef5f7;
+  background-image: none;
+  padding: 2rem 1rem;
 }
 
 .auth-container {

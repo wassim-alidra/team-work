@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
-
-
+import './register.css';
+import bakgoudLogo from '../assets/bakgoud-logo.png';
 
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar" }, { id: 2, name: "Chlef" }, { id: 3, name: "Laghouat" }, { id: 4, name: "Oum El Bouaghi" },
@@ -22,66 +22,86 @@ const ALGERIA_WILAYAS = [
     { id: 57, name: "In Salah" }, { id: 58, name: "In Guezzam" }
 ];
 
-const Register = () => {
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-        email: '',
-        phone_number: '',
-        role: 'FARMER',
-        wilaya: '',
-        farm_name: '',
-        location: '',
-        company_name: '',
-        vehicle_type: '',
-        license_plate: '',
-        capacity: 0,
-        farmer_card_file: null,
-        commercial_register_file: null,
-        driving_license_file: null,
-        car_license_file: null,
-        // Additional farms (up to 4 more, 1st is mandatory via main fields)
-        additional_farms: []
-    });
+const ROLES = [
+    { value: 'FARMER', label: 'Farmer', icon: '🌾', desc: 'Manage crops, list seeds for sale, and access government agricultural resources and insights.' },
+    { value: 'BUYER', label: 'Buyer', icon: '🛒', desc: 'Procure fresh produce, grains, and agricultural goods directly from verified farmers in the network.' },
+    { value: 'TRANSPORTER', label: 'Transporter', icon: '🚚', desc: 'Provide logistics, track deliveries, and manage fleet operations across the agricultural supply chain.' },
+    { value: 'EQUIPMENT_PROVIDER', label: 'Equipment Provider', icon: '🏗️', desc: 'Lease or sell heavy machinery, tools, and smart farming equipment to producers.' },
+];
 
+// ── Step progress bar ──────────────────────────────────────────
+const StepBar = ({ step, total, label }) => {
+    const pct = (step / total) * 100;
+    return (
+        <div className="rg-stepbar">
+            <div className="rg-stepbar-meta">
+                <span className="rg-stepbar-label">STEP {step} OF {total}</span>
+                <span className="rg-stepbar-name">{label}</span>
+            </div>
+            <div className="rg-stepbar-track">
+                <div className="rg-stepbar-fill" style={{ width: `${pct}%` }} />
+            </div>
+        </div>
+    );
+};
+
+// ── File drop zone ─────────────────────────────────────────────
+const FileDropZone = ({ label, name, required, onChange, icon = '📄' }) => {
+    const [fileName, setFileName] = useState('');
+    const handleChange = (e) => {
+        const f = e.target.files[0];
+        setFileName(f ? f.name : '');
+        onChange(e);
+    };
+    return (
+        <div className="rg-field">
+            <label className="rg-label">{label}{required && <span className="rg-required">*</span>}</label>
+            <label className="rg-dropzone">
+                <input type="file" name={name} accept=".pdf" onChange={handleChange} style={{ display: 'none' }} />
+                <span className="rg-dropzone-icon">{icon}</span>
+                {fileName
+                    ? <><strong className="rg-drop-link">{fileName}</strong><span className="rg-drop-sub">selected</span></>
+                    : <><strong className="rg-drop-link">Upload a file</strong><span className="rg-drop-text"> or drag and drop</span><br /><span className="rg-drop-sub">PDF up to 10MB</span></>
+                }
+            </label>
+        </div>
+    );
+};
+
+// ══════════════════════════════════════════════════════════════
+const Register = () => {
+    const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState({
+        username: '', password: '', email: '', phone_number: '',
+        role: '', wilaya: '', farm_name: '', location: '',
+        company_name: '', vehicle_type: '', license_plate: '', capacity: 0,
+        farmer_card_file: null, commercial_register_file: null,
+        driving_license_file: null, car_license_file: null,
+        additional_farms: [],
+    });
+    const [showPassword, setShowPassword] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleFileChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.files[0] });
-    };
+    const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+    const handleFileChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.files[0] });
 
     const addFarm = () => {
-        if (formData.additional_farms.length < 4) {
-            setFormData({
-                ...formData,
-                additional_farms: [...formData.additional_farms, { name: '', wilaya: '', location: '' }]
-            });
-        }
+        if (formData.additional_farms.length < 4)
+            setFormData({ ...formData, additional_farms: [...formData.additional_farms, { name: '', wilaya: '', location: '' }] });
+    };
+    const removeFarm = (i) => {
+        const f = [...formData.additional_farms]; f.splice(i, 1);
+        setFormData({ ...formData, additional_farms: f });
+    };
+    const handleFarmChange = (i, field, val) => {
+        const f = [...formData.additional_farms]; f[i][field] = val;
+        setFormData({ ...formData, additional_farms: f });
     };
 
-    const removeFarm = (index) => {
-        const newFarms = [...formData.additional_farms];
-        newFarms.splice(index, 1);
-        setFormData({ ...formData, additional_farms: newFarms });
-    };
-
-    const handleFarmChange = (index, field, value) => {
-        const newFarms = [...formData.additional_farms];
-        newFarms[index][field] = value;
-        setFormData({ ...formData, additional_farms: newFarms });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setSubmitError('');
-        setIsSubmitting(true);
-
+    const handleSubmit = async () => {
+        setSubmitError(''); setIsSubmitting(true);
         const data = new FormData();
         for (const key in formData) {
             if (key === 'additional_farms') {
@@ -94,214 +114,376 @@ const Register = () => {
                 data.append(key, formData[key]);
             }
         }
-
         try {
-            const res = await api.post('users/register/', data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            // Navigate to the email verification step, passing the email via state
+            const res = await api.post('users/register/', data, { headers: { 'Content-Type': 'multipart/form-data' } });
             navigate('/verify-email', { state: { email: res.data.email } });
         } catch (error) {
-            console.error(error);
-            if (error.response && error.response.data) {
-                const errorData = error.response.data;
-                const errorMessages = Object.keys(errorData)
-                    .map(key => `${key}: ${Array.isArray(errorData[key]) ? errorData[key].join(', ') : errorData[key]}`)
-                    .join(' | ');
-                setSubmitError(errorMessages);
+            if (error.response?.data) {
+                const d = error.response.data;
+                setSubmitError(Object.keys(d).map(k => `${k}: ${Array.isArray(d[k]) ? d[k].join(', ') : d[k]}`).join(' | '));
             } else {
                 setSubmitError('Registration failed. Please check your details and try again.');
             }
+            setStep(1);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    return (
-        <div className="auth-page-wrapper">
-            <div className="auth-container fade-in" style={{ maxWidth: '550px' }}>
-            <div className="glass-panel">
-                <h2 style={{ textAlign: 'center', marginBottom: '0.5rem' }}>Create Account</h2>
-                <p className="auth-subtitle">Join AgriGov Market to start trading today</p>
+    // ── STEP 1 – Account Details ─────────────────────────────
+    const renderStep1 = () => (
+        <div className="rg-card fade-in">
+            <div className="rg-card-header">
+                <h1 className="rg-brand">AgriGov Market</h1>
+                <p className="rg-brand-sub">Empowering Sustainable Agricultural Growth.</p>
+            </div>
+            <div className="rg-card-body">
+                <StepBar step={1} total={4} label="Account Details" />
+                <h2 className="rg-step-title">Create Your Account</h2>
 
-                <form onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                        <div>
-                            <label className="auth-form-label">Username</label>
-                            <input type="text" name="username" placeholder="Choose a username" onChange={handleChange} required />
-                        </div>
-                        <div>
-                            <label className="auth-form-label">Password</label>
-                            <input type="password" name="password" placeholder="Create a password" onChange={handleChange} required />
-                        </div>
+                <div className="rg-field">
+                    <label className="rg-label">Username</label>
+                    <div className="rg-input-wrap">
+                        <input className="rg-input" type="text" name="username" value={formData.username}
+                            placeholder="Enter your username" onChange={handleChange} required />
                     </div>
+                </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', marginBottom: '1rem' }}>
-                        <div>
-                            <label className="auth-form-label">Email Address</label>
-                            <input type="email" name="email" placeholder="Enter your email" onChange={handleChange} required />
+                <div className="rg-field">
+                    <label className="rg-label">Email Address</label>
+                    <div className="rg-input-wrap">
+                        <input className="rg-input" type="email" name="email" value={formData.email}
+                            placeholder="Enter your email" onChange={handleChange} required />
+                    </div>
+                </div>
+
+                <div className="rg-field">
+                    <label className="rg-label">Password</label>
+                    <div className="rg-input-wrap">
+                        <input className="rg-input" type={showPassword ? 'text' : 'password'} name="password"
+                            value={formData.password} placeholder="Create a password" onChange={handleChange} required />
+                    </div>
+                    <p className="rg-hint">Must be at least 8 characters long.</p>
+                </div>
+
+                <div className="rg-field">
+                    <label className="rg-label">Phone Number</label>
+                    <div className="rg-input-wrap">
+                        <input className="rg-input" type="tel" name="phone_number" value={formData.phone_number}
+                            placeholder="0XXXXXXXXX (e.g. 0550 00 00 00)" onChange={handleChange} required />
+                    </div>
+                </div>
+
+                {submitError && <div className="rg-error">{submitError}</div>}
+
+                <div className="rg-footer-actions">
+                    <Link to="/" className="rg-btn-cancel">Cancel</Link>
+                    <button className="rg-btn-next"
+                        onClick={() => { if (formData.username && formData.email && formData.password && formData.phone_number) setStep(2); }}
+                    >
+                        Next <span>→</span>
+                    </button>
+                </div>
+
+                <div className="rg-divider" />
+                <p className="rg-already">Already have an account? <Link to="/login" className="rg-link">Log in</Link></p>
+            </div>
+        </div>
+    );
+
+    // ── STEP 2 – Choose Role ─────────────────────────────────
+    const renderStep2 = () => (
+        <div className="rg-wide-card fade-in">
+            <div className="rg-role-header">
+                <span className="rg-role-icon-top">🚜</span>
+                <h2 className="rg-step-title">Choose Your Role</h2>
+                <p className="rg-step-sub">Select the primary way you intend to use AgriGov Market to tailor your experience.</p>
+                <div className="rg-stepbar-inline">
+                    <span className="rg-stepbar-label">Step 2 of 4</span>
+                    <div className="rg-stepbar-track">
+                        <div className="rg-stepbar-fill" style={{ width: '50%' }} />
+                    </div>
+                    <span className="rg-stepbar-pct">50%</span>
+                </div>
+            </div>
+
+            <div className="rg-roles-grid">
+                {ROLES.map(r => (
+                    <label key={r.value}
+                        className={`rg-role-card ${formData.role === r.value ? 'rg-role-card--selected' : ''}`}>
+                        <input type="radio" name="role" value={r.value} checked={formData.role === r.value}
+                            onChange={handleChange} style={{ display: 'none' }} />
+                        <div className="rg-role-radio">{formData.role === r.value ? '🟢' : '⭕'}</div>
+                        <div className="rg-role-emoji">{r.icon}</div>
+                        <h3 className="rg-role-name">{r.label}</h3>
+                        <p className="rg-role-desc">{r.desc}</p>
+                    </label>
+                ))}
+            </div>
+
+            <div className="rg-wide-footer">
+                <button className="rg-btn-back" onClick={() => setStep(1)}>← Back</button>
+                <button className="rg-btn-next" onClick={() => { if (formData.role) setStep(3); }}>
+                    Next Step →
+                </button>
+            </div>
+        </div>
+    );
+
+    // ── STEP 3 – Role Profile ────────────────────────────────
+    const renderStep3 = () => {
+        const role = formData.role;
+        return (
+            <div className="rg-profile-page fade-in">
+                <header className="rg-profile-header">
+                    <span className="rg-profile-brand">AgriGov Market</span>
+                </header>
+
+                {/* Stepper dots */}
+                <div className="rg-dots-stepper">
+                    {[1, 2, 3, 4].map(n => (
+                        <div key={n} className={`rg-dot ${n < 3 ? 'rg-dot--done' : n === 3 ? 'rg-dot--active' : ''}`}>
+                            {n < 3 ? '✓' : n}
                         </div>
-                        <div>
-                            <label className="auth-form-label">Phone Number</label>
-                            <input type="tel" name="phone_number" placeholder="e.g. 0555001122" onChange={handleChange} required />
-                        </div>
-                    </div>
+                    ))}
+                </div>
 
-                    <div>
-                        <label className="auth-form-label">Select Account Role</label>
-                        <select name="role" onChange={handleChange} value={formData.role}>
-                            <option value="FARMER">Farmer</option>
-                            <option value="BUYER">Buyer</option>
-                            <option value="TRANSPORTER">Transporter</option>
-                            <option value="EQUIPMENT_PROVIDER">Equipment Provider</option>
-                        </select>
-                    </div>
+                <h2 className="rg-profile-title">
+                    {role === 'FARMER' ? 'Farmer Profile' :
+                        role === 'BUYER' ? 'Buyer Profile' :
+                            role === 'TRANSPORTER' ? 'Vehicle & Capacity Details' :
+                                'Equipment Provider Profile'}
+                </h2>
+                <p className="rg-profile-sub">
+                    {role === 'FARMER' ? 'Step 3 of 4: Provide your main farm details.' :
+                        role === 'BUYER' ? 'Enter your official company details and commercial documentation to establish your trading identity.' :
+                            role === 'TRANSPORTER' ? 'Provide accurate information about your primary transport vehicle to connect with suitable loads.' :
+                                'Please provide your official company details and upload your valid business license to operate within the AgriGov digital ecosystem.'}
+                </p>
 
-                    <div>
-                        <label className="auth-form-label">Select Wilaya</label>
-                        <select name="wilaya" onChange={handleChange} value={formData.wilaya} required>
-                            <option value="">-- Choose your Wilaya --</option>
-                            {ALGERIA_WILAYAS.map(w => (
-                                <option key={w.id} value={w.name}>{w.id} - {w.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {formData.role === 'FARMER' && (
-                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label className="auth-form-label">Farm Name</label>
-                                    <input type="text" name="farm_name" placeholder="Your farm name" onChange={handleChange} />
-                                </div>
-                                <div>
-                                    <label className="auth-form-label">Location</label>
-                                    <input type="text" name="location" placeholder="Farm location" onChange={handleChange} />
+                <div className="rg-profile-card">
+                    {/* ── FARMER ── */}
+                    {role === 'FARMER' && (<>
+                        <div className="rg-row-2">
+                            <div className="rg-field">
+                                <label className="rg-label">Select Wilaya</label>
+                                <div className="rg-select-wrap">
+                                    <select className="rg-select" name="wilaya" value={formData.wilaya} onChange={handleChange} required>
+                                        <option value="">Choose your province</option>
+                                        {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.id} - {w.name}</option>)}
+                                    </select>
                                 </div>
                             </div>
-                            <div>
-                                <label className="auth-form-label">Farmer Card (PDF)</label>
-                                <input type="file" name="farmer_card_file" accept=".pdf" onChange={handleFileChange} required />
+                            <div className="rg-field">
+                                <label className="rg-label">Farm Name</label>
+                                <input className="rg-input rg-input--bare" type="text" name="farm_name"
+                                    value={formData.farm_name} placeholder="e.g. Domaine Benali" onChange={handleChange} />
                             </div>
+                        </div>
+                        <div className="rg-field">
+                            <label className="rg-label">Farm Location</label>
+                            <div className="rg-input-wrap">
+                                <span className="rg-input-icon">📍</span>
+                                <input className="rg-input" type="text" name="location"
+                                    value={formData.location} placeholder="Enter specific commune or drop a pin" onChange={handleChange} />
+                            </div>
+                            <p className="rg-hint">Providing a precise location helps optimize logistics.</p>
+                        </div>
+                        <FileDropZone label="Farmer Card (PDF)" name="farmer_card_file" required onChange={handleFileChange} icon="📁" />
 
-                            {/* Additional Farms Section */}
-                            <div className="additional-farms-section">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                                    <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#374151' }}>Additional Farms (Optional, Max 5 total)</h4>
-                                    {formData.additional_farms.length < 4 && (
-                                        <button type="button" onClick={addFarm} className="btn-add-farm" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
-                                            + Add Farm
-                                        </button>
-                                    )}
+                        <div className="rg-additional-farms">
+                            <div className="rg-additional-farms-head">
+                                <div>
+                                    <h4 className="rg-af-title">Additional Farms</h4>
+                                    <p className="rg-af-sub">Manage operations across multiple locations.</p>
                                 </div>
-                                
-                                {formData.additional_farms.map((farm, index) => (
-                                    <div key={index} className="farm-entry fade-in" style={{ border: '1px solid #e5e7eb', borderRadius: '8px', padding: '1rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.5)', position: 'relative' }}>
-                                        <button type="button" onClick={() => removeFarm(index)} style={{ position: 'absolute', top: '5px', right: '10px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '0.5rem' }}>
-                                            <div>
-                                                <label className="auth-form-label">Farm Name</label>
-                                                <input type="text" placeholder="Second Farm Name" value={farm.name} onChange={(e) => handleFarmChange(index, 'name', e.target.value)} required />
-                                            </div>
-                                            <div>
-                                                <label className="auth-form-label">Wilaya</label>
-                                                <select value={farm.wilaya} onChange={(e) => handleFarmChange(index, 'wilaya', e.target.value)} required>
-                                                    <option value="">-- Choose Wilaya --</option>
-                                                    {ALGERIA_WILAYAS.map(w => (
-                                                        <option key={w.id} value={w.name}>{w.name}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
+                                {formData.additional_farms.length < 4 && (
+                                    <button type="button" className="rg-btn-add-farm" onClick={addFarm}>+ Add Farm<br /><small>(Max 5 farms)</small></button>
+                                )}
+                            </div>
+                            {formData.additional_farms.map((farm, i) => (
+                                <div key={i} className="rg-farm-entry fade-in">
+                                    <button type="button" className="rg-farm-remove" onClick={() => removeFarm(i)}>✕</button>
+                                    <div className="rg-row-2">
+                                        <div className="rg-field">
+                                            <label className="rg-label">Farm Name</label>
+                                            <input className="rg-input rg-input--bare" type="text" placeholder="Farm name"
+                                                value={farm.name} onChange={e => handleFarmChange(i, 'name', e.target.value)} />
                                         </div>
-                                        <div>
-                                            <label className="auth-form-label">Location (Optional)</label>
-                                            <input type="text" placeholder="Specific location" value={farm.location} onChange={(e) => handleFarmChange(index, 'location', e.target.value)} />
+                                        <div className="rg-field">
+                                            <label className="rg-label">Wilaya</label>
+                                            <select className="rg-select" value={farm.wilaya} onChange={e => handleFarmChange(i, 'wilaya', e.target.value)}>
+                                                <option value="">-- Choose Wilaya --</option>
+                                                {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
+                                            </select>
                                         </div>
                                     </div>
-                                ))}
+                                    <div className="rg-field">
+                                        <label className="rg-label">Location (Optional)</label>
+                                        <input className="rg-input rg-input--bare" type="text" placeholder="Specific location"
+                                            value={farm.location} onChange={e => handleFarmChange(i, 'location', e.target.value)} />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </>)}
+
+                    {/* ── BUYER ── */}
+                    {role === 'BUYER' && (<>
+                        <div className="rg-field">
+                            <label className="rg-label">Company Name <span className="rg-required">*</span></label>
+                            <div className="rg-input-wrap">
+                                <span className="rg-input-icon">🏢</span>
+                                <input className="rg-input" type="text" name="company_name"
+                                    value={formData.company_name} placeholder="e.g. Atlas AgriTrade SARL" onChange={handleChange} required />
                             </div>
                         </div>
-                    )}
-
-                    {formData.role === 'BUYER' && (
-                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
-                            <div>
-                                <label className="auth-form-label">Company Name</label>
-                                <input type="text" name="company_name" placeholder="Your company name" onChange={handleChange} required />
-                            </div>
-                            <div>
-                                <label className="auth-form-label">Commercial Register (PDF)</label>
-                                <input type="file" name="commercial_register_file" accept=".pdf" onChange={handleFileChange} required />
+                        <div className="rg-field">
+                            <label className="rg-label">Select Wilaya <span className="rg-required">*</span></label>
+                            <div className="rg-select-wrap">
+                                <span className="rg-select-icon">📍</span>
+                                <select className="rg-select rg-select--icon" name="wilaya" value={formData.wilaya} onChange={handleChange} required>
+                                    <option value="">Choose a region</option>
+                                    {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
+                                </select>
                             </div>
                         </div>
-                    )}
+                        <FileDropZone label="Commercial Register (PDF)" name="commercial_register_file" required onChange={handleFileChange} icon="📁" />
+                    </>)}
 
-                    {formData.role === 'TRANSPORTER' && (
-                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-                                <div>
-                                    <label className="auth-form-label">Vehicle Type</label>
-                                    <input type="text" name="vehicle_type" placeholder="e.g. Truck" onChange={handleChange} required />
-                                </div>
-                                <div>
-                                    <label className="auth-form-label">License Plate</label>
-                                    <input type="text" name="license_plate" placeholder="Plate No." onChange={handleChange} required />
-                                </div>
-                                <div>
-                                    <label className="auth-form-label">Capacity (Tons)</label>
-                                    <input type="number" name="capacity" placeholder="Tons" onChange={handleChange} required />
+                    {/* ── TRANSPORTER ── */}
+                    {role === 'TRANSPORTER' && (<>
+                        <div className="rg-row-2">
+                            <div className="rg-field">
+                                <label className="rg-label">Select Wilaya (Operating Region)</label>
+                                <div className="rg-select-wrap">
+                                    <select className="rg-select" name="wilaya" value={formData.wilaya} onChange={handleChange} required>
+                                        <option value="">Choose a region...</option>
+                                        {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
+                                    </select>
                                 </div>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label className="auth-form-label">Driving License (PDF)</label>
-                                    <input type="file" name="driving_license_file" accept=".pdf" onChange={handleFileChange} required />
-                                </div>
-                                <div>
-                                    <label className="auth-form-label">Car License (PDF)</label>
-                                    <input type="file" name="car_license_file" accept=".pdf" onChange={handleFileChange} required />
+                            <div className="rg-field">
+                                <label className="rg-label">Vehicle Type</label>
+                                <div className="rg-select-wrap">
+                                    <select className="rg-select" name="vehicle_type" value={formData.vehicle_type} onChange={handleChange} required>
+                                        <option value="">Select vehicle class...</option>
+                                        <option value="Light Truck">Light Truck</option>
+                                        <option value="Medium Truck">Medium Truck</option>
+                                        <option value="Heavy Truck">Heavy Truck</option>
+                                        <option value="Refrigerated Truck">Refrigerated Truck</option>
+                                        <option value="Flatbed">Flatbed</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-                    )}
-
-                    {formData.role === 'EQUIPMENT_PROVIDER' && (
-                        <div className="role-fields fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '-0.5rem' }}>
-                            <div>
-                                <label className="auth-form-label">Company Name</label>
-                                <input type="text" name="company_name" placeholder="Your machinery company" onChange={handleChange} required />
+                        <div className="rg-row-2">
+                            <div className="rg-field">
+                                <label className="rg-label">License Plate Number</label>
+                                <div className="rg-input-wrap">
+                                    <span className="rg-input-icon">🪪</span>
+                                    <input className="rg-input" type="text" name="license_plate"
+                                        value={formData.license_plate} placeholder="e.g. 12345 116 16" onChange={handleChange} required />
+                                </div>
                             </div>
-                            <div>
-                                <label className="auth-form-label">Business License (PDF)</label>
-                                <input type="file" name="commercial_register_file" accept=".pdf" onChange={handleFileChange} required />
+                            <div className="rg-field">
+                                <label className="rg-label">Capacity in Tons</label>
+                                <div className="rg-input-wrap">
+                                    <span className="rg-input-icon">📦</span>
+                                    <input className="rg-input" type="number" name="capacity"
+                                        value={formData.capacity || ''} placeholder="e.g. 15.5" onChange={handleChange} required />
+                                    <span className="rg-input-suffix">Tons</span>
+                                </div>
                             </div>
                         </div>
-                    )}
 
-                    {submitError && (
-                        <div style={{
-                            display: 'flex', alignItems: 'flex-start', gap: '8px',
-                            background: '#fef2f2', color: '#b91c1c', padding: '10px 14px',
-                            borderRadius: '10px', margin: '0.5rem 0', fontSize: '0.88rem',
-                            border: '1px solid #fecaca'
-                        }}>
-                            <span style={{ fontWeight: 'bold', flexShrink: 0 }}>✖</span>
-                            <span>{submitError}</span>
+                        <h4 className="rg-docs-title">Required Documents</h4>
+                        <p className="rg-hint">Please upload clear PDF copies of the following documents. Max file size: 5MB per document.</p>
+                        <div className="rg-row-2">
+                            <FileDropZone label="Driving License (PDF)" name="driving_license_file" required onChange={handleFileChange} icon="🪪" />
+                            <FileDropZone label="Car License / Carte Grise (PDF)" name="car_license_file" required onChange={handleFileChange} icon="🚗" />
                         </div>
-                    )}
+                    </>)}
 
-                    <button type="submit" style={{ width: '100%', marginTop: '0.5rem' }} disabled={isSubmitting}>
-                        {isSubmitting ? 'Creating Account…' : 'Open Account'}
-                    </button>
-                </form>
+                    {/* ── EQUIPMENT PROVIDER ── */}
+                    {role === 'EQUIPMENT_PROVIDER' && (<>
+                        <div className="rg-field">
+                            <label className="rg-label">Company Name <span className="rg-required">*</span></label>
+                            <input className="rg-input rg-input--bare" type="text" name="company_name"
+                                value={formData.company_name} placeholder="Enter registered business name" onChange={handleChange} required />
+                        </div>
+                        <div className="rg-field">
+                            <label className="rg-label">Primary Operating Wilaya <span className="rg-required">*</span></label>
+                            <div className="rg-select-wrap">
+                                <select className="rg-select" name="wilaya" value={formData.wilaya} onChange={handleChange} required>
+                                    <option value="">Select a Wilaya</option>
+                                    {ALGERIA_WILAYAS.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <FileDropZone label="Business License (PDF)" name="commercial_register_file" required onChange={handleFileChange} icon="📁" />
+                    </>)}
 
-                <p className="auth-footer">
-                    Already have an account? <Link to="/login" className="auth-link">Sign In</Link>
+                    <div className="rg-profile-footer">
+                        <button className="rg-btn-back" onClick={() => setStep(2)}>Back</button>
+                        <button className="rg-btn-next" onClick={() => setStep(4)} disabled={isSubmitting}>
+                            Next Step →
+                        </button>
+                    </div>
+                </div>
+
+                <footer className="rg-page-footer">
+                    <p>© 2024 AgriGov Market. Empowering Sustainable Agricultural Growth.</p>
+                </footer>
+            </div>
+        );
+    };
+
+    // ── STEP 4 – Submit & verify ─────────────────────────────
+    const renderStep4 = () => (
+        <div className="rg-card fade-in">
+            <div className="rg-card-header" style={{ borderBottom: '4px solid #1b4332' }}>
+                <StepBar step={4} total={4} label="" />
+            </div>
+            <div className="rg-card-body rg-verify-body">
+                <div className="rg-verify-icon-wrap">
+                    <div className="rg-verify-icon">✉️</div>
+                </div>
+                <h2 className="rg-verify-title">Ready to submit!</h2>
+                <p className="rg-verify-sub">
+                    We'll create your account and send a verification link to <strong>{formData.email}</strong>.
+                    Please click the link to confirm your account and access the agricultural marketplace.
+                </p>
+
+                {submitError && <div className="rg-error">{submitError}</div>}
+
+                <button className="rg-btn-submit" onClick={handleSubmit} disabled={isSubmitting}>
+                    {isSubmitting ? '⏳ Creating Account…' : '✉️ Create Account & Send Email'}
+                </button>
+                <button className="rg-btn-outline" onClick={() => setStep(3)} disabled={isSubmitting}>
+                    ← Back
+                </button>
+
+                <p className="rg-verify-footer">
+                    Didn't receive the email? Check your spam folder or <a href="#" className="rg-link">contact support</a>.
                 </p>
             </div>
         </div>
-    </div>
-);
+    );
+
+    return (
+        <div className="rg-page" style={{ 
+            backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url(${bakgoudLogo})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed'
+        }}>
+            {step === 1 && renderStep1()}
+            {step === 2 && renderStep2()}
+            {step === 3 && renderStep3()}
+            {step === 4 && renderStep4()}
+        </div>
+    );
 };
 
 export default Register;

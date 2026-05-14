@@ -21,8 +21,8 @@ function AppContent() {
   const { user } = useContext(AuthContext);
   const location = useLocation();
   
-  // Show Navbar ONLY when NOT in dashboard and NOT in landing page
-  const showDefaultNavbar = !user && location.pathname !== '/';
+  // Show Navbar ONLY when NOT in dashboard, landing page, login, or register
+  const showDefaultNavbar = !user && !['/', '/login', '/register'].includes(location.pathname);
 
   return (
     <>

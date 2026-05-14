@@ -693,23 +693,37 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                                     </span>
                                 </div>
 
-                                <div className="mt-6 relative">
-                                    <div className="flex justify-between text-label-caps font-label-caps text-outline mb-2 relative z-10">
-                                        <span className={['ACCEPTED', 'ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Accepted</span>
-                                        <span className={['ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>On Way to Farm</span>
-                                        <span className={['CHARGING', 'DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Loading</span>
-                                        <span className={['DELIVERED'].includes(o.status) ? "text-primary font-bold" : ""}>Delivered</span>
-                                    </div>
+                                <div className="mt-6 relative pt-4 px-2">
+                                    {/* Background Line */}
+                                    <div className="absolute top-[25px] left-[20px] right-[20px] h-1.5 bg-surface-variant/50 rounded-full"></div>
+                                    
+                                    {/* Active Line */}
+                                    <div 
+                                        className="absolute top-[25px] left-[20px] h-1.5 bg-primary rounded-full transition-all duration-500"
+                                        style={{ 
+                                            width: o.status === 'DELIVERED' ? 'calc(100% - 40px)' : 
+                                                   o.status === 'CHARGING' ? '66%' : 
+                                                   o.status === 'ON_WAY' ? '33%' : '0%' 
+                                        }}
+                                    ></div>
 
-                                    <div className="w-full bg-surface-variant rounded-full h-2 relative">
-                                        <div
-                                            className="bg-primary h-2 rounded-full transition-all duration-500"
-                                            style={{
-                                                width: o.status === 'DELIVERED' ? '100%' :
-                                                    o.status === 'CHARGING' ? '66%' :
-                                                    o.status === 'ON_WAY' ? '33%' : '5%'
-                                            }}
-                                        ></div>
+                                    <div className="flex justify-between items-center relative z-10">
+                                        <div className="flex flex-col items-center">
+                                            <div className="w-5 h-5 rounded-full bg-primary border-4 border-surface-container-lowest shadow-sm"></div>
+                                            <span className={`text-[10px] mt-2 font-bold text-primary`}>Accepted</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-5 h-5 rounded-full border-4 border-surface-container-lowest shadow-sm ${['ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                            <span className={`text-[10px] mt-2 font-bold ${['ON_WAY', 'CHARGING', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>On Way</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-5 h-5 rounded-full border-4 border-surface-container-lowest shadow-sm ${['CHARGING', 'DELIVERED'].includes(o.status) ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                            <span className={`text-[10px] mt-2 font-bold ${['CHARGING', 'DELIVERED'].includes(o.status) ? 'text-primary' : 'text-outline'}`}>Loading</span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <div className={`w-5 h-5 rounded-full border-4 border-surface-container-lowest shadow-sm ${o.status === 'DELIVERED' ? 'bg-primary' : 'bg-surface-variant'}`}></div>
+                                            <span className={`text-[10px] mt-2 font-bold ${o.status === 'DELIVERED' ? 'text-primary' : 'text-outline'}`}>Delivered</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

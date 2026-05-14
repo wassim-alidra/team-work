@@ -1,0 +1,785 @@
+/* ============================================================
+   AgriGov Market – Registration Multi-Step Styles
+   Matches: agrigov-designe-register/ design screenshots
+   ============================================================ */
+
+/* ── Page wrapper ── */
+.rg-page {
+  min-height: 100vh;
+  background-color: #eef5f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Fade animation ── */
+.fade-in {
+  animation: rgFadeIn 0.35s ease;
+}
+@keyframes rgFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STEP 1 & 4 – Centered white card
+   ══════════════════════════════════════════════════════════════ */
+.rg-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(1, 45, 29, 0.08);
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  border-top: 4px solid #1b4332; /* Added green accent */
+}
+
+.rg-card-header {
+  padding: 1rem 1.5rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid #e8eff1;
+}
+
+.rg-brand {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #012d1d;
+  margin: 0 0 0.1rem;
+}
+
+.rg-brand-sub {
+  font-size: 0.75rem;
+  color: #717973;
+  margin: 0;
+}
+
+.rg-card-body {
+  padding: 0.75rem 1.5rem 1.25rem;
+}
+
+/* ── Step progress bar ── */
+.rg-stepbar {
+  margin-bottom: 1rem;
+}
+
+.rg-stepbar-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.rg-stepbar-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #717973;
+}
+
+.rg-stepbar-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #012d1d;
+}
+
+.rg-stepbar-track {
+  height: 3px;
+  background: #e8eff1;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rg-stepbar-fill {
+  height: 100%;
+  background: #1b4332;
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+/* ── Step title ── */
+.rg-step-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #161d1f;
+  margin: 0 0 0.75rem;
+}
+
+/* ── Field ── */
+.rg-field {
+  margin-bottom: 0.25rem;
+}
+
+.rg-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.1rem;
+}
+
+.rg-required {
+  color: #ba1a1a;
+  margin-left: 2px;
+}
+
+/* ── Input wrapper with icon ── */
+.rg-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #c1c8c2;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0; /* Removed horizontal padding here */
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.rg-input-wrap:focus-within {
+  border-color: #116c4a;
+  box-shadow: 0 0 0 2px rgba(17, 108, 74, 0.12);
+}
+
+.rg-input-icon {
+  font-size: 0.9rem;
+  color: #717973;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.rg-input-suffix {
+  font-size: 0.75rem;
+  color: #717973;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.rg-input {
+  flex: 1;
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 0.25rem 0.75rem; /* Horizontal padding added here */
+  font-size: 0.78rem;
+  color: #161d1f;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.2;
+}
+
+.rg-input::placeholder { color: #9ca3af; }
+
+/* bare input (no icon wrapper) */
+.rg-input--bare {
+  width: 100%;
+  border: 1px solid #c1c8c2;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.78rem;
+  color: #161d1f;
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  background: #ffffff;
+  line-height: 1.1;
+}
+.rg-input--bare:focus {
+  border-color: #116c4a;
+  box-shadow: 0 0 0 3px rgba(17, 108, 74, 0.12);
+}
+.rg-input--bare::placeholder { color: #9ca3af; }
+
+/* ── Eye btn ── */
+.rg-eye-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1rem;
+  box-shadow: none;
+  flex-shrink: 0;
+  color: #717973;
+}
+.rg-eye-btn:hover, .rg-eye-btn:active { background: none; box-shadow: none; transform: none; }
+
+/* ── Select ── */
+.rg-select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #c1c8c2;
+  border-radius: 8px;
+  background: #ffffff;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.rg-select-wrap:focus-within {
+  border-color: #116c4a;
+  box-shadow: 0 0 0 2px rgba(17, 108, 74, 0.12);
+}
+.rg-select-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 0.9rem;
+  color: #717973;
+  pointer-events: none;
+}
+.rg-select {
+  width: 100%;
+  border: none;
+  outline: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  color: #161d1f;
+  background: transparent;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  appearance: auto;
+}
+.rg-select--icon { padding-left: 2rem; }
+
+/* ── Hint text ── */
+.rg-hint {
+  font-size: 0.7rem;
+  color: #717973;
+  margin: 0.1rem 0 0;
+}
+
+/* ── Error ── */
+.rg-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Footer actions ── */
+.rg-footer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.rg-btn-cancel {
+  color: #1b4332;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.3rem 0;
+  transition: color 0.2s;
+}
+.rg-btn-cancel:hover { color: #116c4a; }
+
+.rg-btn-next {
+  background: #1b4332;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 3px 10px rgba(27, 67, 50, 0.2);
+}
+.rg-btn-next:hover { background: #012d1d; box-shadow: 0 6px 18px rgba(27, 67, 50, 0.3); }
+.rg-btn-next:active { transform: scale(0.97); }
+.rg-btn-next:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.rg-btn-back {
+  background: transparent;
+  color: #1e293b;
+  border: 1px solid #c1c8c2;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: none;
+}
+.rg-btn-back:hover { background: #eef5f7; box-shadow: none; transform: none; }
+.rg-btn-back:active { transform: scale(0.97); }
+
+.rg-divider {
+  height: 1px;
+  background: #e8eff1;
+  margin: 1rem 0 0.75rem;
+}
+
+.rg-already {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.rg-link {
+  color: #116c4a;
+  font-weight: 700;
+  text-decoration: none;
+}
+.rg-link:hover { text-decoration: underline; }
+
+/* ══════════════════════════════════════════════════════════════
+   STEP 2 – Role selection (wider card)
+   ══════════════════════════════════════════════════════════════ */
+.rg-wide-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(1, 45, 29, 0.08);
+  width: 100%;
+  max-width: 680px;
+  overflow: hidden;
+  border-top: 4px solid #1b4332; /* Added green accent */
+}
+
+.rg-role-header {
+  padding: 1rem 1.5rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid #e8eff1;
+}
+
+.rg-role-icon-top {
+  font-size: 1.75rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.rg-step-sub {
+  font-size: 0.8rem;
+  color: #717973;
+  margin: 0 auto 0.75rem;
+  max-width: 500px;
+}
+
+.rg-stepbar-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.rg-stepbar-pct {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #012d1d;
+}
+
+.rg-stepbar-inline .rg-stepbar-track {
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.rg-roles-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0.75rem 1.5rem;
+}
+
+.rg-role-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #dde4e6;
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: block;
+}
+
+.rg-role-card:hover {
+  border-color: #116c4a;
+  box-shadow: 0 3px 12px rgba(17, 108, 74, 0.1);
+}
+
+.rg-role-card--selected {
+  border-color: #1b4332;
+  box-shadow: 0 0 0 2px rgba(27, 67, 50, 0.12);
+  background: #f4fafd;
+}
+
+.rg-role-radio {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.9rem;
+}
+
+.rg-role-emoji {
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
+  display: block;
+  background: rgba(17, 108, 74, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rg-role-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #161d1f;
+  margin: 0.4rem 0 0.2rem;
+}
+
+.rg-role-desc {
+  font-size: 0.75rem;
+  color: #717973;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.rg-wide-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem 1rem;
+  border-top: 1px solid #e8eff1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STEP 3 – Profile page (full-width layout)
+   ══════════════════════════════════════════════════════════════ */
+.rg-profile-page {
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rg-profile-header {
+  padding: 0.5rem 0 0.4rem;
+  border-bottom: 1px solid #dde4e6;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.rg-profile-brand {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #012d1d;
+}
+
+/* Dots stepper */
+.rg-dots-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 0.75rem;
+}
+
+.rg-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #c1c8c2;
+  background: #ffffff;
+  color: #717973;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.rg-dot + .rg-dot::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 2px;
+  background: #dde4e6;
+  z-index: 0;
+}
+
+.rg-dot--done {
+  background: #1b4332;
+  border-color: #1b4332;
+  color: #ffffff;
+}
+
+.rg-dot--active {
+  border-color: #1b4332;
+  color: #1b4332;
+  font-weight: 800;
+}
+
+.rg-profile-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #012d1d;
+  text-align: center;
+  margin: 0 0 0.2rem;
+}
+
+.rg-profile-sub {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #717973;
+  margin: 0 auto 1rem;
+  max-width: 560px;
+}
+
+.rg-profile-card {
+  background: #ffffff;
+  border: 1px solid #dde4e6;
+  border-radius: 16px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(1, 45, 29, 0.05);
+}
+
+.rg-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* ── Docs title ── */
+.rg-docs-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #161d1f;
+  margin: 0.75rem 0 0.1rem;
+}
+
+/* ── File drop zone ── */
+.rg-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px dashed #c1c8c2;
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  min-height: 80px;
+  gap: 2px;
+}
+.rg-dropzone:hover { border-color: #116c4a; background: #f4fafd; }
+
+.rg-dropzone-icon { font-size: 1.25rem; margin-bottom: 0.2rem; color: #1b4332; }
+
+.rg-drop-link {
+  color: #116c4a;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.rg-drop-text {
+  font-size: 0.8rem;
+  color: #161d1f;
+}
+
+.rg-drop-sub {
+  display: block;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 1px;
+}
+
+/* ── Additional farms ── */
+.rg-additional-farms {
+  border: 1px solid #e8eff1;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  background: #f4fafd;
+  margin-top: 0.5rem;
+}
+
+.rg-additional-farms-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+.rg-af-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #161d1f;
+  margin: 0 0 2px;
+}
+
+.rg-af-sub {
+  font-size: 0.78rem;
+  color: #717973;
+  margin: 0;
+}
+
+.rg-btn-add-farm {
+  background: #ffffff;
+  border: 1.5px solid #1b4332;
+  color: #1b4332;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.2;
+  box-shadow: none;
+  transition: background 0.2s;
+}
+.rg-btn-add-farm:hover { background: #f0faf5; box-shadow: none; transform: none; }
+.rg-btn-add-farm small { font-weight: 400; color: #717973; }
+
+.rg-farm-entry {
+  position: relative;
+  border: 1px solid #e8eff1;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  margin-top: 1rem;
+}
+
+.rg-farm-remove {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #ef4444;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.9rem;
+  box-shadow: none;
+  padding: 0;
+}
+.rg-farm-remove:hover { background: none; box-shadow: none; transform: none; color: #dc2626; }
+
+/* ── Profile footer ── */
+.rg-profile-footer {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid #e8eff1;
+}
+
+/* ── Page footer ── */
+.rg-page-footer {
+  text-align: center;
+  padding: 1rem;
+  color: #9ca3af;
+  font-size: 0.78rem;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   STEP 4 – Verify / Submit
+   ══════════════════════════════════════════════════════════════ */
+.rg-verify-body {
+  text-align: center;
+}
+
+.rg-verify-icon-wrap {
+  margin: 0.25rem auto 1rem;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #eef5f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rg-verify-icon {
+  font-size: 2.5rem;
+}
+
+.rg-verify-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #012d1d;
+  margin: 0 0 0.5rem;
+}
+
+.rg-verify-sub {
+  font-size: 0.88rem;
+  color: #717973;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+}
+
+.rg-btn-submit {
+  width: 100%;
+  background: #1b4332;
+  color: #ffffff;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 4px 12px rgba(27, 67, 50, 0.25);
+}
+.rg-btn-submit:hover { background: #012d1d; }
+.rg-btn-submit:active { transform: scale(0.98); }
+.rg-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.rg-btn-outline {
+  width: 100%;
+  background: transparent;
+  border: 1px solid #c1c8c2;
+  color: #161d1f;
+  padding: 0.85rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: background 0.2s;
+  box-shadow: none;
+}
+.rg-btn-outline:hover { background: #eef5f7; box-shadow: none; transform: none; }
+.rg-btn-outline:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.rg-verify-footer {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .rg-card-body, .rg-card-header { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .rg-roles-grid { grid-template-columns: 1fr; }
+  .rg-wide-footer { flex-direction: column; gap: 0.75rem; }
+  .rg-row-2 { grid-template-columns: 1fr; }
+  .rg-profile-card { padding: 1.25rem 1rem; }
+  .rg-profile-title { font-size: 1.5rem; }
+  .rg-dots-stepper { gap: 0; }
+  .rg-dot + .rg-dot::before { width: 40px; }
+}

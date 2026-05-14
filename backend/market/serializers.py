@@ -73,7 +73,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     buyer = serializers.SerializerMethodField()
-    product = ProductSerializer(read_only=True)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
     buyer_name = serializers.CharField(source='buyer.username', read_only=True)
     product_name = serializers.CharField(source='product.catalog.name', read_only=True)
     farmer_name = serializers.CharField(source='product.farmer.username', read_only=True)
@@ -128,6 +128,11 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'buyer', 'buyer_name', 'buyer_phone', 'buyer_wilaya', 'product', 'product_name', 'product_image', 'product_unit', 'farmer_name', 'farmer_phone', 'farmer_wilaya', 'quantity', 'total_price', 'status', 'delivery_status', 'transporter_name', 'transporter_phone', 'rating', 'rating_comment', 'created_at', 'delivered_at']
         read_only_fields = ('buyer', 'total_price')
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['product'] = ProductSerializer(instance.product, context=self.context).data
+        return representation
 
     def create(self, validated_data):
         validated_data['buyer'] = self.context['request'].user
