@@ -5,5 +5,5 @@
         "backend"
     ],
     "typeCheckingMode": "basic",
-    "pythonVersion": "3.12"
+    "pythonVersion": "3.14"
 }

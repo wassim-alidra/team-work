@@ -210,14 +210,15 @@ class OrderViewSet(viewsets.ModelViewSet):
         queryset = Order.objects.all().order_by('-id')
         
         with open("backend_errors.log", "a") as f:
-            f.write(f"\n--- ORDER VIEWSET GET_QUERYSET --- User: {user.username} Role: {user.role}\n")
+            f.write(f"\n--- ORDER VIEWSET GET_QUERYSET --- User: {user.username if hasattr(user, 'username') else 'Anonymous'} Role: {getattr(user, 'role', 'None')}\n")
 
-        if user.role == User.Role.BUYER:
-            queryset = queryset.filter(buyer=user)
-        elif user.role == User.Role.FARMER:
-            queryset = queryset.filter(product__farmer=user)
-        elif user.role == User.Role.TRANSPORTER:
-            queryset = queryset.filter(delivery__transporter=user)
+        if user.is_authenticated and hasattr(user, 'role'):
+            if user.role == User.Role.BUYER:
+                queryset = queryset.filter(buyer=user)
+            elif user.role == User.Role.FARMER:
+                queryset = queryset.filter(product__farmer=user)
+            elif user.role == User.Role.TRANSPORTER:
+                queryset = queryset.filter(delivery__transporter=user)
 
         with open("backend_errors.log", "a") as f:
             f.write(f"Orders found: {list(queryset.values_list('id', flat=True))}\n")
@@ -365,6 +366,58 @@ class OrderViewSet(viewsets.ModelViewSet):
             "total_spent": total_spent
         })
 
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
+    def download_pdf(self, request, pk=None):
+        order = self.get_object()
+        
+        from django.http import HttpResponse
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4
+        from io import BytesIO
+        
+        buffer = BytesIO()
+        p = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # Header
+        p.setFont("Helvetica-Bold", 20)
+        p.drawCentredString(width/2, height - 50, "AgriGov Order Receipt")
+        
+        p.setFont("Helvetica", 12)
+        p.drawCentredString(width/2, height - 70, f"Order ID: #{order.id}")
+        p.line(50, height - 85, width - 50, height - 85)
+        
+        # Content
+        y = height - 120
+        line_height = 20
+        
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Order Details")
+        y -= 25
+        
+        p.setFont("Helvetica", 12)
+        details = [
+            f"Product: {order.product.name if order.product else 'Unknown'}",
+            f"Farmer: {order.product.farmer.username if order.product and order.product.farmer else 'Unknown'}",
+            f"Buyer: {order.buyer.username if order.buyer else 'Unknown'}",
+            f"Quantity: {order.quantity} kg",
+            f"Total Price: {order.total_price} DA",
+            f"Status: {order.status}",
+            f"Created At: {order.created_at.strftime('%Y-%m-%d %H:%M')}"
+        ]
+        
+        for detail in details:
+            p.drawString(50, y, detail)
+            y -= line_height
+            
+        p.showPage()
+        p.save()
+        
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="order_{order.id}.pdf"'
+        return response
+
 class DeliveryViewSet(viewsets.ModelViewSet):
     queryset = Delivery.objects.all().order_by('-id')
     serializer_class = DeliverySerializer
@@ -383,8 +436,9 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         try:
             user = self.request.user
             queryset = Delivery.objects.all()
-            if user.role == User.Role.TRANSPORTER:
-                queryset = queryset.filter(transporter=user)
+            if user.is_authenticated and hasattr(user, 'role'):
+                if user.role == User.Role.TRANSPORTER:
+                    queryset = queryset.filter(transporter=user)
             
             status_filter = self.request.query_params.get('status')
             if status_filter:
@@ -448,7 +502,7 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         
         serializer.save()
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
     def download_pdf(self, request, pk=None):
         delivery = self.get_object()
         order = delivery.order
@@ -767,6 +821,85 @@ class EquipmentViewSet(viewsets.ModelViewSet):
             equipment.is_available = True
             equipment.save()
             booking.status = 'COMPLETED'
+            booking.save()
+
+        if user.role == User.Role.EQUIPMENT_PROVIDER:
+            return Equipment.objects.filter(provider=user)
+        # Farmers and others can browse equipment
+        queryset = Equipment.objects.all()
+        is_available = self.request.query_params.get('is_available')
+        if is_available:
+            queryset = queryset.filter(is_available=is_available.lower() == 'true')
+        return queryset
+
+    def perform_create(self, serializer):
+        if self.request.user.role != User.Role.EQUIPMENT_PROVIDER:
+             raise permissions.PermissionDenied("Only equipment providers can add equipment.")
+        serializer.save(provider=self.request.user)
+
+    def perform_update(self, serializer):
+        if self.get_object().provider != self.request.user:
+            raise permissions.PermissionDenied("You can only edit your own equipment.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.provider != self.request.user:
+            raise permissions.PermissionDenied("You can only delete your own equipment.")
+        instance.delete()
+
+class EquipmentBookingViewSet(viewsets.ModelViewSet):
+    serializer_class = EquipmentBookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == User.Role.FARMER:
+            return EquipmentBooking.objects.filter(farmer=user).order_by('-created_at')
+        elif user.role == User.Role.EQUIPMENT_PROVIDER:
+            return EquipmentBooking.objects.filter(equipment__provider=user).order_by('-created_at')
+        return EquipmentBooking.objects.none()
+
+    def perform_create(self, serializer):
+        if self.request.user.role != User.Role.FARMER:
+            raise permissions.PermissionDenied("Only farmers can book equipment.")
+            
+        equipment = serializer.validated_data['equipment']
+        requested_quantity = serializer.validated_data.get('requested_quantity', 1)
+        
+        if equipment.quantity_available < requested_quantity:
+            raise ValidationError({"detail": f"Only {equipment.quantity_available} units available."})
+            
+        booking = serializer.save(farmer=self.request.user)
+        # Create notification for provider
+        Notification.objects.create(
+            recipient=booking.equipment.provider,
+            message=f"New booking request from {self.request.user.username} for {booking.equipment.name}."
+        )
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        booking = self.get_object()
+        
+        if 'status' in serializer.validated_data:
+            new_status = serializer.validated_data['status']
+            if user.role == User.Role.EQUIPMENT_PROVIDER and booking.equipment.provider == user:
+                if new_status == 'ACCEPTED' and booking.status == 'PENDING':
+                    if booking.equipment.quantity_available >= booking.requested_quantity:
+                        booking.equipment.quantity_available -= booking.requested_quantity
+                        booking.equipment.save()
+                    else:
+                        raise ValidationError({"detail": "Not enough available quantity to accept this booking."})
+                serializer.save()
+                Notification.objects.create(
+                    recipient=booking.farmer,
+                    message=f"Your booking for {booking.equipment.name} has been {new_status.lower()}."
+                )
+            else:
+                 super().perform_update(serializer)
+        else:
+            super().perform_update(serializer)
+
+
             booking.save()
 
         if user.role == User.Role.EQUIPMENT_PROVIDER:

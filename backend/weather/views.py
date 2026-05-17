@@ -130,8 +130,9 @@ class DeviceControlView(WeatherDashboardView):
         )
 
         farm_id = request.query_params.get("farm_id")
+        check_only = request.query_params.get("check_only", "false").lower() == "true"
 
-        if is_needed and farm_id:
+        if is_needed and farm_id and not check_only:
             try:
                 farm = Farm.objects.get(id=farm_id)
 
