@@ -7590,3 +7590,12 @@ User: AnonymousUser (Authenticated: False)
 
 --- DELIVERY VIEWSET DISPATCH --- Method: GET
 User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
