@@ -636,48 +636,88 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                     </div>
 
                     {/* Soil Advisor */}
-                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md flex flex-col justify-between">
-                        <div className="flex items-center justify-between mb-md">
+                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md flex flex-col gap-md">
+                        <div className="flex items-center justify-between">
                             <h2 className="font-h3 text-h3 text-on-surface">Soil Advisor</h2>
-                            {weatherData?.soil && (
-                                <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${weatherData.soil.is_needed ? 'bg-error-container text-on-error-container' : 'bg-secondary-container text-on-secondary-container'}`}>
-                                    <span className="material-symbols-outlined text-sm">{weatherData.soil.is_needed ? 'warning' : 'water_drop'}</span>
-                                    {weatherData.soil.irrigation_recommendation}
-                                </div>
+                            {weatherData?.irrigation && (
+                                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${weatherData.irrigation.is_needed ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-green-100 text-green-700 border border-green-300'}`}>
+                                    <span className="material-symbols-outlined text-sm">{weatherData.irrigation.is_needed ? 'warning' : 'check_circle'}</span>
+                                    {weatherData.irrigation.is_needed ? 'Irrigation Needed' : 'No Irrigation Needed'}
+                                </span>
                             )}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-                            {/* Sensor 1 */}
-                            <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
-                                    <span className="material-symbols-outlined">grass</span>
-                                </div>
+
+                        {/* Prominent Recommendation Banner */}
+                        {weatherData?.irrigation && (
+                            <div className={`w-full rounded-xl px-4 py-3 flex items-start gap-3 border-l-4 ${
+                                weatherData.irrigation.is_needed
+                                    ? 'bg-red-50 border-red-500 text-red-800'
+                                    : 'bg-green-50 border-green-500 text-green-800'
+                            }`}>
+                                <span className={`material-symbols-outlined text-2xl mt-0.5 ${weatherData.irrigation.is_needed ? 'text-red-500' : 'text-green-500'}`}>
+                                    {weatherData.irrigation.is_needed ? 'water_damage' : 'water_drop'}
+                                </span>
                                 <div>
-                                    <div className="font-label-caps text-label-caps text-outline uppercase">Field Moisture</div>
-                                    <div className="font-bold text-primary">Moisture: {weatherData?.soil ? (weatherData.soil.moisture * 100).toFixed(0) : '42'}%</div>
-                                    <div className="text-xs text-on-surface-variant">Status: {weatherData?.soil?.is_needed ? 'Low' : 'Optimal'}</div>
+                                    <p className="font-bold text-sm mb-0.5">
+                                        {weatherData.irrigation.is_needed ? '🚨 Action Required' : '✅ All Good'}
+                                    </p>
+                                    <p className="text-sm leading-snug">{weatherData.irrigation.recommendation}</p>
+                                    {typeof weatherData.irrigation.urgency_score === 'number' && (
+                                        <div className="mt-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-medium opacity-70">Stress Level:</span>
+                                                <div className="flex-1 bg-white/60 rounded-full h-2 overflow-hidden border border-current/20">
+                                                    <div
+                                                        className={`h-2 rounded-full transition-all ${weatherData.irrigation.is_needed ? 'bg-red-500' : 'bg-green-500'}`}
+                                                        style={{ width: `${Math.min((weatherData.irrigation.urgency_score / 9) * 100, 100)}%` }}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-bold">{weatherData.irrigation.urgency_score}/9</span>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            {/* Sensor 2 */}
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+                            {/* Sensor 1 — Humidity from real API */}
+                            <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
+                                    <span className="material-symbols-outlined">humidity_mid</span>
+                                </div>
+                                <div>
+                                    <div className="font-label-caps text-label-caps text-outline uppercase">Air Humidity</div>
+                                    <div className="font-bold text-primary">{weatherData?.weather?.humidity ?? '--'}%</div>
+                                    <div className="text-xs text-on-surface-variant">
+                                        Status: {(weatherData?.weather?.humidity ?? 50) < 35 ? 'Very Dry' : (weatherData?.weather?.humidity ?? 50) < 55 ? 'Moderate' : 'Humid'}
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Sensor 2 — Surface Temp from real API */}
                             <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
                                     <span className="material-symbols-outlined">device_thermostat</span>
                                 </div>
                                 <div>
                                     <div className="font-label-caps text-label-caps text-outline uppercase">Surface Temp</div>
-                                    <div className="font-bold text-primary">Temp: {weatherData?.soil?.surface_temp || '22'}°C</div>
-                                    <div className="text-xs text-on-surface-variant">Status: Stable</div>
+                                    <div className="font-bold text-primary">{weatherData?.irrigation?.surface_temp ?? weatherData?.weather?.temp ?? '--'}°C</div>
+                                    <div className="text-xs text-on-surface-variant">
+                                        Status: {(weatherData?.weather?.temp ?? 22) >= 34 ? 'Hot' : (weatherData?.weather?.temp ?? 22) >= 28 ? 'Warm' : 'Stable'}
+                                    </div>
                                 </div>
                             </div>
-                            {/* Sensor 3 (Placeholder as per design) */}
+                            {/* Sensor 3 — Wind from real API */}
                             <div className="bg-surface border border-outline-variant p-4 rounded-lg flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-container">
-                                    <span className="material-symbols-outlined">eco</span>
+                                    <span className="material-symbols-outlined">air</span>
                                 </div>
                                 <div>
-                                    <div className="font-label-caps text-label-caps text-outline uppercase">Soil Health</div>
-                                    <div className="font-bold text-primary">Index: 85/100</div>
-                                    <div className="text-xs text-on-surface-variant">Status: Excellent</div>
+                                    <div className="font-label-caps text-label-caps text-outline uppercase">Wind Speed</div>
+                                    <div className="font-bold text-primary">{weatherData?.wind?.speed_kmh ?? '--'} km/h</div>
+                                    <div className="text-xs text-on-surface-variant">
+                                        Status: {(weatherData?.wind?.speed_kmh ?? 0) >= 30 ? 'Strong' : (weatherData?.wind?.speed_kmh ?? 0) >= 15 ? 'Moderate' : 'Calm'}
+                                    </div>
                                 </div>
                             </div>
                         </div>
