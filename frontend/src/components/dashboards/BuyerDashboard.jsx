@@ -375,7 +375,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
         setSelectedProduct(p);
         setDetailsModalOpen(true);
     }}
-    className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90"
+    className="circle-btn"
     title="View Details"
 >
     <svg
@@ -395,8 +395,8 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     </svg>
 </button>
                                        
-                                           <button  onClick={() => addToCart(p)} class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90">
-<span class="material-symbols-outlined text-[28px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+                                           <button  onClick={() => addToCart(p)} className="circle-btn">
+<span className="material-symbols-outlined text-[24px]" data-icon="add_shopping_cart">add_shopping_cart</span>
 </button>
                                     </div>
                                 </div>
@@ -540,7 +540,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
         setSelectedProduct(p);
         setDetailsModalOpen(true);
     }}
-    className="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90"
+    className="circle-btn"
     title="View Details"
 >
     <svg
@@ -560,8 +560,8 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     </svg>
 </button>
                                         {p.quantity_available > 0 && (
-                                           <button  onClick={() => addToCart(p)} class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_4px_12px_rgba(29,185,84,0.3)] transition-all active:scale-90 hover:opacity-90">
-<span class="material-symbols-outlined text-[28px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+                                           <button  onClick={() => addToCart(p)} className="circle-btn">
+<span className="material-symbols-outlined text-[24px]" data-icon="add_shopping_cart">add_shopping_cart</span>
 </button>
                                         )}
                                     </div>

@@ -642,7 +642,7 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                             <p className="font-body-sm text-body-sm text-on-surface">{new Date(u.date_joined).toLocaleDateString()}</p>
                                         </td>
                                         <td className="p-4 text-right">
-                                            <button className="font-button text-button text-primary hover:text-secondary mr-2 transition-colors" onClick={() => setSelectedUser(u)}>Review</button>
+                                            <button className="btn-action-outline" onClick={() => setSelectedUser(u)}>Review</button>
                                         </td>
                                     </tr>
                                 ))}
@@ -702,25 +702,17 @@ const AdminDashboard = ({ activeTab, setActiveTab }) => {
                                 {!selectedUser.is_deleted && (
                                     <>
                                         {selectedUser.is_active ? (
-                                            <button className="px-4 py-2 border border-error text-error rounded-lg font-button text-button hover:bg-error-container transition-colors" onClick={() => handleUserAction('suspend', selectedUser.id)} disabled={loading}>
-                                                {loading ? "..." : "Suspend"}
-                                            </button>
+                                            <button className="btn-review-suspend" onClick={() => handleUserAction('suspend', selectedUser.id)} disabled={loading}>{loading ? "..." : "Suspend"}</button>
                                         ) : (
-                                            <button className="px-4 py-2 bg-primary text-on-primary rounded-lg font-button text-button hover:bg-secondary transition-colors" onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>
-                                                {loading ? "..." : "Activate"}
-                                            </button>
+                                            <button className="btn-review-activate" onClick={() => handleUserAction('activate', selectedUser.id)} disabled={loading}>{loading ? "..." : "Activate"}</button>
                                         )}
                                         {selectedUser.approval_status === 'pending' && (
-                                            <button className="px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-button text-button hover:bg-secondary-fixed transition-colors" onClick={() => handleUserAction('approve_account', selectedUser.id)} disabled={loading}>
-                                                {loading ? "..." : "Approve Account"}
-                                            </button>
+                                            <button className="btn-review-approve" onClick={() => handleUserAction('approve_account', selectedUser.id)} disabled={loading}>{loading ? "..." : "Approve Account"}</button>
                                         )}
-                                        <button className="px-4 py-2 bg-error text-on-error rounded-lg font-button text-button hover:bg-error/90 transition-colors" onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>
-                                            {loading ? "..." : "Delete"}
-                                        </button>
+                                        <button className="btn-review-delete" onClick={() => handleUserAction('delete_account', selectedUser.id)} disabled={loading}>{loading ? "..." : "Delete"}</button>
                                     </>
                                 )}
-                                <button className="px-4 py-2 border border-outline-variant text-on-surface rounded-lg font-button text-button hover:bg-surface-container transition-colors" onClick={() => { setSelectedUser(null); setTempMessage(""); }}>Close</button>
+                                <button className="btn-review-close" onClick={() => { setSelectedUser(null); setTempMessage(""); }}>Close</button>
                             </div>
                         </div>
                     </div>

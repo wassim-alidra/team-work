@@ -114,7 +114,7 @@ const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             aria-label="Notifications"
           >
-            <Bell size={40} color="#127120ff" />
+            <Bell size={22} />
             {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
           </button>
 

@@ -803,15 +803,14 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                                 )}
                                             </td>
                                            <td className="py-3 pl-2 pr-4">
-  <div className="flex items-center gap-2">
-                                                     <button onClick={() => handleEditProduct(p)}  className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container"
-                                                    title="View Price Timeline">
-                                         <span className="material-symbols-outlined">edit</span>
-                                    </button>
- <button onClick={() => handleDeleteProduct(p.id)} className="text-error hover:bg-error-container transition-colors p-2 rounded-full"
-                                                    title="Remove Entry">
-                                        <span className="material-symbols-outlined">delete</span>
-                                    </button>                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button onClick={() => handleEditProduct(p)} className="action-icon-btn btn-edit" title="Edit Product">
+                                                        <span className="material-symbols-outlined">edit</span>
+                                                    </button>
+                                                    <button onClick={() => handleDeleteProduct(p.id)} className="action-icon-btn btn-delete" title="Remove Product">
+                                                        <span className="material-symbols-outlined">delete</span>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     )) : (
@@ -1002,10 +1001,10 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                         </td>
                                         <td className="px-lg py-md text-right">
                                             <div className="flex justify-end gap-xs">
-                                                <button onClick={() => handleEditProduct(p)} className="text-on-surface-variant hover:text-secondary transition-colors p-2 rounded-full hover:bg-surface-container" title="Edit Product">
+                                                <button onClick={() => handleEditProduct(p)} className="action-icon-btn btn-edit" title="Edit Product">
                                                     <span className="material-symbols-outlined">edit</span>
                                                 </button>
-                                                <button onClick={() => handleDeleteProduct(p.id)} className="text-error hover:bg-error-container transition-colors p-2 rounded-full" title="Remove Entry">
+                                                <button onClick={() => handleDeleteProduct(p.id)} className="action-icon-btn btn-delete" title="Remove Product">
                                                     <span className="material-symbols-outlined">delete</span>
                                                 </button>
                                             </div>
@@ -1066,8 +1065,8 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                             <div className="flex justify-end gap-sm">
                                                 {o.status === 'PENDING' && (
                                                     <>
-                                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')} className="text-primary hover:text-on-primary-fixed-variant p-1" title="Accept"><span className="material-symbols-outlined">check_circle</span></button>
-                                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="text-error hover:text-on-error-container p-1" title="Reject"><span className="material-symbols-outlined">cancel</span></button>
+                                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'ACCEPTED')} className="action-icon-btn btn-approve" title="Accept Order"><span className="material-symbols-outlined">check_circle</span></button>
+                                                        <button onClick={() => handleUpdateOrderStatus(o.id, 'CANCELLED')} className="action-icon-btn btn-reject" title="Reject Order"><span className="material-symbols-outlined">cancel</span></button>
                                                     </>
                                                 )}
                                                 {o.status !== 'PENDING' && (
@@ -1192,7 +1191,6 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                         <th className="px-lg py-sm font-medium">Last Update</th>
                                         <th className="px-lg py-sm font-medium">Min Price</th>
                                         <th className="px-lg py-sm font-medium">Max Price</th>
-                                        <th className="px-lg py-sm font-medium text-right">History</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1205,15 +1203,6 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                             </td>
                                             <td className="px-lg py-md font-medium text-secondary">{c.min_price ? `${c.min_price} DA` : "—"}</td>
                                             <td className="px-lg py-md font-medium text-error">{c.max_price ? `${c.max_price} DA` : "—"} <span className="text-[10px] text-outline font-normal">/{c.unit || 'kg'}</span></td>
-                                            <td className="px-lg py-md text-right">
-                                                <button 
-                                                    onClick={() => { setSelectedCatalogItem(c); fetchPriceHistory(c.id); }} 
-                                                    className="p-2 text-primary hover:bg-primary/10 rounded-full transition-colors inline-flex"
-                                                    title="View Price History"
-                                                >
-                                                    <span className="material-symbols-outlined">history</span>
-                                                </button>
-                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>

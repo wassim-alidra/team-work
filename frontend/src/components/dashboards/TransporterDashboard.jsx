@@ -240,7 +240,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                         <Truck className="text-primary" size={20} />
                                         Ready for Pickup
                                     </h3>
-                                    <button className="text-primary font-button text-body-sm hover:underline" onClick={() => fetchAvailableOrders()}>Refresh</button>
+                                    <button className="btn-clear" onClick={() => fetchAvailableOrders()}>Refresh</button>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     {availableOrders.slice(0, 3).map(o => (
@@ -250,17 +250,8 @@ const TransporterDashboard = ({ activeTab }) => {
                                                 <span>{o.product_name}</span>
                                             </div>
                                             <div className="flex gap-2 mt-2">
-                                                <button className="flex-1 flex items-center justify-center gap-2 bg-primary/10 text-primary py-2 rounded border border-primary/20 hover:bg-primary/20 transition-colors" onClick={() => setSelectedOrder(o)}>
-                                                    <MapPin size={14} /> View
-                                                </button>
-                                                <button 
-                                                    className="flex-1 bg-secondary-container text-on-secondary-container py-2 rounded hover:bg-secondary-fixed transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
-                                                    onClick={() => handleAccept(o.id)}
-                                                    disabled={user.has_active_mission}
-                                                    title={user.has_active_mission ? "You already have an active mission" : ""}
-                                                >
-                                                    Accept
-                                                </button>
+                                                <button className="btn-action-outline flex-1" onClick={() => setSelectedOrder(o)}><MapPin size={14} /> View</button>
+                                                <button className="btn-action-secondary flex-1" onClick={() => handleAccept(o.id)} disabled={user.has_active_mission} title={user.has_active_mission ? "You already have an active mission" : ""}>Accept</button>
                                             </div>
                                         </div>
                                     ))}
@@ -345,22 +336,11 @@ const TransporterDashboard = ({ activeTab }) => {
     }
     setSelectedOrder(o);
   }}
-  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg border border-outline-variant/30 transition-colors ${
-    user.has_active_mission
-      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-      : "bg-surface text-on-surface hover:bg-surface-variant"
-  }`}
+  className="btn-action-outline flex-1"
 >
   <MapPin size={16} /> View Details
 </button>
-                                <button 
-                                    className="flex-1 bg-primary text-on-primary py-2 rounded-lg hover:bg-tertiary transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" 
-                                    onClick={() => handleAccept(o.id)}
-                                    disabled={user.has_active_mission}
-                                    title={user.has_active_mission ? "You already have an active mission" : ""}
-                                >
-                                    <CheckCircle size={16} /> Accept
-                                </button>
+                                <button className="btn-action-secondary flex-1" onClick={() => handleAccept(o.id)} disabled={user.has_active_mission} title={user.has_active_mission ? "You already have an active mission" : ""}><CheckCircle size={16} /> Accept</button>
                             </div>
                         </div>
                     ))}
@@ -440,7 +420,7 @@ const TransporterDashboard = ({ activeTab }) => {
                             <div className="flex justify-end border-t border-outline-variant/20 pt-4">
                                 {['ASSIGNED', 'ON_WAY', 'CHARGING'].includes(d.status) && (
                                     <button 
-                                        className="bg-secondary text-on-secondary px-6 py-2 rounded-lg font-button hover:bg-secondary-container hover:text-on-secondary-container transition-colors shadow-sm active:scale-95"
+                                        className="btn-action-secondary"
                                         onClick={() => {
                                             const nextStatus = {
                                                 'ASSIGNED': 'ON_WAY',

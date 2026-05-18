@@ -8,7 +8,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMob
     { key: "history", label: "Delivery History", icon: <Clock size={18} /> },
     { key: "earnings", label: "Earnings", icon: <ShoppingCart size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
-    { key: "profile", label: "Profile", icon: <Sprout size={18} /> },
   ];
 
   const equipmentProviderItems = [

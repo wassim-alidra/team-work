@@ -364,3 +364,201 @@ ul {
                     box-shadow: 0 0 0 4px rgba(47, 143, 58, 0.1);
                     transform: translateY(-1px);
                 }
+
+/* ==========================================================================
+   AGRIGOV PREMIUM BUTTON SYSTEM
+   ========================================================================== */
+
+/* --- 1. Circle Icon Buttons (Notification Bell, Details, Cart) --- */
+.circle-btn,
+button.circle-btn {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    min-height: 42px !important;
+    border-radius: 50% !important;
+    background: rgba(18, 113, 32, 0.07) !important;
+    color: #116c4a !important;
+    border: 1.5px solid rgba(18, 113, 32, 0.18) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none !important;
+    flex-shrink: 0 !important;
+}
+
+.circle-btn:hover,
+button.circle-btn:hover {
+    background: #116c4a !important;
+    color: #ffffff !important;
+    border-color: #116c4a !important;
+    transform: translateY(-2px) scale(1.06) !important;
+    box-shadow: 0 6px 16px rgba(17, 108, 74, 0.28) !important;
+}
+
+.circle-btn:active,
+button.circle-btn:active {
+    transform: scale(0.96) !important;
+}
+
+/* --- 2. Table Action Icon Buttons (Edit, Delete, History, Approve, Reject) --- */
+.action-icon-btn,
+button.action-icon-btn {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 6px !important;
+    border-radius: 50% !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease !important;
+}
+
+button.action-icon-btn.btn-edit { color: #116c4a !important; }
+button.action-icon-btn.btn-edit:hover {
+    background: rgba(17, 108, 74, 0.12) !important;
+    color: #0b5235 !important;
+    transform: scale(1.1) !important;
+}
+
+button.action-icon-btn.btn-delete { color: #dc2626 !important; }
+button.action-icon-btn.btn-delete:hover {
+    background: rgba(220, 38, 38, 0.1) !important;
+    color: #b91c1c !important;
+    transform: scale(1.1) !important;
+}
+
+button.action-icon-btn.btn-history { color: #0284c7 !important; }
+button.action-icon-btn.btn-history:hover {
+    background: rgba(2, 132, 199, 0.1) !important;
+    color: #0369a1 !important;
+    transform: scale(1.1) !important;
+}
+
+button.action-icon-btn.btn-approve { color: #059669 !important; }
+button.action-icon-btn.btn-approve:hover {
+    background: rgba(5, 150, 105, 0.12) !important;
+    color: #047857 !important;
+    transform: scale(1.1) !important;
+}
+
+button.action-icon-btn.btn-reject { color: #e11d48 !important; }
+button.action-icon-btn.btn-reject:hover {
+    background: rgba(225, 29, 72, 0.1) !important;
+    color: #be123c !important;
+    transform: scale(1.1) !important;
+}
+
+/* --- 3. Ghost / Clear Buttons --- */
+button.btn-clear,
+.btn-clear {
+    background: transparent !important;
+    color: #116c4a !important;
+    border: 1.5px solid rgba(17, 108, 74, 0.35) !important;
+    border-radius: 8px !important;
+    padding: 5px 14px !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+    white-space: nowrap !important;
+}
+
+button.btn-clear:hover { background: rgba(17, 108, 74, 0.08) !important; }
+
+/* --- 4. Outline Action Buttons (View, Accept alternatives) --- */
+.btn-action-outline,
+button.btn-action-outline {
+    background: transparent !important;
+    color: #116c4a !important;
+    border: 1.5px solid rgba(17, 108, 74, 0.4) !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
+
+button.btn-action-outline:hover { background: rgba(17, 108, 74, 0.09) !important; }
+
+/* --- 5. Solid Action Buttons (Accept, Update Status) --- */
+.btn-action-secondary,
+button.btn-action-secondary {
+    background: #116c4a !important;
+    color: #ffffff !important;
+    border: 1.5px solid #116c4a !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
+
+button.btn-action-secondary:hover { background: #0b5235 !important; border-color: #0b5235 !important; }
+button.btn-action-secondary:disabled { opacity: 0.5 !important; cursor: not-allowed !important; }
+
+/* --- 6. Actor Review Modal Buttons --- */
+button.btn-review-suspend {
+    background: #fef3c7 !important; color: #d97706 !important;
+    border: 1.5px solid #fbbf24 !important; border-radius: 10px !important;
+    padding: 0.6rem 1.25rem !important; font-weight: 600 !important;
+    cursor: pointer !important; transition: all 0.2s ease !important; box-shadow: none !important;
+}
+button.btn-review-suspend:hover { background: #fbbf24 !important; color: #fff !important; }
+
+button.btn-review-activate {
+    background: #dcfce7 !important; color: #15803d !important;
+    border: 1.5px solid #4ade80 !important; border-radius: 10px !important;
+    padding: 0.6rem 1.25rem !important; font-weight: 600 !important;
+    cursor: pointer !important; transition: all 0.2s ease !important; box-shadow: none !important;
+}
+button.btn-review-activate:hover { background: #4ade80 !important; color: #fff !important; }
+
+button.btn-review-delete {
+    background: #fee2e2 !important; color: #dc2626 !important;
+    border: 1.5px solid #f87171 !important; border-radius: 10px !important;
+    padding: 0.6rem 1.25rem !important; font-weight: 600 !important;
+    cursor: pointer !important; transition: all 0.2s ease !important; box-shadow: none !important;
+}
+button.btn-review-delete:hover { background: #dc2626 !important; color: #fff !important; }
+
+button.btn-review-close {
+    background: #f1f5f9 !important; color: #475569 !important;
+    border: 1.5px solid #cbd5e1 !important; border-radius: 10px !important;
+    padding: 0.6rem 1.25rem !important; font-weight: 600 !important;
+    cursor: pointer !important; transition: all 0.2s ease !important; box-shadow: none !important;
+}
+button.btn-review-close:hover { background: #cbd5e1 !important; color: #1e293b !important; }
+
+button.btn-review-approve {
+    background: #dcfce7 !important; color: #15803d !important;
+    border: 1.5px solid #4ade80 !important; border-radius: 10px !important;
+    padding: 0.6rem 1.25rem !important; font-weight: 600 !important;
+    cursor: pointer !important; transition: all 0.2s ease !important; box-shadow: none !important;
+}
+button.btn-review-approve:hover { background: #4ade80 !important; color: #fff !important; }
