@@ -110,12 +110,13 @@ const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
         {/* Notification Bell */}
         <div className="topbar-notifications-wrapper" ref={notificationsRef}>
           <button
-            className={`topbar-icon-btn ${unreadCount > 0 ? 'has-unread' : ''}`}
+            className={`circle-btn ${unreadCount > 0 ? 'has-unread' : ''}`}
+            style={{ position: 'relative' }}
             onClick={() => setNotificationsOpen(!notificationsOpen)}
             aria-label="Notifications"
           >
             <Bell size={22} />
-            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+            {unreadCount > 0 && <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>}
           </button>
 
           {notificationsOpen && (
