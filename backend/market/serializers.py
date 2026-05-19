@@ -232,7 +232,13 @@ class EquipmentSerializer(serializers.ModelSerializer):
 class EquipmentBookingSerializer(serializers.ModelSerializer):
     equipment_name = serializers.CharField(source='equipment.name', read_only=True)
     farmer_name = serializers.CharField(source='farmer.username', read_only=True)
+    farmer_phone = serializers.CharField(source='farmer.phone_number', read_only=True)
+    farmer_email = serializers.CharField(source='farmer.email', read_only=True)
+    farmer_wilaya = serializers.CharField(source='farmer.wilaya', read_only=True)
     provider_name = serializers.CharField(source='equipment.provider.username', read_only=True)
+    provider_phone = serializers.CharField(source='equipment.provider.phone_number', read_only=True)
+    provider_email = serializers.CharField(source='equipment.provider.email', read_only=True)
+    provider_wilaya = serializers.CharField(source='equipment.provider.wilaya', read_only=True)
     equipment_total_quantity = serializers.IntegerField(source='equipment.quantity_available', read_only=True)
     
     class Meta:

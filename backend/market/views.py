@@ -30,7 +30,7 @@ class ProductCatalogViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        queryset = ProductCatalog.objects.all().order_by('name')
+        queryset = ProductCatalog.objects.filter(is_deleted=False).order_by('name')
         category_id = self.request.query_params.get('category')
         search = self.request.query_params.get('search')
         
@@ -62,6 +62,10 @@ class ProductCatalogViewSet(viewsets.ModelViewSet):
         )
         serializer.save(updated_by=self.request.user)
 
+    def perform_destroy(self, instance):
+        instance.is_deleted = True
+        instance.save()
+
 class PriceHistoryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PriceHistorySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -81,11 +85,11 @@ class ProductViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.is_authenticated and hasattr(user, 'role') and user.role == User.Role.FARMER:
-            # Farmers see all their own products
-            queryset = Product.objects.filter(farmer=user).select_related('farmer', 'farm', 'catalog', 'catalog__category')
+            # Farmers see all their own active products
+            queryset = Product.objects.filter(farmer=user, is_deleted=False).select_related('farmer', 'farm', 'catalog', 'catalog__category')
         else:
-            # Buyers and others only see properly catalogued products from approved farms
-            queryset = Product.objects.filter(catalog__isnull=False).select_related('farmer', 'farm', 'catalog', 'catalog__category')
+            # Buyers and others only see active properly catalogued products from approved farms
+            queryset = Product.objects.filter(catalog__isnull=False, is_deleted=False).select_related('farmer', 'farm', 'catalog', 'catalog__category')
 
         search = self.request.query_params.get('search')
         if search:
@@ -162,7 +166,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         if instance.farmer != self.request.user:
             raise permissions.PermissionDenied("You can only delete your own products.")
-        instance.delete()
+        instance.is_deleted = True
+        instance.save()
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -257,9 +262,23 @@ class OrderViewSet(viewsets.ModelViewSet):
                 recipient=order.product.farmer,
                 message=f"New order received for {product_name} ({order.quantity}kg) from {self.request.user.username}."
             )
+            # Real-time WebSocket broadcast to Farmer
+            from .ws_helper import broadcast_ws_event
+            broadcast_ws_event(
+                event="new_order",
+                data={
+                    "id": order.id,
+                    "product_name": product_name,
+                    "quantity": order.quantity,
+                    "buyer_name": self.request.user.username,
+                    "message": f"New order received for {product_name} ({order.quantity}kg) from {self.request.user.username}."
+                },
+                target_role="Farmer",
+                target_user_id=order.product.farmer.id
+            )
         except Exception as e:
             with open("backend_errors.log", "a") as f:
-                f.write(f"New order notification failed: {str(e)}\n")
+                f.write(f"New order notification / WS failed: {str(e)}\n")
 
     def update(self, request, *args, **kwargs):
         try:
@@ -294,9 +313,9 @@ class OrderViewSet(viewsets.ModelViewSet):
                  serializer.save()
             elif user.role == User.Role.BUYER and order.buyer == user:
                 if order.status == 'PENDING' and new_status == 'CANCELLED':
-                    order.product.quantity_available += order.quantity
-                    order.product.save()
-                    serializer.save()
+                     order.product.quantity_available += order.quantity
+                     order.product.save()
+                     serializer.save()
                 else:
                     raise permissions.PermissionDenied("Buyers can only cancel PENDING orders.")
             elif user.role == User.Role.ADMIN:
@@ -313,6 +332,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                     recipient=order.buyer,
                     message=f"Your order #{order.id} for {product_name} has been updated to: {new_status}."
                 )
+                # Real-time WebSocket broadcast to Buyer
+                from .ws_helper import broadcast_ws_event
+                broadcast_ws_event(
+                    event="order_status_update",
+                    data={
+                        "id": order.id,
+                        "product_name": product_name,
+                        "status": new_status,
+                        "message": f"Your order #{order.id} for {product_name} has been updated to: {new_status}."
+                    },
+                    target_role="Buyer",
+                    target_user_id=order.buyer.id
+                )
             except Exception as e:
                 with open("backend_errors.log", "a") as f:
                     f.write(f"Notification creation failed: {str(e)}\n")
@@ -323,6 +355,19 @@ class OrderViewSet(viewsets.ModelViewSet):
                     Notification.objects.create(
                         recipient=order.product.farmer,
                         message=f"Order #{order.id} for {product_name} status updated to: {new_status}."
+                    )
+                    # Real-time WebSocket broadcast to Farmer
+                    from .ws_helper import broadcast_ws_event
+                    broadcast_ws_event(
+                        event="order_status_update",
+                        data={
+                            "id": order.id,
+                            "product_name": product_name,
+                            "status": new_status,
+                            "message": f"Order #{order.id} for {product_name} status updated to: {new_status}."
+                        },
+                        target_role="Farmer",
+                        target_user_id=order.product.farmer.id
                     )
                 except Exception as e:
                     with open("backend_errors.log", "a") as f:
@@ -875,6 +920,23 @@ class EquipmentBookingViewSet(viewsets.ModelViewSet):
             recipient=booking.equipment.provider,
             message=f"New booking request from {self.request.user.username} for {booking.equipment.name}."
         )
+        
+        # Real-time WebSocket broadcast to Provider
+        try:
+            from .ws_helper import broadcast_ws_event
+            broadcast_ws_event(
+                event="new_booking",
+                data={
+                    "id": booking.id,
+                    "equipment_name": booking.equipment.name,
+                    "farmer_name": self.request.user.username,
+                    "message": f"New booking request from {self.request.user.username} for {booking.equipment.name}."
+                },
+                target_role="Equipment Provider",
+                target_user_id=booking.equipment.provider.id
+            )
+        except Exception as e:
+            pass
 
     def perform_update(self, serializer):
         user = self.request.user
@@ -894,88 +956,27 @@ class EquipmentBookingViewSet(viewsets.ModelViewSet):
                     recipient=booking.farmer,
                     message=f"Your booking for {booking.equipment.name} has been {new_status.lower()}."
                 )
+                
+                # Real-time WebSocket broadcast to Farmer
+                try:
+                    from .ws_helper import broadcast_ws_event
+                    broadcast_ws_event(
+                        event="booking_status_update",
+                        data={
+                            "id": booking.id,
+                            "equipment_name": booking.equipment.name,
+                            "status": new_status,
+                            "message": f"Your booking for {booking.equipment.name} has been {new_status.lower()}."
+                        },
+                        target_role="Farmer",
+                        target_user_id=booking.farmer.id
+                    )
+                except Exception as e:
+                    pass
             else:
                  super().perform_update(serializer)
         else:
             super().perform_update(serializer)
 
-
-            booking.save()
-
-        if user.role == User.Role.EQUIPMENT_PROVIDER:
-            return Equipment.objects.filter(provider=user)
-        # Farmers and others can browse equipment
-        queryset = Equipment.objects.all()
-        is_available = self.request.query_params.get('is_available')
-        if is_available:
-            queryset = queryset.filter(is_available=is_available.lower() == 'true')
-        return queryset
-
-    def perform_create(self, serializer):
-        if self.request.user.role != User.Role.EQUIPMENT_PROVIDER:
-             raise permissions.PermissionDenied("Only equipment providers can add equipment.")
-        serializer.save(provider=self.request.user)
-
-    def perform_update(self, serializer):
-        if self.get_object().provider != self.request.user:
-            raise permissions.PermissionDenied("You can only edit your own equipment.")
-        serializer.save()
-
-    def perform_destroy(self, instance):
-        if instance.provider != self.request.user:
-            raise permissions.PermissionDenied("You can only delete your own equipment.")
-        instance.delete()
-
-class EquipmentBookingViewSet(viewsets.ModelViewSet):
-    serializer_class = EquipmentBookingSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.role == User.Role.FARMER:
-            return EquipmentBooking.objects.filter(farmer=user).order_by('-created_at')
-        elif user.role == User.Role.EQUIPMENT_PROVIDER:
-            return EquipmentBooking.objects.filter(equipment__provider=user).order_by('-created_at')
-        return EquipmentBooking.objects.none()
-
-    def perform_create(self, serializer):
-        if self.request.user.role != User.Role.FARMER:
-            raise permissions.PermissionDenied("Only farmers can book equipment.")
-            
-        equipment = serializer.validated_data['equipment']
-        requested_quantity = serializer.validated_data.get('requested_quantity', 1)
-        
-        if equipment.quantity_available < requested_quantity:
-            raise ValidationError({"detail": f"Only {equipment.quantity_available} units available."})
-            
-        booking = serializer.save(farmer=self.request.user)
-        # Create notification for provider
-        Notification.objects.create(
-            recipient=booking.equipment.provider,
-            message=f"New booking request from {self.request.user.username} for {booking.equipment.name}."
-        )
-
-    def perform_update(self, serializer):
-        user = self.request.user
-        booking = self.get_object()
-        
-        if 'status' in serializer.validated_data:
-            new_status = serializer.validated_data['status']
-            if user.role == User.Role.EQUIPMENT_PROVIDER and booking.equipment.provider == user:
-                if new_status == 'ACCEPTED' and booking.status == 'PENDING':
-                    if booking.equipment.quantity_available >= booking.requested_quantity:
-                        booking.equipment.quantity_available -= booking.requested_quantity
-                        booking.equipment.save()
-                    else:
-                        raise ValidationError({"detail": "Not enough available quantity to accept this booking."})
-                serializer.save()
-                Notification.objects.create(
-                    recipient=booking.farmer,
-                    message=f"Your booking for {booking.equipment.name} has been {new_status.lower()}."
-                )
-            else:
-                 super().perform_update(serializer)
-        else:
-            super().perform_update(serializer)
 
 

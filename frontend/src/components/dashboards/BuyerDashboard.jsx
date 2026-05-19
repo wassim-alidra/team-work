@@ -1,14 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import api from "../../api/axios";
-import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ShoppingCart, Package, Truck, CheckCircle, Search, Filter, Trash2, CreditCard, AlertCircle, Bell, ChevronLeft, ChevronRight, Star, Heart } from "lucide-react";
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import ProductPurchaseModal from "../../pages/ProductPurchaseModal";
 import ProductDetailsModal from "../../pages/ProductDetailsModal";
 import OrderDetailsModal from "../common/OrderDetailsModal";
 import { FileText } from "lucide-react";
+import AuthContext from "../../context/AuthContext";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 const BuyerDashboard = ({ activeTab, setActiveTab }) => {
+    const { user } = useContext(AuthContext);
+
+    // Initialize Real-time WebSockets
+    useWebSocket(user, (event, data) => {
+        if (event === "order_status_update") {
+            fetchMyOrders(myOrdersPage);
+            fetchStats();
+            alert(`🎉 Order Status Updated: ${data.message}`);
+        }
+    });
+
     const [products, setProducts] = useState([]);
     const [productsCount, setProductsCount] = useState(0);
     const [productsPage, setProductsPage] = useState(1);
@@ -30,6 +43,24 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     const [cart, setCart] = useState(null); // Simple one-item cart
     const [loading, setLoading] = useState(false);
     const [productsLoading, setProductsLoading] = useState(false);
+
+    // Frontend-only Favorites flow (No DB table needed!)
+    const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem(`buyer_favorites_${user?.username || 'default'}`);
+        return saved ? JSON.parse(saved) : [];
+    });
+    const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+
+    const toggleFavorite = (productId) => {
+        let updated;
+        if (favorites.includes(productId)) {
+            updated = favorites.filter(id => id !== productId);
+        } else {
+            updated = [...favorites, productId];
+        }
+        setFavorites(updated);
+        localStorage.setItem(`buyer_favorites_${user?.username || 'default'}`, JSON.stringify(updated));
+    };
 
     // Modal state
     const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
@@ -371,33 +402,45 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                                     </div>
                                     <div className="flex gap-2">
                                        <button
-    onClick={() => {
-        setSelectedProduct(p);
-        setDetailsModalOpen(true);
-    }}
-    className="circle-btn"
-    title="View Details"
->
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-    >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="10" x2="12" y2="16" />
-        <circle cx="12" cy="7" r="1" />
-    </svg>
-</button>
+                                            onClick={() => {
+                                                setSelectedProduct(p);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                            className="circle-btn"
+                                            title="View Details"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="10" x2="12" y2="16" />
+                                                <circle cx="12" cy="7" r="1" />
+                                            </svg>
+                                        </button>
                                        
-                                           <button  onClick={() => addToCart(p)} className="circle-btn">
-<span className="material-symbols-outlined text-[24px]" data-icon="add_shopping_cart">add_shopping_cart</span>
-</button>
+                                        <button
+                                            onClick={() => toggleFavorite(p.id)}
+                                            className="transition-all duration-200 hover:scale-110 active:scale-95 p-1 flex items-center justify-center"
+                                            title={favorites.includes(p.id) ? "Remove from Favorites" : "Add to Favorites"}
+                                            style={{ background: 'none', border: 'none', boxShadow: 'none' }}
+                                        >
+                                            <Heart 
+                                                size={22} 
+                                                className={favorites.includes(p.id) ? "fill-red-500 text-red-500" : "text-outline hover:text-red-500"} 
+                                            />
+                                        </button>
+
+                                        <button  onClick={() => addToCart(p)} className="circle-btn">
+                                            <span className="material-symbols-outlined text-[24px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -434,6 +477,10 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     }
 
     if (activeTab === "products") {
+        const displayedProducts = showOnlyFavorites
+            ? products.filter(p => favorites.includes(p.id))
+            : products;
+
         content = (
             <div className="max-w-container-max mx-auto space-y-xl animate-in">
                 <section className="space-y-lg">
@@ -442,6 +489,19 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                             <h1 className="font-h1 text-h1 text-on-surface">Global Marketplace</h1>
                             <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Source high-quality agricultural commodities from verified sellers nationwide.</p>
                         </div>
+                        {/* Premium Favorites Toggle Button */}
+                        <button
+                            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+                            className={`px-5 py-3 rounded-full font-button text-sm transition-all duration-300 flex items-center gap-2 border shadow-sm ${
+                                showOnlyFavorites 
+                                    ? "bg-red-500 text-white border-red-500 hover:bg-red-600" 
+                                    : "bg-surface-container-lowest text-on-surface border-outline-variant/30 hover:bg-surface-bright"
+                            }`}
+                            style={{ display: 'inline-flex', alignItems: 'center' }}
+                        >
+                            <Heart size={18} className={showOnlyFavorites ? "fill-white text-white" : "text-red-500 fill-red-500"} />
+                            <span>{showOnlyFavorites ? "Showing Favorites" : "Favorites Only"}</span>
+                        </button>
                     </div>
 
                     <div className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-4">
@@ -487,30 +547,46 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                 </section>
 
                 <section className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md transition-opacity duration-300 ${productsLoading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                    {products.map(p => (
-                        <article key={p.id} className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(26,58,52,0.05)] hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-shadow duration-300 border border-outline-variant/10 flex flex-col group cursor-pointer">
+                    {displayedProducts.map(p => (
+                        <article key={p.id} className="product-card-opt group">
                              <div className="h-48 w-full bg-surface-variant relative overflow-hidden flex items-center justify-center text-4xl text-primary font-bold">
-                                 {p.product_image ? (
-                                    <img src={p.product_image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                ) : p.catalog_image ? (
-                                    <img src={p.catalog_image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                ) : (
-                                    (p.name?.[0] || 'P')
-                                )}
+                                  {p.product_image ? (
+                                     <img src={p.product_image} alt={p.name} loading="lazy" className="w-full h-full object-cover product-image-gpu" />
+                                 ) : p.catalog_image ? (
+                                     <img src={p.catalog_image} alt={p.name} loading="lazy" className="w-full h-full object-cover product-image-gpu" />
+                                 ) : (
+                                     (p.name?.[0] || 'P')
+                                 )}
                                 <div className="absolute top-3 left-3 flex flex-col gap-2">
                                     {p.is_default_image && (
-                                        <span className="px-2 py-1 bg-surface-container-lowest/90 backdrop-blur-sm text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm w-fit">
+                                        <span className="px-2 py-1 bg-white/95 text-secondary font-label-caps text-label-caps rounded border border-secondary/20 flex items-center gap-1 shadow-sm w-fit">
                                             <AlertCircle size={14} /> Default Photo
                                         </span>
                                     )}
-                                    <span className={`px-2 py-1 backdrop-blur-sm font-label-caps text-label-caps rounded border flex items-center gap-1 shadow-sm w-fit ${
-                                        p.quality_grade === 'HIGH' ? 'bg-green-500/90 text-white border-green-400' :
-                                        p.quality_grade === 'MEDIUM' ? 'bg-yellow-500/90 text-white border-yellow-400' :
-                                        'bg-red-500/90 text-white border-red-400'
+                                    <span className={`px-2 py-1 font-label-caps text-label-caps rounded border flex items-center gap-1 shadow-sm w-fit ${
+                                        p.quality_grade === 'HIGH' ? 'bg-green-600 text-white border-green-500' :
+                                        p.quality_grade === 'MEDIUM' ? 'bg-amber-600 text-white border-amber-500' :
+                                        'bg-red-600 text-white border-red-500'
                                     }`}>
                                         {p.quality_grade || 'HIGH'} Quality
                                     </span>
                                 </div>
+                                {/* Sleek Floating Favorite Heart Button on Top of the Card Image */}
+                                <button
+                                    onClick={() => toggleFavorite(p.id)}
+                                    className="absolute top-3 right-3 z-10 p-1 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
+                                    title={favorites.includes(p.id) ? "Remove from Favorites" : "Add to Favorites"}
+                                    style={{ background: 'none', border: 'none', boxShadow: 'none' }}
+                                >
+                                    <Heart 
+                                        size={26} 
+                                        className={`transition-all duration-300 ${
+                                            favorites.includes(p.id) 
+                                                ? "fill-red-500 text-red-500 filter drop-shadow-[0_2px_4px_rgba(239,68,68,0.4)]" 
+                                                : "text-white hover:text-red-500 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                                        }`}
+                                    />
+                                </button>
                             </div>
                             <div className="p-5 flex flex-col flex-1">
                                 <h3 className="font-body-lg text-body-lg font-semibold text-on-surface line-clamp-2 mb-2">{p.name || "Unnamed Product"}</h3>
@@ -535,41 +611,42 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                                         <span className="font-label-caps text-label-caps text-outline">per {p.catalog_unit || 'kg'}</span>
                                     </div>
                                     <div className="flex gap-2">
-                                       <button
-    onClick={() => {
-        setSelectedProduct(p);
-        setDetailsModalOpen(true);
-    }}
-    className="circle-btn"
-    title="View Details"
->
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-    >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="10" x2="12" y2="16" />
-        <circle cx="12" cy="7" r="1" />
-    </svg>
-</button>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedProduct(p);
+                                                setDetailsModalOpen(true);
+                                            }}
+                                            className="circle-btn"
+                                            title="View Details"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="10" x2="12" y2="16" />
+                                                <circle cx="12" cy="7" r="1" />
+                                            </svg>
+                                        </button>
+
                                         {p.quantity_available > 0 && (
-                                           <button  onClick={() => addToCart(p)} className="circle-btn">
-<span className="material-symbols-outlined text-[24px]" data-icon="add_shopping_cart">add_shopping_cart</span>
-</button>
+                                            <button  onClick={() => addToCart(p)} className="circle-btn">
+                                                <span className="material-symbols-outlined text-[24px]" data-icon="add_shopping_cart">add_shopping_cart</span>
+                                            </button>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         </article>
                     ))}
-                    {products.length === 0 && <p className="col-span-full text-center text-on-surface-variant py-8">No products found matching your filters.</p>}
+                    {displayedProducts.length === 0 && <p className="col-span-full text-center text-on-surface-variant py-8">No products found matching your filters.</p>}
                 </section>
                 <Pagination
                     currentPage={productsPage}

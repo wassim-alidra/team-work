@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import api from "../../api/axios";
 import {
     Home, Package, Clock, CheckCircle,
@@ -9,8 +9,20 @@ import {
 } from "lucide-react";
 import "../../styles/dashboard.css";
 import "../../styles/equipment_provider.css";
+import AuthContext from "../../context/AuthContext";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 const EquipmentProviderDashboard = ({ activeTab }) => {
+    const { user } = useContext(AuthContext);
+
+    // Initialize Real-time WebSockets
+    useWebSocket(user, (event, data) => {
+        if (event === "new_booking") {
+            fetchBookings();
+            alert(`🎉 Real-Time Booking Request: ${data.message}`);
+        }
+    });
+
     const [equipment, setEquipment] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -41,6 +53,8 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
         available_fleet: 0
     });
     const [notifications, setNotifications] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
     useEffect(() => {
         fetchEquipment();
@@ -50,6 +64,15 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
             api.post("market/notifications/mark_all_as_read/").catch(console.error);
         }
     }, [activeTab]);
+
+    useEffect(() => {
+        if (isUserModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isUserModalOpen]);
 
     const fetchEquipment = async () => {
         try {
@@ -275,7 +298,7 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
 
                 <div className="ep-bento-grid">
                     {/* Sales Performance Chart */}
-                    <div className="col-span-1 md:col-span-8 ep-card">
+                    <div className="col-span-1 md:col-span-12 ep-card">
                         <div className="flex items-center justify-between mb-lg">
                             <h3 className="ep-h3"><TrendingUp size={24} className="text-secondary" /> Rental Revenue</h3>
                             <div className="flex gap-2">
@@ -303,33 +326,7 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                         </div>
                     </div>
 
-                    {/* Inventory Status */}
-                    <div className="col-span-1 md:col-span-4 ep-card ep-card-primary">
-                        <h3 className="ep-h3 text-white mb-lg"><Package size={24} className="text-secondary-container" /> Fleet Health</h3>
-                        <div className="space-y-6">
-                            <div className="ep-status-row">
-                                <div className="ep-status-info">
-                                    <span className="font-semibold text-sm">Overall Availability</span>
-                                    <span className="font-bold">{Math.round((stats.available_fleet / (stats.total_equipment || 1)) * 100)}%</span>
-                                </div>
-                                <div className="ep-progress-bg">
-                                    <div className="ep-progress-fill" style={{ width: `${(stats.available_fleet / (stats.total_equipment || 1)) * 100}%` }}></div>
-                                </div>
-                            </div>
-                            <div className="ep-status-row">
-                                <div className="ep-status-info">
-                                    <span className="font-semibold text-sm">Service Rate</span>
-                                    <span className="font-bold">94%</span>
-                                </div>
-                                <div className="ep-progress-bg">
-                                    <div className="ep-progress-fill" style={{ width: '94%', backgroundColor: '#4ade80' }}></div>
-                                </div>
-                            </div>
-                        </div>
-                        <button className="mt-auto w-full bg-white text-primary font-bold py-3 rounded-lg hover:bg-surface-container-high transition-colors" onClick={() => window.scrollTo(0,0)}>
-                            Optimize Fleet
-                        </button>
-                    </div>
+
 
                     {/* Recent Inquiries/Bookings */}
                     <div className="col-span-1 md:col-span-6 ep-card">
@@ -342,10 +339,11 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                                 <div key={b.id} className="ep-inquiry-item">
                                     <div className="ep-avatar"><Users size={20} /></div>
                                     <div className="flex-1">
-                                        <div className="flex justify-between items-start">
-                                            <h4 className="font-bold">{b.farmer_name}</h4>
-                                            <span className="text-[10px] text-outline font-bold uppercase">New</span>
-                                        </div>
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="font-bold mb-1">{b.farmer_name}</h4>
+                                                <span className="text-[10px] text-outline font-bold uppercase">New</span>
+                                            </div>
+                                            <button onClick={() => { setSelectedUser({name: b.farmer_name, phone: b.farmer_phone, email: b.farmer_email, wilaya: b.farmer_wilaya, role: 'Farmer'}); setIsUserModalOpen(true); }} className="px-3 py-1.5 mt-1 rounded-lg font-button text-[10px] bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center w-max gap-1 shadow-sm active:scale-95"><Users size={12}/> Client Info</button>
                                         <p className="text-sm text-on-surface-variant line-clamp-1">Requested {b.equipment_name} for {b.rental_days} days.</p>
                                         <div className="flex gap-2 mt-2">
                                             <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] rounded font-bold uppercase">Pending</span>
@@ -406,7 +404,9 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                                     <div key={b.id} className="flex justify-between items-center bg-surface-container-low p-md rounded-xl border border-outline-variant/30 hover:border-emerald-500/40 transition-colors">
                                         <div>
                                             <h4 className="font-bold text-primary text-sm">{b.equipment_name}</h4>
-                                            <p className="text-xs text-on-surface-variant font-medium">Leased by <strong>{b.farmer_name}</strong></p>
+                                            <p className="text-xs text-on-surface-variant font-medium flex items-center gap-2 mt-1">Leased by <strong>{b.farmer_name}</strong> 
+                                                <button onClick={() => { setSelectedUser({name: b.farmer_name, phone: b.farmer_phone, email: b.farmer_email, wilaya: b.farmer_wilaya, role: 'Farmer'}); setIsUserModalOpen(true); }} className="px-3 py-1 rounded-lg font-button text-[10px] bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"><Users size={12}/> Info</button>
+                                            </p>
                                             <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded mt-1 inline-block">{remainingText}</span>
                                         </div>
                                         <div className="text-right">
@@ -696,123 +696,161 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
         </div>
     );
 
-    if (activeTab === "equipment") return renderEquipment();
-
-    if (activeTab === "orders") {
-        return (
-            <div className="ep-dashboard-container animate-in">
-                <header className="mb-lg">
-                    <span className="ep-label-caps">Booking Logistics</span>
-                    <h1 className="ep-h1">Rental Requests</h1>
-                    <p className="text-on-surface-variant mt-2 max-w-2xl">Manage machinery bookings and dispatch schedules from farmers across the country.</p>
-                </header>
-
-                <div className="ep-card overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="history-table w-full">
-                            <thead>
-                                <tr className="border-b border-surface-container-highest">
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Request ID</th>
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Machinery</th>
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Farmer Profile</th>
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Timeline</th>
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Rental Details</th>
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Total Revenue</th>
-                                    <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Current Status</th>
-                                    <th className="py-4 font-label-caps text-right" style={{fontSize: '10px'}}>Management</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-surface-container">
-                                {bookings.map(b => (
-                                    <tr key={b.id} className="hover:bg-surface-bright transition-colors">
-                                        <td className="py-4 text-sm font-bold">#{b.id}</td>
-                                        <td className="py-4">
-                                            <div className="font-bold text-primary">{b.equipment_name}</div>
-                                            <div className="text-[10px] text-on-surface-variant uppercase font-semibold">Asset ID: {b.equipment}</div>
-                                        </td>
-                                        <td className="py-4">
-                                            <div className="font-medium">{b.farmer_name}</div>
-                                        </td>
-                                        <td className="py-4 text-sm">
-                                            {new Date(b.created_at).toLocaleDateString()}
-                                        </td>
-                                        <td className="py-4">
-                                            <div className="text-sm font-medium">{b.requested_quantity} Unit(s)</div>
-                                            <div className="text-[10px] text-secondary font-bold uppercase">{b.rental_days} Rental Day(s)</div>
-                                        </td>
-                                        <td className="py-4 font-bold text-secondary">
-                                            {b.total_price ? `${b.total_price.toLocaleString()} DA` : '--'}
-                                        </td>
-                                        <td className="py-4">
-                                            <span className={`status-badge ${b.status.toLowerCase()} shadow-sm`}>{b.status}</span>
-                                        </td>
-                                        <td className="py-4 text-right">
-                                            {b.status === 'PENDING' ? (
-                                                <div className="flex gap-2 justify-end">
-                                                    <button className="p-2 rounded-lg bg-secondary-container text-on-secondary-container hover:shadow-md transition-all" onClick={() => handleUpdateBookingStatus(b.id, 'ACCEPTED')} title="Authorize">
-                                                        <CheckCircle size={18} />
-                                                    </button>
-                                                    <button className="p-2 rounded-lg bg-error-container text-on-error-container hover:shadow-md transition-all" onClick={() => handleUpdateBookingStatus(b.id, 'REJECTED')} title="Decline">
-                                                        <AlertCircle size={18} />
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <span className="text-xs text-on-surface-variant font-medium italic">Processed</span>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                        {bookings.length === 0 && (
-                            <div className="py-12 text-center text-on-surface-variant">
-                                <div className="mb-4 flex justify-center opacity-20"><Briefcase size={64} /></div>
-                                <p>No machinery bookings have been registered yet.</p>
-                            </div>
-                        )}
+    const renderUserModal = () => (
+        isUserModalOpen && selectedUser && (
+            <div className="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                <div className="bg-surface-container-lowest rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-primary/5">
+                        <h3 className="font-h3 text-h3 text-primary">{selectedUser.role} Information</h3>
+                        <button onClick={() => setIsUserModalOpen(false)} className="p-2 hover:bg-surface-variant rounded-full transition-colors"><span className="material-symbols-outlined">close</span></button>
+                    </div>
+                    <div className="p-6 space-y-4">
+                        <div className="flex items-center gap-3"><Users className="text-secondary" size={20} /> <span className="font-bold">{selectedUser.name}</span></div>
+                        <div className="flex items-center gap-3"><span className="material-symbols-outlined text-secondary text-[20px]">call</span> <span>{selectedUser.phone || 'Not provided'}</span></div>
+                        <div className="flex items-center gap-3"><span className="material-symbols-outlined text-secondary text-[20px]">mail</span> <span>{selectedUser.email || 'Not provided'}</span></div>
+                        <div className="flex items-center gap-3"><MapPin className="text-secondary" size={20} /> <span>{selectedUser.wilaya || 'Not provided'}</span></div>
                     </div>
                 </div>
             </div>
+        )
+    );
+
+    if (activeTab === "equipment") return (
+        <>
+            {renderEquipment()}
+            {renderUserModal()}
+        </>
+    );
+
+    if (activeTab === "orders") {
+        return (
+            <>
+                <div className="ep-dashboard-container animate-in">
+                    <header className="mb-lg">
+                        <span className="ep-label-caps">Booking Logistics</span>
+                        <h1 className="ep-h1">Rental Requests</h1>
+                        <p className="text-on-surface-variant mt-2 max-w-2xl">Manage machinery bookings and dispatch schedules from farmers across the country.</p>
+                    </header>
+
+                    <div className="ep-card overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="history-table w-full">
+                                <thead>
+                                    <tr className="border-b border-surface-container-highest">
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Request ID</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Machinery</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Farmer Profile</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Timeline</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Rental Details</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Total Revenue</th>
+                                        <th className="py-4 font-label-caps" style={{fontSize: '10px'}}>Current Status</th>
+                                        <th className="py-4 font-label-caps text-right" style={{fontSize: '10px'}}>Management</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-surface-container">
+                                    {bookings.map(b => (
+                                        <tr key={b.id} className="hover:bg-surface-bright transition-colors">
+                                            <td className="py-4 text-sm font-bold">#{b.id}</td>
+                                            <td className="py-4">
+                                                <div className="font-bold text-primary">{b.equipment_name}</div>
+                                                <div className="text-[10px] text-on-surface-variant uppercase font-semibold">Asset ID: {b.equipment}</div>
+                                            </td>
+                                            <td className="py-4">
+                                                <div className="font-medium flex flex-col items-start gap-1">
+                                                    {b.farmer_name}
+                                                    <button onClick={() => { setSelectedUser({name: b.farmer_name, phone: b.farmer_phone, email: b.farmer_email, wilaya: b.farmer_wilaya, role: 'Farmer'}); setIsUserModalOpen(true); }} className="px-3 py-1.5 rounded-lg font-button text-[10px] bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"><Users size={12}/> Client Info</button>
+                                                </div>
+                                            </td>
+                                            <td className="py-4 text-sm">
+                                                {new Date(b.created_at).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-4">
+                                                <div className="text-sm font-medium">{b.requested_quantity} Unit(s)</div>
+                                                <div className="text-[10px] text-secondary font-bold uppercase">{b.rental_days} Rental Day(s)</div>
+                                            </td>
+                                            <td className="py-4 font-bold text-secondary">
+                                                {b.total_price ? `${b.total_price.toLocaleString()} DA` : '--'}
+                                            </td>
+                                            <td className="py-4">
+                                                <span className={`status-badge ${b.status.toLowerCase()} shadow-sm`}>{b.status}</span>
+                                            </td>
+                                            <td className="py-4 text-right">
+                                                {b.status === 'PENDING' ? (
+                                                    <div className="flex gap-2 justify-end">
+                                                        <button className="p-2 rounded-lg bg-secondary-container text-on-secondary-container hover:shadow-md transition-all" onClick={() => handleUpdateBookingStatus(b.id, 'ACCEPTED')} title="Authorize">
+                                                            <CheckCircle size={18} />
+                                                        </button>
+                                                        <button className="p-2 rounded-lg bg-error-container text-on-error-container hover:shadow-md transition-all" onClick={() => handleUpdateBookingStatus(b.id, 'REJECTED')} title="Decline">
+                                                            <AlertCircle size={18} />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-on-surface-variant font-medium italic">Processed</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            {bookings.length === 0 && (
+                                <div className="py-12 text-center text-on-surface-variant">
+                                    <div className="mb-4 flex justify-center opacity-20"><Briefcase size={64} /></div>
+                                    <p>No machinery bookings have been registered yet.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                {renderUserModal()}
+            </>
         );
     }
 
     if (activeTab === "notifications") {
         return (
-            <div className="ep-dashboard-container animate-in">
-                <header className="mb-lg">
-                    <span className="ep-label-caps">Communication Center</span>
-                    <h1 className="ep-h1">Notifications</h1>
-                    <p className="text-on-surface-variant mt-2 max-w-2xl">Official alerts and messages regarding your machinery fleet and rental operations.</p>
-                </header>
-                <div className="space-y-4">
-                    {notifications.map(n => (
-                        <div key={n.id} className="ep-card flex gap-4 hover:border-secondary transition-colors cursor-pointer group">
-                            <div className="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-secondary group-hover:bg-secondary-container transition-colors">
-                                <Info size={24} />
-                            </div>
-                            <div className="flex-1">
-                                <p className="font-medium text-primary mb-1">{n.message}</p>
-                                <div className="flex items-center gap-2 text-on-surface-variant">
-                                    <Clock size={12} />
-                                    <span className="text-xs font-bold uppercase">{new Date(n.created_at).toLocaleString()}</span>
+            <>
+                <div className="ep-dashboard-container animate-in">
+                    <header className="mb-lg">
+                        <span className="ep-label-caps">Communication Center</span>
+                        <h1 className="ep-h1">Notifications</h1>
+                        <p className="text-on-surface-variant mt-2 max-w-2xl">Official alerts and messages regarding your machinery fleet and rental operations.</p>
+                    </header>
+                    <div className="space-y-4">
+                        {notifications.map(n => (
+                            <div key={n.id} className="ep-card flex gap-4 hover:border-secondary transition-colors cursor-pointer group">
+                                <div className="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center text-secondary group-hover:bg-secondary-container transition-colors">
+                                    <Info size={24} />
                                 </div>
+                                <div className="flex-1">
+                                    <p className="font-medium text-primary mb-1">{n.message}</p>
+                                    <div className="flex items-center gap-2 text-on-surface-variant">
+                                        <Clock size={12} />
+                                        <span className="text-xs font-bold uppercase">{new Date(n.created_at).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <button className="text-outline-variant hover:text-secondary"><ChevronRight size={24} /></button>
                             </div>
-                            <button className="text-outline-variant hover:text-secondary"><ChevronRight size={24} /></button>
-                        </div>
-                    ))}
-                    {notifications.length === 0 && (
-                        <div className="ep-card text-center py-20">
-                            <div className="mb-4 flex justify-center opacity-20"><Info size={64} /></div>
-                            <p className="text-on-surface-variant font-medium">Your notification inbox is currently clear.</p>
-                        </div>
-                    )}
+                        ))}
+                        {notifications.length === 0 && (
+                            <div className="ep-card text-center py-20">
+                                <div className="mb-4 flex justify-center opacity-20"><Info size={64} /></div>
+                                <p className="text-on-surface-variant font-medium">Your notification inbox is currently clear.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+                {renderUserModal()}
+            </>
         );
     }
 
     // Default dashboard view
-    return renderDashboard();
+    return (
+        <>
+            {renderDashboard()}
+            {renderUserModal()}
+        </>
+    );
 };
 
 export default EquipmentProviderDashboard;

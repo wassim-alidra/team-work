@@ -480,6 +480,9 @@
     padding: 1.5rem;
     overflow-y: auto;
     background: #f0f7f4;
+    will-change: scroll-position;
+    transform: translateZ(0);
+    backface-visibility: hidden;
 }
 
 .glass-panel {
@@ -2544,4 +2547,37 @@
 .bg-error-container { background-color: #fee2e2 !important; }
 .hover-bg-error:hover { background-color: #dc2626 !important; color: white !important; }
 .hover-text-error:hover { color: #dc2626 !important; }
-.hover-bg-error-container:hover { background-color: #fee2e2 !important; }
+.hover-bg-error-container:hover { background-color: #fee2e2 !important; }
+
+/* GPU Optimized Product Cards */
+.product-card-opt {
+    background: #ffffff;
+    border: 1px solid rgba(26,58,52,0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(26, 58, 52, 0.04);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease;
+    will-change: transform, border-color;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: content;
+}
+
+.product-card-opt:hover {
+    transform: translateY(-4px) translateZ(0);
+    border-color: rgba(17, 108, 74, 0.4);
+    box-shadow: 0 8px 24px rgba(26, 58, 52, 0.07);
+}
+
+.product-image-gpu {
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.product-card-opt:hover .product-image-gpu {
+    transform: scale(1.04) translateZ(0);
+}

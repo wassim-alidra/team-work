@@ -31,6 +31,7 @@ class ProductCatalog(models.Model):
     season = models.CharField(max_length=20, choices=Season.choices, default=Season.SPRING)
     year = models.IntegerField(default=2024)
     image = models.ImageField(upload_to='catalog_images/', null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
     updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='updated_catalog_items')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -66,6 +67,7 @@ class Product(models.Model):
     quantity_available = models.FloatField(help_text="Quantity in kg")
     quality_grade = models.CharField(max_length=10, choices=QualityGrade.choices, default=QualityGrade.HIGH)
     image = models.ImageField(upload_to='product_images/', null=True, blank=True)
+    is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

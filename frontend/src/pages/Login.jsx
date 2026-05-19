@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import api from '../api/axios';
@@ -18,6 +18,29 @@ const Login = () => {
     const [userEmail, setUserEmail] = useState('');           // captured from the form
     const [resendMsg, setResendMsg] = useState('');
     const [resending, setResending] = useState(false);
+
+    // Forgot Password flow states
+    const [forgotOpen, setForgotOpen] = useState(false);
+    const [forgotStep, setForgotStep] = useState(1); // 1 = Request Code, 2 = Enter Code & Reset Password
+    const [forgotUsername, setForgotUsername] = useState('');
+    const [forgotCode, setForgotCode] = useState('');
+    const [forgotNewPassword, setForgotNewPassword] = useState('');
+    const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
+    const [forgotError, setForgotError] = useState('');
+    const [forgotSuccess, setForgotSuccess] = useState('');
+    const [forgotLoading, setForgotLoading] = useState(false);
+
+    // Body scroll lock effect
+    useEffect(() => {
+        if (forgotOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [forgotOpen]);
 
     // If redirected from VerifyEmail after successful verification
     const justVerified = location.state?.verified;
@@ -53,6 +76,58 @@ const Login = () => {
             setResendMsg(detail);
         } finally {
             setResending(false);
+        }
+    };
+
+    const handleRequestForgotOTP = async (e) => {
+        e.preventDefault();
+        setForgotLoading(true);
+        setForgotError('');
+        try {
+            const response = await api.post('users/forgot-password/', { username: forgotUsername });
+            setForgotSuccess(response.data.message);
+            setTimeout(() => {
+                setForgotSuccess('');
+                setForgotStep(2);
+            }, 1500);
+        } catch (err) {
+            const detail = err.response?.data?.error || 'No account found with this username.';
+            setForgotError(detail);
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        if (forgotNewPassword !== forgotConfirmPassword) {
+            setForgotError('Passwords do not match!');
+            return;
+        }
+        setForgotLoading(true);
+        setForgotError('');
+        try {
+            const response = await api.post('users/reset-password/', {
+                username: forgotUsername,
+                code: forgotCode,
+                new_password: forgotNewPassword
+            });
+            setForgotSuccess(response.data.message);
+            setTimeout(() => {
+                setForgotSuccess('');
+                // Reset all forgot states and close modal
+                setForgotOpen(false);
+                setForgotStep(1);
+                setForgotUsername('');
+                setForgotCode('');
+                setForgotNewPassword('');
+                setForgotConfirmPassword('');
+            }, 2500);
+        } catch (err) {
+            const detail = err.response?.data?.error || 'Invalid code or password reset failed. Please try again.';
+            setForgotError(detail);
+        } finally {
+            setForgotLoading(false);
         }
     };
 
@@ -119,7 +194,7 @@ const Login = () => {
                         <label style={{ display:'flex', alignItems:'center', gap:'0.5rem', cursor:'pointer', color:'#475569' }}>
                             <input type="checkbox" style={{ width:'auto', margin:0 }} /> Remember me
                         </label>
-                        <a href="#" style={{ color:'#116c4a', fontWeight:600, textDecoration:'none', fontSize:'0.875rem' }}>Forgot password?</a>
+                        <button type="button" onClick={() => { setForgotOpen(true); setForgotStep(1); setForgotError(''); setForgotSuccess(''); }} style={{ background:'none', border:'none', padding:0, color:'#116c4a', fontWeight:600, cursor:'pointer', fontSize:'0.875rem', textDecoration:'none' }}>Forgot password?</button>
                     </div>
 
                     {error && (
@@ -153,6 +228,168 @@ const Login = () => {
                     Don't have an account? <Link to="/register" style={{ color:'#116c4a', fontWeight:700, textDecoration:'none' }}>Register</Link>
                 </p>
             </div>
+
+            {/* Forgot Password Modal Overlay */}
+            {forgotOpen && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(1, 45, 29, 0.7)',
+                    backdropFilter: 'blur(8px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 9999,
+                    padding: '1rem',
+                }}>
+                    <div style={{
+                        background: '#ffffff',
+                        borderRadius: '24px',
+                        boxShadow: '0 20px 50px rgba(0, 0, 0, 0.2)',
+                        width: '100%',
+                        maxWidth: '420px',
+                        overflow: 'hidden',
+                        position: 'relative',
+                        animation: 'fadeIn 0.3s ease-out'
+                    }}>
+                        {/* Header */}
+                        <div style={{ padding: '2rem 2.5rem 1.25rem', borderBottom: '1px solid #e8eff1', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h3 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', fontWeight: 800, color: '#012d1d', margin: 0 }}>Reset Password</h3>
+                                <p style={{ fontSize: '0.85rem', color: '#717973', margin: '4px 0 0' }}>
+                                    {forgotStep === 1 ? 'Request a 6-digit verification code' : 'Verify code and set a new password'}
+                                </p>
+                            </div>
+                            <button 
+                                onClick={() => setForgotOpen(false)}
+                                style={{
+                                    background: '#f1f5f9',
+                                    border: 'none',
+                                    borderRadius: '50%',
+                                    width: '32px',
+                                    height: '32px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#475569',
+                                    cursor: 'pointer',
+                                    fontSize: '16px',
+                                    fontWeight: 'bold',
+                                    transition: 'background 0.2s',
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#e2e8f0'}
+                                onMouseLeave={(e) => e.target.style.background = '#f1f5f9'}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Form Body */}
+                        <div style={{ padding: '2rem 2.5rem' }}>
+                            {forgotError && (
+                                <div className="login-error" style={{ marginBottom: '1.25rem' }}>
+                                    <span className="icon">✖</span>
+                                    <span>{forgotError}</span>
+                                </div>
+                            )}
+
+                            {forgotSuccess && (
+                                <div className="login-success-banner" style={{ marginBottom: '1.25rem' }}>
+                                    <span>✅ {forgotSuccess}</span>
+                                </div>
+                            )}
+
+                            {forgotStep === 1 ? (
+                                <form onSubmit={handleRequestForgotOTP}>
+                                    <div className="lp-field">
+                                        <label className="lp-label">Username</label>
+                                        <input 
+                                            className="lp-input-field" 
+                                            type="text" 
+                                            placeholder="Enter your account username" 
+                                            value={forgotUsername}
+                                            onChange={(e) => setForgotUsername(e.target.value)}
+                                            required 
+                                        />
+                                    </div>
+                                    <button 
+                                        className="lp-signin-btn" 
+                                        type="submit" 
+                                        disabled={forgotLoading}
+                                        style={{ marginTop: '0.5rem' }}
+                                    >
+                                        {forgotLoading ? 'Sending Reset Code...' : 'Send Reset Code'}
+                                    </button>
+                                </form>
+                            ) : (
+                                <form onSubmit={handleResetPassword}>
+                                    <div className="lp-field" style={{ marginBottom: '1rem' }}>
+                                        <label className="lp-label">Verification Code</label>
+                                        <input 
+                                            className="lp-input-field" 
+                                            type="text" 
+                                            placeholder="Enter 6-digit OTP" 
+                                            maxLength="6"
+                                            value={forgotCode}
+                                            onChange={(e) => setForgotCode(e.target.value)}
+                                            required 
+                                        />
+                                    </div>
+                                    <div className="lp-field" style={{ marginBottom: '1rem' }}>
+                                        <label className="lp-label">New Password</label>
+                                        <input 
+                                            className="lp-input-field" 
+                                            type="password" 
+                                            placeholder="Enter new password" 
+                                            value={forgotNewPassword}
+                                            onChange={(e) => setForgotNewPassword(e.target.value)}
+                                            required 
+                                        />
+                                    </div>
+                                    <div className="lp-field" style={{ marginBottom: '1.5rem' }}>
+                                        <label className="lp-label">Confirm New Password</label>
+                                        <input 
+                                            className="lp-input-field" 
+                                            type="password" 
+                                            placeholder="Confirm new password" 
+                                            value={forgotConfirmPassword}
+                                            onChange={(e) => setForgotConfirmPassword(e.target.value)}
+                                            required 
+                                        />
+                                    </div>
+                                    <button 
+                                        className="lp-signin-btn" 
+                                        type="submit" 
+                                        disabled={forgotLoading}
+                                    >
+                                        {forgotLoading ? 'Updating Password...' : 'Reset Password'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setForgotStep(1)}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            width: '100%',
+                                            textAlign: 'center',
+                                            marginTop: '1rem',
+                                            color: '#64748b',
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            textDecoration: 'underline'
+                                        }}
+                                    >
+                                        Back to step 1
+                                    </button>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
         </div>
     );

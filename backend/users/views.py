@@ -74,12 +74,12 @@ class RegisterView(generics.CreateAPIView):
         EmailOTP.objects.create(email=user.email, code=code)
 
         # Send email (best-effort; log but don't crash the API)
+        print(f"[DEVELOPMENT ONLY] Generated email verification code for {user.email}: {code}")
         try:
             send_otp_email(user.email, code)
         except Exception as exc:
             # In dev without SMTP configured, just print to console
-            print(f"[OTP EMAIL] Could not send email to {user.email}: {exc}")
-            print(f"[OTP EMAIL] Code for {user.email}: {code}")
+            print(f"[OTP EMAIL ERROR] Could not send email to {user.email}: {exc}")
 
         return Response(
             {
@@ -195,11 +195,11 @@ class ResendOTPView(APIView):
         code = generate_otp()
         EmailOTP.objects.create(email=user.email, code=code)
 
+        print(f"[DEVELOPMENT ONLY] Resent email verification code for {user.email}: {code}")
         try:
             send_otp_email(user.email, code)
         except Exception as exc:
-            print(f"[OTP EMAIL] Could not send email to {user.email}: {exc}")
-            print(f"[OTP EMAIL] Code for {user.email}: {code}")
+            print(f"[OTP EMAIL ERROR] Could not send email to {user.email}: {exc}")
 
         return Response(
             {"message": "A new verification code has been sent to your email."},
@@ -305,3 +305,138 @@ class ChangePasswordView(APIView):
             return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RequestPasswordResetOTPView(APIView):
+    """
+    POST /users/forgot-password/
+    Body: { "username": "<username>" }
+    Generates and emails a 6-digit OTP to the email of the specified user account.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username', '').strip()
+        if not username:
+            return Response(
+                {"error": "Username is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Look up by unique username
+        user = User.objects.filter(username=username).first()
+
+        if not user:
+            return Response(
+                {"error": f"No account found with username '{username}'."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        if not user.email:
+            return Response(
+                {"error": "This account does not have a registered email address. Please contact support."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Delete any existing OTPs and create a fresh one for this email
+        EmailOTP.objects.filter(email__iexact=user.email).delete()
+        code = generate_otp()
+        EmailOTP.objects.create(email=user.email, code=code)
+
+        # Send email via Gmail SMTP
+        subject = "AgriGov – Reset Your Password"
+        message = (
+            f"Hello {user.username},\n\n"
+            f"You requested a password reset for your AgriGov account.\n"
+            f"Your 6-digit verification code is:\n\n"
+            f"  {code}\n\n"
+            f"This code will expire in {settings.OTP_EXPIRY_MINUTES} minutes.\n"
+            f"If you did not request this, please ignore this email.\n\n"
+            f"— The AgriGov Team"
+        )
+
+        print(f"[DEVELOPMENT ONLY] Generated password reset code for {user.email} (Username: {user.username}): {code}")
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+        except Exception as exc:
+            print(f"[OTP PASSWORD RESET EMAIL ERROR] Could not send email to {user.email}: {exc}")
+
+        # Mask the email for security but return it so they know which inbox to check
+        email_parts = user.email.split('@')
+        masked_email = f"{email_parts[0][:3]}***@{email_parts[1]}" if len(email_parts) == 2 else user.email
+
+        return Response(
+            {
+                "message": f"A password reset code has been sent to your email ({masked_email}).",
+                "email": user.email,
+                "username": user.username
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+class ConfirmPasswordResetOTPView(APIView):
+    """
+    POST /users/reset-password/
+    Body: { "username": "...", "code": "123456", "new_password": "..." }
+    Resets the password of the unique user account if the code is valid.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username', '').strip()
+        code = request.data.get('code', '').strip()
+        new_password = request.data.get('new_password', '').strip()
+
+        if not username or not code or not new_password:
+            return Response(
+                {"error": "All fields ('username', 'code', 'new_password') are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Look up by unique username
+        user = User.objects.filter(username=username).first()
+        if not user:
+            return Response(
+                {"error": f"No account found with username '{username}'."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Fetch the most recent OTP for this email
+        otp_obj = EmailOTP.objects.filter(email__iexact=user.email).first()
+
+        if not otp_obj:
+            return Response(
+                {"error": "No password reset code found for this account's email."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if otp_obj.is_expired():
+            otp_obj.delete()
+            return Response(
+                {"error": "Your verification code has expired. Please request a new one."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if otp_obj.code != code:
+            return Response(
+                {"error": "Invalid verification code. Please try again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Reset password specifically for this user only
+        user.set_password(new_password)
+        user.is_active = True
+        user.save()
+        otp_obj.delete()  # Clean up used OTP
+
+        return Response(
+            {"message": f"The password for account '{user.username}' has been successfully reset! You can now log in."},
+            status=status.HTTP_200_OK,
+        )

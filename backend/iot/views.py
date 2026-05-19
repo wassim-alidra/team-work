@@ -22,6 +22,20 @@ class FireAlertView(APIView):
             message=f"🔥 CRITICAL ALERT: Fire detected at your farm '{farm.name}'! Please check immediately."
         )
         
+        # Real-time WebSocket broadcast to Farmer
+        from market.ws_helper import broadcast_ws_event
+        broadcast_ws_event(
+            event="fire_alert",
+            data={
+                "id": alert.id,
+                "farm_id": farm.id,
+                "farm_name": farm.name,
+                "message": f"🔥 CRITICAL ALERT: Fire detected at your farm '{farm.name}'! Please check immediately."
+            },
+            target_role="Farmer",
+            target_user_id=farm.farmer.id
+        )
+        
         return Response({"status": "Alert received and notification sent"}, status=status.HTTP_201_CREATED)
 
 class ActiveFireAlertsView(APIView):

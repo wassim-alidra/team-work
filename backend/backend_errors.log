@@ -205,3 +205,862 @@ Auth Header: Bearer eyJhbGciOiJIU...
 
 --- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
 Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ATTEMPTING CREATE --- User: famer5
+Data: <QueryDict: {'catalog': ['12'], 'price_per_kg': ['90'], 'quantity_available': ['700'], 'farm': ['16'], 'quality_grade': ['HIGH'], 'image': [<InMemoryUploadedFile: brocolii.jpeg (image/jpeg)>]}>
+Validated Data: {'farm': <Farm: Adrar farm (Adrar)>, 'catalog': <ProductCatalog: Broccoli>, 'price_per_kg': Decimal('90.00'), 'quantity_available': 700.0, 'quality_grade': 'HIGH', 'image': <InMemoryUploadedFile: brocolii.jpeg (image/jpeg)>}
+Validating price: 90.00 for catalog: Broccoli
+Validation passed. Saving...
+Save successful.
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: POST
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ATTEMPTING ORDER UPDATE --- User: famer5
+Data: {'status': 'ACCEPTED'}
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+Updating order #97. Current Status: PENDING. User Role: FARMER
+New Status: ACCEPTED
+User is farmer and owns product. Proceeding...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: PATCH
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- DELIVERY VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: famer5
+
+--- ORDER VIEWSET GET_QUERYSET --- User: famer5 Role: FARMER
+Orders found: [97, 67, 65, 64, 63, 62, 61, 30, 29, 28, 23, 22, 21, 20, 19, 18, 17, 16, 15, 13, 12, 11, 9, 4, 3, 1]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...

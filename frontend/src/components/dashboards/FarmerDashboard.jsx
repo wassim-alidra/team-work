@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import api from "../../api/axios";
 import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell, ChevronLeft, ChevronRight, Wrench, Calendar, MapPin, Users, Image as ImageIcon, Activity } from "lucide-react";
 import "../../styles/dashboard.css";
@@ -7,6 +7,8 @@ import Pagination from "../common/Pagination";
 import AskAgriButton from '../chat/AskAgriButton';
 import OrderDetailsModal from "../common/OrderDetailsModal";
 import FarmerStatistics from "./FarmerStatistics";
+import AuthContext from "../../context/AuthContext";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar", lat: 27.8727, lon: -0.2929 },
@@ -70,6 +72,23 @@ const ALGERIA_WILAYAS = [
 ];
 
 const FarmerDashboard = ({ activeTab, setActiveTab }) => {
+    const { user } = useContext(AuthContext);
+
+    // Initialize Real-time WebSockets
+    useWebSocket(user, (event, data) => {
+        if (event === "new_order") {
+            fetchOrders(ordersPage);
+            fetchStats();
+            alert(`🎉 Real-Time Order: ${data.message}`);
+        } else if (event === "booking_status_update") {
+            fetchEquipmentBookings();
+            alert(`🚜 Booking Update: ${data.message}`);
+        } else if (event === "fire_alert") {
+            fetchActiveFireAlerts();
+            alert(`🚨 EMERGENCY: ${data.message}`);
+        }
+    });
+
     const [products, setProducts] = useState([]);
     const [productsCount, setProductsCount] = useState(0);
     const [productsPage, setProductsPage] = useState(1);
@@ -98,9 +117,12 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
         catalog: "",
         price_per_kg: "",
         quantity_available: "",
+        quality_grade: "Premium",
         farm: "",
-        quality_grade: "HIGH",
+        description: ""
     });
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const [selectedCatalogItem, setSelectedCatalogItem] = useState(null);
     const [loading, setLoading] = useState(false);
     const [equipment, setEquipment] = useState([]);
@@ -134,6 +156,15 @@ const [selectedFarm, setSelectedFarm] = useState(null);
         fetchCatalog(catalogPage);
         fetchFarms();
     }, [activeTab, productsPage, ordersPage, catalogPage]);
+
+    useEffect(() => {
+        if (isUserModalOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isUserModalOpen]);
 
    useEffect(() => {
     if (selectedFarm) {
@@ -578,7 +609,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 {/* Bento Grid Layout */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-xl">
                     {/* Climate Widget */}
-                    <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md flex flex-col justify-between relative overflow-hidden">
+                    <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl shadow-sm p-md flex flex-col justify-between relative overflow-hidden">
                         <div className="absolute -top-10 -right-10 opacity-10">
                             <span className="material-symbols-outlined text-[150px]">partly_cloudy_day</span>
                         </div>
@@ -636,7 +667,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                     </div>
 
                     {/* Soil Advisor */}
-                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md flex flex-col gap-md">
+                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl shadow-sm p-md flex flex-col gap-md">
                         <div className="flex items-center justify-between">
                             <h2 className="font-h3 text-h3 text-on-surface">Soil Advisor</h2>
                             {weatherData?.irrigation && (
@@ -724,7 +755,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                     </div>
 
                     {/* Farm Manager */}
-                    <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
+                    <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-sm p-md">
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Farm Manager</h2>
                             <span
@@ -756,7 +787,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                     </div>
 
                     {/* Sales Manager */}
-                    <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
+                    <div className="col-span-1 md:col-span-6 bg-surface-container-lowest rounded-xl shadow-sm p-md">
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Sales Manager</h2>
                             <span onClick={() => setActiveTab("orders")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
@@ -783,7 +814,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                     </div>
 
                     {/* Inventory Control */}
-                    <div className="col-span-1 md:col-span-12 bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] p-md">
+                    <div className="col-span-1 md:col-span-12 bg-surface-container-lowest rounded-xl shadow-sm p-md">
                         <div className="flex items-center justify-between mb-md">
                             <h2 className="font-h3 text-h3 text-on-surface">Inventory Control & Marketplace</h2>
                             <span onClick={() => setActiveTab("products")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
@@ -875,7 +906,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
 
                 {/* Form Section */}
-                <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] mb-lg">
+                <div className="bg-surface-container-lowest rounded-xl p-md shadow-sm mb-lg">
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="font-h3 text-h3 text-on-surface">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
                         {editingProduct && (
@@ -979,7 +1010,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
 
                 {/* Inventory Data Grid */}
-                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden mb-4">
+                <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-4">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[800px] text-left border-collapse">
                             <thead>
@@ -1073,7 +1104,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                     </div>
                 </div>
 
-                <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden mb-4">
+                <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-4">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[800px] text-left border-collapse">
                             <thead>
@@ -1151,7 +1182,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     {paginatedTracking.map(o => (
-                        <div key={o.id} className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/30">
+                        <div key={o.id} className="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-outline-variant/30">
                             <div className="flex justify-between items-center mb-4 pb-2 border-b border-outline-variant/30">
                                 <h3 className="font-bold text-primary">Order #{o.id}</h3>
                                 <span className={`inline-flex rounded-full px-3 py-1 font-label-caps text-[10px] uppercase tracking-wider ${o.status === 'DELIVERED' ? 'bg-primary-container text-on-primary-container' : 'bg-secondary-container text-on-secondary-container'}`}>{o.status.replace('_', ' ')}</span>
@@ -1216,12 +1247,12 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
 
                 {catalog.length === 0 ? (
-                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] text-center text-on-surface-variant flex flex-col items-center gap-2">
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-sm text-center text-on-surface-variant flex flex-col items-center gap-2">
                         <span className="material-symbols-outlined text-4xl text-outline">info</span>
                         <p>No official price ranges have been published yet by the Ministry.</p>
                     </div>
                 ) : (
-                    <div className="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(26,58,52,0.05)] overflow-hidden mb-4">
+                    <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-4">
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-[800px] text-left border-collapse">
                                 <thead>
@@ -1264,7 +1295,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
                 <div className="space-y-4">
                     {notifications.map(n => (
-                        <div key={n.id} className={`bg-surface-container-lowest rounded-xl p-4 shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border-l-4 flex gap-4 items-start ${n.is_read ? 'border-outline-variant' : 'border-primary bg-primary-fixed/10'}`}>
+                        <div key={n.id} className={`bg-surface-container-lowest rounded-xl p-4 shadow-sm border-l-4 flex gap-4 items-start ${n.is_read ? 'border-outline-variant' : 'border-primary bg-primary-fixed/10'}`}>
                             <div className={`p-2 rounded-full ${n.is_read ? 'bg-surface text-outline' : 'bg-primary-container text-on-primary-container'}`}>
                                 <span className="material-symbols-outlined">notifications</span>
                             </div>
@@ -1296,7 +1327,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-xl">
-                    <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)]">
+                    <div className="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl p-md shadow-sm">
                         <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined text-outline">
                                 {editingFarm ? "edit_location" : "add_circle"}
@@ -1373,13 +1404,13 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                         </form>
                     </div>
 
-                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)]">
+                    <div className="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl p-md shadow-sm">
                         <h3 className="font-h3 text-h3 text-on-surface mb-4 flex items-center gap-2">
                             <span className="material-symbols-outlined text-outline">agriculture</span> Active Farms
                         </h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {farms.map(f => (
-                                <div key={f.id} className="flex flex-col bg-surface rounded-xl border border-outline-variant/30 hover:shadow-[0_8px_30px_rgba(26,58,52,0.08)] transition-all overflow-hidden group">
+                                <div key={f.id} className="flex flex-col bg-surface rounded-xl border border-outline-variant/30 hover:-translate-y-1 transition-transform duration-300 will-change-transform overflow-hidden group">
                                     <div className="h-32 bg-surface-container-high relative overflow-hidden">
                                         {f.image ? (
                                             <img src={f.image} className="w-full h-full object-cover" alt={f.name} />
@@ -1458,7 +1489,12 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                     {equipmentBookings.map(b => (
                                         <tr key={b.id}>
                                             <td className="py-4 font-bold text-primary">{b.equipment_name}</td>
-                                            <td className="py-4 text-sm">{b.provider_name}</td>
+                                            <td className="py-4 text-sm">
+                                                <div className="font-medium flex flex-col items-start gap-1">
+                                                    {b.provider_name}
+                                                    <button onClick={() => { setSelectedUser({name: b.provider_name, phone: b.provider_phone, email: b.provider_email, wilaya: b.provider_wilaya, role: 'Equipment Provider'}); setIsUserModalOpen(true); }} className="px-3 py-1.5 rounded-lg font-button text-[10px] bg-secondary-container text-on-secondary-container hover:bg-secondary hover:text-on-secondary transition-all flex items-center gap-1 shadow-sm active:scale-95"><Users size={12}/> Provider Info</button>
+                                                </div>
+                                            </td>
                                             <td className="py-4 text-sm">{new Date(b.created_at).toLocaleDateString()}</td>
                                             <td className="py-4"><span className={`status-badge ${b.status.toLowerCase()}`}>{b.status}</span></td>
                                         </tr>
@@ -1568,7 +1604,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 </div>
 
                 <form
-                    className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6"
+                    className="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-6"
                     onSubmit={handleSubmitComplaint}
                 >
                     <div className="flex flex-col gap-2">
@@ -1710,6 +1746,22 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 onClose={() => setOrderDetailsModalOpen(false)}
                 userRole="FARMER"
             />
+            {isUserModalOpen && selectedUser && (
+                <div className="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                    <div className="bg-surface-container-lowest rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                        <div className="p-6 border-b border-outline-variant/30 flex justify-between items-center bg-primary/5">
+                            <h3 className="font-h3 text-h3 text-primary">{selectedUser.role} Information</h3>
+                            <button onClick={() => setIsUserModalOpen(false)} className="p-2 hover:bg-surface-variant rounded-full transition-colors"><span className="material-symbols-outlined">close</span></button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div className="flex items-center gap-3"><Users className="text-secondary" size={20} /> <span className="font-bold">{selectedUser.name}</span></div>
+                            <div className="flex items-center gap-3"><span className="material-symbols-outlined text-secondary text-[20px]">call</span> <span>{selectedUser.phone || 'Not provided'}</span></div>
+                            <div className="flex items-center gap-3"><span className="material-symbols-outlined text-secondary text-[20px]">mail</span> <span>{selectedUser.email || 'Not provided'}</span></div>
+                            <div className="flex items-center gap-3"><MapPin className="text-secondary" size={20} /> <span>{selectedUser.wilaya || 'Not provided'}</span></div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
