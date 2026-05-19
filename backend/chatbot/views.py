@@ -10,6 +10,7 @@ from PIL import Image
 import io
 import traceback
 import base64
+from market.models import ProductCatalog
 
 class ChatbotAskView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -25,18 +26,63 @@ class ChatbotAskView(APIView):
         if not text_query and not image_file:
             return Response({"error": "No text or image provided"}, status=status.HTTP_400_BAD_REQUEST)
 
+        # ----------------------------------------------------
+        # Real-time Official Product Database Lookup
+        # ----------------------------------------------------
+        query_lower = text_query.lower() if text_query else ""
+        catalog_products = ProductCatalog.objects.filter(is_deleted=False)
+        matched_catalog = None
+        db_price_context = ""
+
+        # Check if user mentioned any official catalog product name
+        for prod in catalog_products:
+            if prod.name.lower() in query_lower:
+                matched_catalog = prod
+                break
+
+        if matched_catalog:
+            min_p = matched_catalog.min_price or 0
+            max_p = matched_catalog.max_price or 0
+            unit = matched_catalog.unit or "kg"
+            season = matched_catalog.get_season_display() if hasattr(matched_catalog, 'get_season_display') else matched_catalog.season
+            db_price_context = (
+                f"\nREAL-TIME DATABASE CONTEXT:\n"
+                f"- Official Product: {matched_catalog.name}\n"
+                f"- Category: {matched_catalog.category.name if matched_catalog.category else 'N/A'}\n"
+                f"- Official Price Range: {min_p:.1f} DA to {max_p:.1f} DA per {unit}\n"
+                f"- Recommended Season: {season}\n"
+                f"- Current Database Status: Active & Official"
+            )
+
+        # Construct general list of official products if they ask generally about official prices
+        is_asking_general_prices = any(x in query_lower for x in ["price", "prices", "official", "index", "سعر", "أسعار", "سعر المنتج", "tarif", "combien"])
+        
+        general_db_prices = ""
+        if is_asking_general_prices and not matched_catalog:
+            items = []
+            for p in catalog_products[:6]:
+                min_p = p.min_price or 0
+                max_p = p.max_price or 0
+                unit = p.unit or "kg"
+                items.append(f"- {p.name}: {min_p:.1f} - {max_p:.1f} DA per {unit}")
+            general_db_prices = "\nREAL-TIME DATABASE CONTEXT (General Price List):\n" + "\n".join(items)
+
         system_instruction = (
-           "You are an AI Agricultural Assistant for Algerian farmers. "
-    "CRITICAL RULES:\n"
-    "1. LANGUAGE: You MUST answer in the SAME LANGUAGE as the user's question. "
-    "   If the user asks in Arabic -> answer in Arabic. "
-    "   If the user asks in English -> answer in English. "
-    "   If the user asks in French -> answer in French.\n"
-    "2. BREVITY: Keep answers SHORT and PRACTICAL. Maximum 2-3 sentences. "
-    "   Farmers need quick advice, not long essays. Be direct and useful.\n"
-    "3. FOCUS: Give only the most important information. "
-    "   For planting dates: just say the months. No lengthy explanations.\n"
-    "4. USE BULLET POINTS if listing multiple items, but keep each point short."
+            "You are an AI Agricultural Assistant for Algerian farmers. "
+            "CRITICAL RULES:\n"
+            "1. LANGUAGE: You MUST answer in the SAME LANGUAGE as the user's question. "
+            "   If the user asks in Arabic -> answer in Arabic. "
+            "   If the user asks in English -> answer in English. "
+            "   If the user asks in French -> answer in French.\n"
+            "2. BREVITY: Keep answers SHORT and PRACTICAL. Maximum 2-3 sentences. "
+            "   Farmers need quick advice, not long essays. Be direct and useful.\n"
+            "3. FOCUS: Give only the most important information. "
+            "   For planting dates: just say the months. No lengthy explanations.\n"
+            "4. USE BULLET POINTS if listing multiple items, but keep each point short.\n"
+            "5. DATABASE TRUTH: If real-time database context is provided below, you MUST use the exact numbers "
+            "and prices from that context as the source of truth for official product prices."
+            f"{db_price_context}"
+            f"{general_db_prices}"
         )
 
         # --- GEMINI PATH ---
@@ -50,7 +96,6 @@ class ChatbotAskView(APIView):
                 model = genai.GenerativeModel(model_name)
 
                 if image_file:
-                    # Reset image file pointer if it was read by Groq attempt
                     image_file.seek(0)
                     img = Image.open(image_file)
                     disease_prompt = (
@@ -77,16 +122,39 @@ class ChatbotAskView(APIView):
                 return Response({"response": ai_text}, status=status.HTTP_200_OK)
             except Exception as e:
                 print(f"Gemini Error: {str(e)}")
-                # If the specific model fails, try gemini-flash-latest as a fallback
                 try:
                     model = genai.GenerativeModel('gemini-flash-latest')
                     response = model.generate_content(prompt_parts)
                     return Response({"response": response.text}, status=status.HTTP_200_OK)
                 except Exception as e2:
                     print(f"Gemini Fallback Error: {str(e2)}")
-                # Fall through to simulation
 
         # --- SIMULATION FALLBACK (If no keys found or API failed) ---
+        # If they asked specifically about prices, construct a beautiful direct database response
+        if is_asking_general_prices:
+            if matched_catalog:
+                min_p = matched_catalog.min_price or 0
+                max_p = matched_catalog.max_price or 0
+                unit = matched_catalog.unit or "kg"
+                if any(x in query_lower for x in ["سعر", "أسعار", "كم"]):
+                    response_text = f"وفقًا لقاعدة البيانات، السعر الرسمي لـ {matched_catalog.name} هو بين {min_p:.1f} و {max_p:.1f} د.ج لكل {unit}."
+                elif any(x in query_lower for x in ["prix", "tarif", "combien"]):
+                    response_text = f"Selon notre base de données, le prix officiel de {matched_catalog.name} varie entre {min_p:.1f} et {max_p:.1f} DA par {unit}."
+                else:
+                    response_text = f"According to the database, the official price of {matched_catalog.name} is between {min_p:.1f} and {max_p:.1f} DA per {unit}."
+                return Response({"response": response_text}, status=status.HTTP_200_OK)
+            
+            elif is_asking_general_prices:
+                # General list fallback
+                items_str = ", ".join([f"{p.name} ({p.min_price:.1f}-{p.max_price:.1f} DA)" for p in catalog_products[:4]])
+                if any(x in query_lower for x in ["سعر", "أسعار"]):
+                    response_text = f"إليك بعض الأسعار الرسمية من قاعدة البيانات: {items_str}."
+                elif any(x in query_lower for x in ["prix", "tarif"]):
+                    response_text = f"Voici les prix officiels de notre base de données : {items_str}."
+                else:
+                    response_text = f"Here are some official prices from the database: {items_str}."
+                return Response({"response": response_text}, status=status.HTTP_200_OK)
+
         simulated_advice = {
             "potato": "In Algeria, plant potatoes from late September to October for the winter crop. Ensure soil is well-drained and use 15-15-15 fertilizer.",
             "tomato": "For tomato diseases like blight, ensure good air circulation and avoid overhead watering. Use copper-based fungicides if symptoms appear.",
@@ -96,9 +164,7 @@ class ChatbotAskView(APIView):
             "disease": "Identify the symptoms (spots, wilting, or yellowing). Please upload a clear photo of the leaf for a more detailed analysis.",
         }
 
-        query_lower = text_query.lower() if text_query else ""
         response_text = None
-        
         for key in simulated_advice:
             if key in query_lower:
                 response_text = simulated_advice[key]

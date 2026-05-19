@@ -135,6 +135,7 @@ const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const [showHistoryModal, setShowHistoryModal] = useState(false);
     const [priceHistory, setPriceHistory] = useState([]);
     const [productImage, setProductImage] = useState(null);
+    const [showAddForm, setShowAddForm] = useState(false);
     
     // IoT Fire Alert States
     const [fireAlerts, setFireAlerts] = useState([]);
@@ -378,6 +379,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
             farm: product.farm,
             quality_grade: product.quality_grade || "HIGH",
         });
+        setShowAddForm(true);
         if (activeTab !== "products") {
             setActiveTab("products");
         }
@@ -431,6 +433,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 farm: farms.length > 0 ? farms[0].id : "",
                 quality_grade: "HIGH",
             });
+            setShowAddForm(false);
             fetchProducts();
             fetchStats();
         } catch (err) {
@@ -903,14 +906,10 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                         <h1 className="font-h1 text-h1 text-primary mb-xs">My Products</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">Manage your inventory, pricing, and availability.</p>
                     </div>
-                </div>
-
-                {/* Form Section */}
-                <div className="bg-surface-container-lowest rounded-xl p-md shadow-sm mb-lg">
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="font-h3 text-h3 text-on-surface">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
-                        {editingProduct && (
-                            <button onClick={() => {
+                    {/* Premium Toggle Button for Add Product Form */}
+                    <button
+                        onClick={() => {
+                            if (showAddForm) {
                                 setEditingProduct(null);
                                 setFormData({
                                     catalog: "",
@@ -919,95 +918,136 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                     farm: farms.length > 0 ? farms[0].id : "",
                                     quality_grade: "HIGH",
                                 });
-                            }} className="text-sm text-primary hover:underline">Cancel Edit</button>
+                            }
+                            setShowAddForm(!showAddForm);
+                        }}
+                        className={`px-5 py-2.5 rounded-lg font-button text-sm transition-all duration-200 flex items-center gap-2 shadow-sm ${
+                            showAddForm 
+                                ? "bg-surface-variant text-on-surface-variant hover:bg-surface-dim" 
+                                : "bg-primary text-on-primary hover:bg-tertiary"
+                        }`}
+                    >
+                        {showAddForm ? (
+                            <>
+                                <span className="material-symbols-outlined text-[18px]">close</span>
+                                Close Form
+                            </>
+                        ) : (
+                            <>
+                                <Plus size={18} />
+                                Add Product
+                            </>
                         )}
-                    </div>
-                    <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleAddProduct}>
-                        <div className="col-span-1 md:col-span-2">
-                            <label className="block text-sm font-medium text-on-surface mb-1">Product Type (From Official List)</label>
-                            <select name="catalog" value={formData.catalog} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
-                                <option value="">-- Choose a product type --</option>
-                                {catalog.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                            </select>
-                        </div>
-                        <div className="col-span-1 md:col-span-2">
-                            <label className="block text-sm font-medium text-on-surface mb-1">Origin Farm</label>
-                            <select name="farm" value={formData.farm} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
-                                <option value="">-- Select Farm --</option>
-                                {farms.map(f => <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-on-surface mb-1">Price per Kg (DA)</label>
-                            <input type="number" name="price_per_kg" value={formData.price_per_kg} onChange={handleChange} placeholder="0.00" required min={selectedCatalogItem?.min_price ?? undefined} max={selectedCatalogItem?.max_price ?? undefined} className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
-                            {selectedCatalogItem?.min_price && selectedCatalogItem?.max_price && (
-                                <small className="text-xs text-on-surface-variant block mt-1">
-                                    Allowed range: {selectedCatalogItem.min_price} to {selectedCatalogItem.max_price} DA
-                                </small>
+                    </button>
+                </div>
+
+                {/* Collapsible Form Section */}
+                {showAddForm && (
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-sm mb-lg animate-in fade-in-slide">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-h3 text-h3 text-on-surface">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
+                            {editingProduct ? (
+                                <button onClick={() => {
+                                    setEditingProduct(null);
+                                    setFormData({
+                                        catalog: "",
+                                        price_per_kg: "",
+                                        quantity_available: "",
+                                        farm: farms.length > 0 ? farms[0].id : "",
+                                        quality_grade: "HIGH",
+                                    });
+                                    setShowAddForm(false);
+                                }} className="text-sm text-primary hover:underline">Cancel Edit</button>
+                            ) : (
+                                <button type="button" onClick={() => setShowAddForm(false)} className="text-sm text-outline hover:underline">Close Form</button>
                             )}
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-on-surface mb-1">Available Quantity</label>
-                            <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-on-surface mb-1">Quality Grade</label>
-                            <select name="quality_grade" value={formData.quality_grade} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
-                                <option value="HIGH">High (Premium)</option>
-                                <option value="MEDIUM">Medium (Standard)</option>
-                                <option value="LOW">Low (Basic)</option>
-                            </select>
-                        </div>
-                        <div className="col-span-1 md:col-span-2">
-                            <label className="block text-sm font-medium text-on-surface mb-1">Product Photo (Optional)</label>
-                            <div className="flex items-center gap-4">
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
-                                    onChange={(e) => setProductImage(e.target.files[0])} 
-                                    className="hidden" 
-                                    id="product-image-upload" 
-                                />
-                                <label 
-                                    htmlFor="product-image-upload" 
-                                    className="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors border border-outline-variant/30"
-                                >
-                                    <ImageIcon size={18} />
-                                    {productImage ? productImage.name : (editingProduct?.product_image ? "Change Photo" : "Choose Photo")}
-                                </label>
-                                {(productImage || editingProduct?.product_image) && (
-                                    <div className="flex items-center gap-2">
-                                        {(productImage || editingProduct?.product_image) && (
-                                            <div className="w-10 h-10 rounded border border-outline-variant/30 overflow-hidden bg-surface-container">
-                                                <img 
-                                                    src={productImage ? URL.createObjectURL(productImage) : editingProduct.product_image} 
-                                                    className="w-full h-full object-cover" 
-                                                    alt="Preview"
-                                                />
-                                            </div>
-                                        )}
-                                        <button 
-                                            type="button" 
-                                            onClick={() => {
-                                                setProductImage(null);
-                                                // If we want to allow removing the image entirely, we'd need a flag or set image to ""
-                                            }} 
-                                            className="text-xs text-error hover:underline"
-                                        >
-                                            {productImage ? "Remove New" : ""}
-                                        </button>
-                                    </div>
+                        <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleAddProduct}>
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="block text-sm font-medium text-on-surface mb-1">Product Type (From Official List)</label>
+                                <select name="catalog" value={formData.catalog} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
+                                    <option value="">-- Choose a product type --</option>
+                                    {catalog.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="block text-sm font-medium text-on-surface mb-1">Origin Farm</label>
+                                <select name="farm" value={formData.farm} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
+                                    <option value="">-- Select Farm --</option>
+                                    {farms.map(f => <option key={f.id} value={f.id}>{f.name} ({f.wilaya})</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Price per Kg (DA)</label>
+                                <input type="number" name="price_per_kg" value={formData.price_per_kg} onChange={handleChange} placeholder="0.00" required min={selectedCatalogItem?.min_price ?? undefined} max={selectedCatalogItem?.max_price ?? undefined} className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                {selectedCatalogItem?.min_price && selectedCatalogItem?.max_price && (
+                                    <small className="text-xs text-on-surface-variant block mt-1">
+                                        Allowed range: {selectedCatalogItem.min_price} to {selectedCatalogItem.max_price} DA
+                                    </small>
                                 )}
                             </div>
-                            <p className="text-[10px] text-on-surface-variant mt-1">Upload a custom photo for your product. If not provided, the default system photo will be used.</p>
-                        </div>
-                        <div className="col-span-1 md:col-span-2 mt-2">
-                            <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>
-                                {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product to Market")}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Available Quantity</label>
+                                <input type="number" name="quantity_available" value={formData.quantity_available} onChange={handleChange} placeholder={`Available (${selectedCatalogItem?.unit || 'kg'})`} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-on-surface mb-1">Quality Grade</label>
+                                <select name="quality_grade" value={formData.quality_grade} onChange={handleChange} required className="w-full bg-surface border border-outline-variant/50 rounded-lg px-4 py-2">
+                                    <option value="HIGH">High (Premium)</option>
+                                    <option value="MEDIUM">Medium (Standard)</option>
+                                    <option value="LOW">Low (Basic)</option>
+                                </select>
+                            </div>
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="block text-sm font-medium text-on-surface mb-1">Product Photo (Optional)</label>
+                                <div className="flex items-center gap-4">
+                                    <input 
+                                        type="file" 
+                                        accept="image/*" 
+                                        onChange={(e) => setProductImage(e.target.files[0])} 
+                                        className="hidden" 
+                                        id="product-image-upload" 
+                                    />
+                                    <label 
+                                        htmlFor="product-image-upload" 
+                                        className="flex items-center gap-2 px-4 py-2 bg-surface-container-high text-on-surface-variant rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors border border-outline-variant/30"
+                                    >
+                                        <ImageIcon size={18} />
+                                        {productImage ? productImage.name : (editingProduct?.product_image ? "Change Photo" : "Choose Photo")}
+                                    </label>
+                                    {(productImage || editingProduct?.product_image) && (
+                                        <div className="flex items-center gap-2">
+                                            {(productImage || editingProduct?.product_image) && (
+                                                <div className="w-10 h-10 rounded border border-outline-variant/30 overflow-hidden bg-surface-container">
+                                                    <img 
+                                                        src={productImage ? URL.createObjectURL(productImage) : editingProduct.product_image} 
+                                                        className="w-full h-full object-cover" 
+                                                        alt="Preview"
+                                                    />
+                                                </div>
+                                            )}
+                                            <button 
+                                                type="button" 
+                                                onClick={() => {
+                                                    setProductImage(null);
+                                                }} 
+                                                className="text-xs text-error hover:underline"
+                                            >
+                                                {productImage ? "Remove New" : ""}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <p className="text-[10px] text-on-surface-variant mt-1">Upload a custom photo for your product. If not provided, the default system photo will be used.</p>
+                            </div>
+                            <div className="col-span-1 md:col-span-2 mt-2">
+                                <button type="submit" className="bg-primary text-on-primary font-button px-4 py-2 rounded-lg w-full md:w-auto hover:bg-tertiary transition-colors" disabled={loading}>
+                                    {loading ? "Saving..." : (editingProduct ? "Update Product" : "Add Product to Market")}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                )}
 
                 {/* Inventory Data Grid */}
                 <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden mb-4">

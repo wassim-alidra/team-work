@@ -178,7 +178,7 @@ const AskAgriButton = () => {
         className={`fab-btn ${isOpen ? 'active' : ''}`}
         title="Chat with AgriGov AI"
       >
-        {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
+        {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
       </button>
     </div>
   );
