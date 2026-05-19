@@ -1271,3 +1271,676 @@ Auth Header: Bearer eyJhbGciOiJIU...
 
 --- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
 Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: farmer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: farmer3 Role: FARMER
+Orders found: [95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 66, 5]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...
+
+--- ORDER VIEWSET LIST --- User: buyer3
+
+--- ORDER VIEWSET GET_QUERYSET --- User: buyer3 Role: BUYER
+Orders found: [97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 63, 62, 61, 30, 7, 6, 5, 4]
+
+--- ORDER VIEWSET DISPATCH --- Method: GET
+User: AnonymousUser (Authenticated: False)
+Auth Header: Bearer eyJhbGciOiJIU...

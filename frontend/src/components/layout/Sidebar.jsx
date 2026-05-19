@@ -1,13 +1,16 @@
 import { Home, Package, ShoppingCart, Truck, Sprout, LogOut, Clock, Users, Bell, AlertCircle, LayoutGrid, Wrench, Landmark, BarChart2, X } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMobileOpen }) => {
+  const { language, t } = useLanguage();
+  const isAr = language === "ar";
   const transporterItems = [
-    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
-    { key: "requests", label: "Delivery Requests", icon: <Package size={18} /> },
-    { key: "status", label: "Update Status", icon: <Truck size={18} /> },
-    { key: "history", label: "Delivery History", icon: <Clock size={18} /> },
-    { key: "earnings", label: "Earnings", icon: <ShoppingCart size={18} /> },
-    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
+    { key: "dashboard", label: t("dashboard"), icon: <Home size={18} /> },
+    { key: "requests", label: t("deliveryRequests"), icon: <Package size={18} /> },
+    { key: "status", label: t("updateStatus"), icon: <Truck size={18} /> },
+    { key: "history", label: t("deliveryHistory"), icon: <Clock size={18} /> },
+    { key: "earnings", label: t("earnings"), icon: <ShoppingCart size={18} /> },
+    { key: "notifications", label: t("notifications"), icon: <Bell size={18} /> },
   ];
 
   const equipmentProviderItems = [
@@ -18,25 +21,25 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMob
   ];
 
   const farmerItems = [
-    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
-    { key: "farms", label: "My Farms", icon: <LayoutGrid size={18} /> },
-    { key: "products", label: "My Products", icon: <Package size={18} /> },
-    { key: "orders", label: "My Orders", icon: <ShoppingCart size={18} /> },
-    { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
-    { key: "equipment", label: "Equipment Rental", icon: <Wrench size={18} /> },
-    { key: "prices", label: "Official Prices", icon: <Package size={18} /> },
-    { key: "setistics", label: "Statistics", icon: <BarChart2 size={18} /> },
-    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
-    { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
+    { key: "dashboard", label: t("dashboard"), icon: <Home size={18} /> },
+    { key: "farms", label: t("farms"), icon: <LayoutGrid size={18} /> },
+    { key: "products", label: t("products"), icon: <Package size={18} /> },
+    { key: "orders", label: t("orders"), icon: <ShoppingCart size={18} /> },
+    { key: "tracking", label: t("tracking"), icon: <Truck size={18} /> },
+    { key: "equipment", label: t("equipment"), icon: <Wrench size={18} /> },
+    { key: "prices", label: t("prices"), icon: <Package size={18} /> },
+    { key: "setistics", label: t("setistics"), icon: <BarChart2 size={18} /> },
+    { key: "notifications", label: t("notifications"), icon: <Bell size={18} /> },
+    { key: "complaints", label: t("complaints"), icon: <LogOut size={18} /> },
   ];
 
   const buyerItems = [
-    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
-    { key: "products", label: "Marketplace", icon: <Package size={18} /> },
-    { key: "orders", label: "My Orders", icon: <Clock size={18} /> },
-    { key: "tracking", label: "Track Delivery", icon: <Truck size={18} /> },
-    { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
-    { key: "complaints", label: "Complaints", icon: <LogOut size={18} /> },
+    { key: "dashboard", label: t("dashboard"), icon: <Home size={18} /> },
+    { key: "products", label: t("marketplace"), icon: <Package size={18} /> },
+    { key: "orders", label: t("orders"), icon: <Clock size={18} /> },
+    { key: "tracking", label: t("tracking"), icon: <Truck size={18} /> },
+    { key: "notifications", label: t("notifications"), icon: <Bell size={18} /> },
+    { key: "complaints", label: t("complaints"), icon: <LogOut size={18} /> },
   ];
 
   const adminItems = [
@@ -51,13 +54,13 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMob
   ];
 
   const genericItems = [
-    { key: "dashboard", label: "Dashboard", icon: <Home size={18} /> },
+    { key: "dashboard", label: t("dashboard"), icon: <Home size={18} /> },
     {
       key: "products",
-      label: user?.role === "BUYER" ? "Marketplace" : "My Products",
+      label: user?.role === "BUYER" ? t("marketplace") : t("products"),
       icon: <Package size={18} />,
     },
-    { key: "orders", label: "My Orders", icon: <ShoppingCart size={18} /> },
+    { key: "orders", label: t("orders"), icon: <ShoppingCart size={18} /> },
     { key: "services", label: "Services", icon: <Sprout size={18} /> },
   ];
 
@@ -88,6 +91,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMob
       <aside
         className={`dashboard-sidebar ${mobileOpen ? "sidebar-mobile-open" : ""}`}
         style={{ display: "flex", flexDirection: "column" }}
+        dir={isAr ? "rtl" : "ltr"}
         aria-label="Sidebar navigation"
       >
         {/* Mobile close button */}
@@ -139,7 +143,7 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMob
           <div className="sidebar-footer">
             <button className="sidebar-logout" onClick={logoutUser}>
               <LogOut size={18} />
-              <span>Logout</span>
+              <span>{t("logout")}</span>
             </button>
           </div>
         )}

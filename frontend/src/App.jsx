@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { useContext } from "react";
 
 import AuthContext, { AuthProvider } from "./context/AuthContext";
+import { LanguageProvider } from "./context/LanguageContext";
 
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
@@ -68,7 +69,9 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <AppContent />
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   );

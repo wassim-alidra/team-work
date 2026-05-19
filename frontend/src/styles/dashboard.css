@@ -151,6 +151,75 @@
     gap: 1rem;
 }
 
+/* ===== LANGUAGE TOGGLE BUTTON ===== */
+.lang-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: linear-gradient(135deg, #f0f7f4 0%, #e8f5ee 100%);
+    border: 1.5px solid rgba(17, 108, 74, 0.25);
+    border-radius: 20px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    color: #116c4a;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    box-shadow: 0 1px 4px rgba(17, 108, 74, 0.08);
+}
+
+.lang-toggle-btn:hover {
+    background: linear-gradient(135deg, #116c4a 0%, #012d1d 100%);
+    color: #ffffff;
+    border-color: #116c4a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 108, 74, 0.25);
+}
+
+.lang-toggle-btn:active {
+    transform: translateY(0);
+}
+
+.lang-toggle-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.lang-toggle-text {
+    font-family: 'Segoe UI', 'Tahoma', Arial, sans-serif;
+}
+
+/* ===== RTL SIDEBAR ADJUSTMENTS ===== */
+[dir="rtl"].dashboard-sidebar .sidebar-link {
+    text-align: right;
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"].dashboard-sidebar .sidebar-logout {
+    text-align: right;
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .sidebar-brand {
+    flex-direction: row-reverse;
+}
+
+/* Arabic font rendering */
+[dir="rtl"] .sidebar-link span,
+[dir="rtl"] .sidebar-logout span {
+    font-family: 'Segoe UI', 'Tahoma', 'Arial Unicode MS', Arial, sans-serif;
+    font-size: 0.9rem;
+}
+
+/* RTL Topbar */
+[dir="rtl"].dashboard-topbar .topbar-left h1,
+[dir="rtl"].dashboard-topbar .topbar-left p {
+    text-align: right;
+    font-family: 'Segoe UI', 'Tahoma', 'Arial Unicode MS', Arial, sans-serif;
+}
+
 .topbar-search {
     display: flex;
     align-items: center;

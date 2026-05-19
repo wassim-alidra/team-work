@@ -9,9 +9,11 @@ import OrderDetailsModal from "../common/OrderDetailsModal";
 import { FileText } from "lucide-react";
 import AuthContext from "../../context/AuthContext";
 import { useWebSocket } from "../../hooks/useWebSocket";
+import { useLanguage } from "../../context/LanguageContext";
 
 const BuyerDashboard = ({ activeTab, setActiveTab }) => {
     const { user } = useContext(AuthContext);
+    const { t } = useLanguage();
 
     // Initialize Real-time WebSockets
     useWebSocket(user, (event, data) => {
@@ -335,7 +337,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div>
-                    <h1 className="font-h1 text-h1 text-on-surface">Notifications</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("notificationsTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Information and alerts from the Ministry</p>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -358,10 +360,10 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
 
     if (activeTab === "dashboard") {
         const statCards = [
-            { label: "My Orders", value: stats.total_orders, icon: <ShoppingCart />, color: "bg-primary text-on-primary" },
-            { label: "On The Way", value: stats.pending_deliveries, icon: <Truck />, color: "bg-surface-container-highest text-on-surface" },
-            { label: "Delivered", value: stats.delivered_count, icon: <CheckCircle />, color: "bg-secondary-container text-on-secondary-container" },
-            { label: "Total Spent", value: `${stats.total_spent} DA`, icon: <CreditCard />, color: "bg-tertiary-container text-on-tertiary-container" }
+            { label: t("orders"), value: stats.total_orders, icon: <ShoppingCart />, color: "bg-primary text-on-primary" },
+            { label: t("onTheWay"), value: stats.pending_deliveries, icon: <Truck />, color: "bg-surface-container-highest text-on-surface" },
+            { label: t("delivered"), value: stats.delivered_count, icon: <CheckCircle />, color: "bg-secondary-container text-on-secondary-container" },
+            { label: t("totalSpent"), value: `${stats.total_spent} DA`, icon: <CreditCard />, color: "bg-tertiary-container text-on-tertiary-container" }
         ];
 
         content = (
@@ -381,7 +383,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-xl">
                     <section className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/10">
                         <div className="flex justify-between items-center mb-6 border-b border-outline-variant/30 pb-4">
-                            <h2 className="font-h3 text-h3 text-on-surface">Marketplace Highlights</h2>
+                            <h2 className="font-h3 text-h3 text-on-surface">{t("marketplaceHighlightsTitle")}</h2>
  <span  onClick={() => setActiveTab("products")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="flex flex-col gap-4">
@@ -449,7 +451,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
 
                     <section className="bg-surface-container-lowest rounded-xl p-lg shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/10">
                         <div className="flex justify-between items-center mb-6 border-b border-outline-variant/30 pb-4">
-                            <h2 className="font-h3 text-h3 text-on-surface">Active Deliveries</h2>
+                            <h2 className="font-h3 text-h3 text-on-surface">{t("activeDeliveriesTitle")}</h2>
                             <span onClick={() => setActiveTab("tracking")} className="text-sm text-primary font-semibold cursor-pointer hover:underline">View All</span>
                         </div>
                         <div className="flex flex-col gap-4">
@@ -486,7 +488,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
                 <section className="space-y-lg">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                         <div>
-                            <h1 className="font-h1 text-h1 text-on-surface">Global Marketplace</h1>
+                            <h1 className="font-h1 text-h1 text-on-surface">{t("globalMarketplaceTitle")}</h1>
                             <p className="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Source high-quality agricultural commodities from verified sellers nationwide.</p>
                         </div>
                         {/* Premium Favorites Toggle Button */}
@@ -664,7 +666,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">My Purchases</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("myPurchasesTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">History of all your orders</p>
                 </div>
 
@@ -752,7 +754,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Track Deliveries</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("trackDeliveriesTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Real-time updates on your fresh produce.</p>
                 </div>
                 <div className="flex flex-col gap-6">
@@ -829,7 +831,7 @@ const BuyerDashboard = ({ activeTab, setActiveTab }) => {
         content = (
             <div className="max-w-2xl mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("complaintsTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Report issues with orders or delivery quality.</p>
                 </div>
                 <form className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6" onSubmit={handleSubmitComplaint}>

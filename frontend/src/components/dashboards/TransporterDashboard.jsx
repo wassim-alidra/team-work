@@ -6,9 +6,11 @@ import RouteMapModal from "./RouteMapModal";
 import "../../styles/dashboard.css";
 import Pagination from "../common/Pagination";
 import OrderDetailsModal from "../common/OrderDetailsModal";
+import { useLanguage } from "../../context/LanguageContext";
 
 const TransporterDashboard = ({ activeTab }) => {
     const { user, setUser } = useContext(AuthContext);
+    const { t } = useLanguage();
     const [availableOrders, setAvailableOrders] = useState([]);
     const [availableOrdersCount, setAvailableOrdersCount] = useState(0);
     const [availableOrdersPage, setAvailableOrdersPage] = useState(1);
@@ -177,10 +179,10 @@ const TransporterDashboard = ({ activeTab }) => {
     // ─────────────────── DASHBOARD TAB ───────────────────
     if (activeTab === "dashboard") {
         const stats = [
-            { label: "Available", value: availableOrders.length, icon: <ClipboardList />, color: "bg-primary text-on-primary" },
-            { label: "Active", value: myDeliveries.filter(d => d.status !== "DELIVERED").length, icon: <Truck />, color: "bg-surface-container-highest text-on-surface" },
-            { label: "Completed", value: myDeliveries.filter(d => d.status === "DELIVERED").length, icon: <CheckCircle />, color: "bg-secondary-container text-on-secondary-container" },
-            { label: "Earnings", value: `${earningsData.total_earnings || 0} DA`, icon: <DollarSign />, color: "bg-tertiary-container text-on-tertiary-container" }
+            { label: t("available"), value: availableOrders.length, icon: <ClipboardList />, color: "bg-primary text-on-primary" },
+            { label: t("active"), value: myDeliveries.filter(d => d.status !== "DELIVERED").length, icon: <Truck />, color: "bg-surface-container-highest text-on-surface" },
+            { label: t("completed"), value: myDeliveries.filter(d => d.status === "DELIVERED").length, icon: <CheckCircle />, color: "bg-secondary-container text-on-secondary-container" },
+            { label: t("earnings"), value: `${earningsData.total_earnings || 0} DA`, icon: <DollarSign />, color: "bg-tertiary-container text-on-tertiary-container" }
         ];
 
         content = (
@@ -202,7 +204,7 @@ const TransporterDashboard = ({ activeTab }) => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-md mt-sm">
                             <div className="bg-surface rounded-xl p-md shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20">
                                 <div className="flex items-center justify-between mb-md">
-                                    <h3 className="font-h3 text-[18px] text-on-surface">Active Deliveries</h3>
+                                    <h3 className="font-h3 text-[18px] text-on-surface">{t("activeDeliveriesTitle")}</h3>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     {myDeliveries.filter(d => d.status !== "DELIVERED").slice(0, 3).map(d => (
@@ -238,7 +240,7 @@ const TransporterDashboard = ({ activeTab }) => {
                                 <div className="flex items-center justify-between mb-md">
                                     <h3 className="font-h3 text-[18px] text-on-surface flex items-center gap-sm">
                                         <Truck className="text-primary" size={20} />
-                                        Ready for Pickup
+                                        {t("readyForPickup")}
                                     </h3>
                                     <button className="btn-clear" onClick={() => fetchAvailableOrders()}>Refresh</button>
                                 </div>
@@ -265,7 +267,7 @@ const TransporterDashboard = ({ activeTab }) => {
 
                     <div className="md:col-span-4 flex flex-col gap-lg">
                         <div className="bg-surface rounded-xl p-lg shadow-[0px_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20">
-                            <h3 className="font-h3 text-[18px] text-on-surface mb-md">Finance Summary</h3>
+                            <h3 className="font-h3 text-[18px] text-on-surface mb-md">{t("financeSummary")}</h3>
                             <p className="font-label-caps text-label-caps text-on-surface-variant mb-xs">Total Earnings</p>
                             <div className="flex items-end gap-sm mb-md">
                                 <h2 className="font-h1 text-[48px] text-on-surface leading-none">{earningsData.total_earnings || 0} DA</h2>
@@ -295,7 +297,7 @@ const TransporterDashboard = ({ activeTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Available Delivery Requests</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("availableDeliveryRequestsTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Missions waiting for a transporter</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -372,7 +374,7 @@ const TransporterDashboard = ({ activeTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Update Delivery Status</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("updateDeliveryStatusTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Manage your active missions</p>
                 </div>
                 <div className="flex flex-col gap-6">
@@ -460,7 +462,7 @@ const TransporterDashboard = ({ activeTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Delivery History</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("deliveryHistory")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Your completed missions</p>
                 </div>
                 <div className="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 overflow-hidden">
@@ -572,7 +574,7 @@ const TransporterDashboard = ({ activeTab }) => {
         content = (
             <div className="max-w-container-max mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Notifications</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("notificationsTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Latest updates and alerts</p>
                 </div>
                 <div className="flex flex-col gap-4">
@@ -601,7 +603,7 @@ const TransporterDashboard = ({ activeTab }) => {
         content = (
             <div className="max-w-2xl mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Vehicle Profile</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("vehicleProfileTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">Manage your transport capabilities</p>
                 </div>
                 <form className="bg-surface-container-lowest p-lg rounded-xl shadow-[0_4px_20px_rgba(26,58,52,0.05)] border border-outline-variant/20 flex flex-col gap-6" onSubmit={handleProfileUpdate}>

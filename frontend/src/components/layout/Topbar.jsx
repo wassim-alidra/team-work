@@ -2,11 +2,12 @@ import { Bell, ChevronDown, User, LogOut, Menu } from "lucide-react";
 import { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../context/AuthContext";
-
+import { useLanguage } from "../../context/LanguageContext";
 import api from "../../api/axios";
 
 const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
   const { logoutUser } = useContext(AuthContext);
+  const { language, toggleLanguage, t } = useLanguage();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -91,7 +92,7 @@ const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
   };
 
   return (
-    <header className="dashboard-topbar">
+    <header className="dashboard-topbar" dir={language === "ar" ? "rtl" : "ltr"}>
       {/* Hamburger menu (mobile only) */}
       <button
         className="topbar-hamburger"
@@ -102,8 +103,8 @@ const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
       </button>
 
       <div className="topbar-left">
-        <h1>Dashboard</h1>
-        <p className="topbar-welcome">Welcome back, {user?.username}</p>
+        <h1>{t("dashboardTitle")}</h1>
+        <p className="topbar-welcome">{t("welcome")}, {user?.username}</p>
       </div>
 
       <div className="topbar-right">
@@ -152,6 +153,17 @@ const Topbar = ({ user, setActiveTab, onMenuToggle }) => {
             </div>
           )}
         </div>
+
+        {/* Language Toggle */}
+        <button
+          onClick={toggleLanguage}
+          className="lang-toggle-btn"
+          aria-label="Switch language"
+          title={language === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}
+        >
+          <span className="lang-toggle-icon">🌐</span>
+          <span className="lang-toggle-text">{language === "en" ? "العربية" : "English"}</span>
+        </button>
 
         <div className="topbar-user" ref={dropdownRef}>
           <div className="topbar-avatar" onClick={() => setDropdownOpen(!dropdownOpen)}>

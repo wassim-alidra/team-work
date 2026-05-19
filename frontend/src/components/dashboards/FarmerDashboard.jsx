@@ -9,6 +9,7 @@ import OrderDetailsModal from "../common/OrderDetailsModal";
 import FarmerStatistics from "./FarmerStatistics";
 import AuthContext from "../../context/AuthContext";
 import { useWebSocket } from "../../hooks/useWebSocket";
+import { useLanguage } from "../../context/LanguageContext";
 
 const ALGERIA_WILAYAS = [
     { id: 1, name: "Adrar", lat: 27.8727, lon: -0.2929 },
@@ -73,6 +74,7 @@ const ALGERIA_WILAYAS = [
 
 const FarmerDashboard = ({ activeTab, setActiveTab }) => {
     const { user } = useContext(AuthContext);
+    const { t } = useLanguage();
 
     // Initialize Real-time WebSockets
     useWebSocket(user, (event, data) => {
@@ -605,8 +607,8 @@ const [selectedFarm, setSelectedFarm] = useState(null);
         content = (
             <div className="animate-in pb-20 md:pb-0 font-body-md antialiased text-on-background w-full">
                 <div className="mb-xl">
-                    <h1 className="font-h1 text-h1 text-on-background mb-2">Farmer Dashboard</h1>
-                    <p className="font-body-lg text-body-lg text-on-surface-variant">Welcome back. Here is the latest overview of your farm's operations.</p>
+                    <h1 className="font-h1 text-h1 text-on-background mb-2">{t("farmerDashboardTitle")}</h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant">{t("farmerDashboardSubtitle")}</p>
                 </div>
 
                 {/* Bento Grid Layout */}
@@ -903,7 +905,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
-                        <h1 className="font-h1 text-h1 text-primary mb-xs">My Products</h1>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">{t("myProductsTitle")}</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">Manage your inventory, pricing, and availability.</p>
                     </div>
                     {/* Premium Toggle Button for Add Product Form */}
@@ -1139,7 +1141,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
-                        <h1 className="font-h1 text-h1 text-primary mb-xs">Orders & Sales</h1>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">{t("myOrdersTitle")}</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">Track incoming buyer requests</p>
                     </div>
                 </div>
@@ -1216,7 +1218,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
-                        <h1 className="font-h1 text-h1 text-primary mb-xs">Delivery Tracking</h1>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">{t("trackDeliveryTitle")}</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">Monitor your products en route to buyers</p>
                     </div>
                 </div>
@@ -1281,7 +1283,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
-                        <h1 className="font-h1 text-h1 text-primary mb-xs flex items-center gap-2"><span className="material-symbols-outlined">receipt_long</span> Official Market Prices</h1>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs flex items-center gap-2"><span className="material-symbols-outlined">receipt_long</span> {t("officialPricesTitle")}</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">Price ranges set by the Ministry of Agriculture</p>
                     </div>
                 </div>
@@ -1329,7 +1331,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
-                        <h1 className="font-h1 text-h1 text-primary mb-xs">Notifications</h1>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">{t("notificationsTitle")}</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">Alerts and updates from the Ministry</p>
                     </div>
                 </div>
@@ -1361,7 +1363,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
             <div className="animate-in w-full pb-20 md:pb-0">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl mt-4">
                     <div>
-                        <h1 className="font-h1 text-h1 text-primary mb-xs">Manage My Farms</h1>
+                        <h1 className="font-h1 text-h1 text-primary mb-xs">{t("myFarmsTitle")}</h1>
                         <p className="font-body-md text-body-md text-on-surface-variant">View and add your agriculture locations (Max 5)</p>
                     </div>
                 </div>
@@ -1505,7 +1507,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                 <header className="flex flex-col md:flex-row md:items-end justify-between mb-lg mt-4">
                     <div>
                         <span className="ep-label-caps">Rental Services</span>
-                        <h1 className="ep-h1">Machinery Rental</h1>
+                        <h1 className="ep-h1">{t("equipmentRentalTitle")}</h1>
                         <p className="text-on-surface-variant mt-2 max-w-2xl">Access professional agricultural equipment from verified providers.</p>
                     </div>
                 </header>
@@ -1637,7 +1639,7 @@ const [selectedFarm, setSelectedFarm] = useState(null);
         content = (
             <div className="max-w-2xl mx-auto space-y-md animate-in">
                 <div className="mb-6">
-                    <h1 className="font-h1 text-h1 text-on-surface">Submit a Complaint</h1>
+                    <h1 className="font-h1 text-h1 text-on-surface">{t("complaintsTitle")}</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant mt-2">
                         Report issues with orders, buyers, delivery, or platform services.
                     </p>
