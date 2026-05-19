@@ -5,7 +5,7 @@ import {
     Plus, AlertCircle, Calendar, Settings,
     Wrench, Activity, Info, Pencil, Trash2,
     Upload, MapPin, DollarSign, Image as ImageIcon,
-    TrendingUp, ChevronRight, MessageSquare, ShieldCheck, Download, Users, Briefcase, Timer
+    TrendingUp, ChevronRight, MessageSquare, ShieldCheck, Download, Users, Briefcase, Timer, ShoppingCart
 } from "lucide-react";
 import "../../styles/dashboard.css";
 import "../../styles/equipment_provider.css";
@@ -22,7 +22,9 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
         deposit_amount: "", horsepower: "", weight: "", year_of_manufacture: "",
         transmission: "", max_speed: "", fuel_type: "", hours_of_use: "",
         location: "", description: "", usage_instructions: "",
-        is_available: true, expected_available_date: "", quantity_available: 1
+        is_available: true, expected_available_date: "", quantity_available: 1,
+        is_electric: false, battery_capacity: "", charging_time: "",
+        flight_time: "", max_range: "", payload_capacity: ""
     });
 
     const [fieldErrors, setFieldErrors] = useState({});
@@ -144,7 +146,9 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
             deposit_amount: "", horsepower: "", weight: "", year_of_manufacture: "",
             transmission: "", max_speed: "", fuel_type: "", hours_of_use: "",
             location: "", description: "", usage_instructions: "",
-            is_available: true, expected_available_date: "", quantity_available: 1
+            is_available: true, expected_available_date: "", quantity_available: 1,
+            is_electric: false, battery_capacity: "", charging_time: "",
+            flight_time: "", max_range: "", payload_capacity: ""
         });
         setIsEditing(false); setCurrentEquipmentId(null); setSelectedFiles([]); setFieldErrors({});
         setExistingImages([]); setImagesToDelete([]);
@@ -174,137 +178,296 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
         }
     };
 
-    const renderDashboard = () => (
-        <div className="ep-dashboard-container animate-in">
-            <header className="flex flex-col md:flex-row md:items-end justify-between mb-lg">
-                <div>
-                    <span className="ep-label-caps">Equipment Provider Overview</span>
-                    <h1 className="ep-h1">Performance Dashboard</h1>
-                </div>
-                <div className="mt-4 md:mt-0 flex gap-3">
-                    <button className="ep-btn-outline flex items-center gap-2">
-                        <Download size={18} /> Export Report
-                    </button>
-                </div>
-            </header>
+    const renderDashboard = () => {
+        // Calculate real statistics for the chart based on accepted bookings
+        const getRealChartData = () => {
+            const accepted = bookings.filter(b => b.status === 'ACCEPTED');
+            const data = [];
+            const now = new Date();
+            
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthLabel = d.toLocaleString('default', { month: 'short' });
+                const monthVal = d.getMonth();
+                const yearVal = d.getFullYear();
+                
+                const sum = accepted.reduce((total, b) => {
+                    const bDate = new Date(b.created_at || b.start_date);
+                    if (bDate.getMonth() === monthVal && bDate.getFullYear() === yearVal) {
+                        return total + (parseFloat(b.total_price) || 0);
+                    }
+                    return total;
+                }, 0);
+                
+                data.push({ label: monthLabel, value: sum });
+            }
+            
+            const maxVal = Math.max(...data.map(d => d.value), 1000);
+            return data.map(d => ({
+                ...d,
+                height: Math.max(10, Math.round((d.value / maxVal) * 90))
+            }));
+        };
 
-            <div className="ep-bento-grid">
-                {/* Sales Performance Chart */}
-                <div className="col-span-1 md:col-span-8 ep-card">
-                    <div className="flex items-center justify-between mb-lg">
-                        <h3 className="ep-h3"><TrendingUp size={24} className="text-secondary" /> Rental Revenue</h3>
-                        <div className="flex gap-2">
-                            <span className="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold uppercase">
-                                +12% Efficiency
-                            </span>
-                        </div>
+        const realChartData = getRealChartData();
+
+        return (
+            <div className="ep-dashboard-container animate-in">
+                <header className="flex flex-col md:flex-row md:items-end justify-between mb-lg">
+                    <div>
+                        <span className="ep-label-caps">Equipment Provider Overview</span>
+                        <h1 className="ep-h1">Performance Dashboard</h1>
                     </div>
-                    <div className="ep-chart-container">
-                        {[40, 65, 90, 55, 75, 82].map((height, i) => (
-                            <div key={i} className="ep-chart-bar" style={{ height: `${height}%` }}>
-                                <div className="ep-chart-tooltip">Week {i+1}: {(height * 100).toLocaleString()} DA</div>
+                    <div className="mt-4 md:mt-0 flex gap-3">
+                        <button className="ep-btn-outline flex items-center gap-2">
+                            <Download size={18} /> Export Report
+                        </button>
+                    </div>
+                </header>
+
+                {/* Sales & Operational Statistics Cards (Admin Style) */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-md mb-lg">
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] flex flex-col justify-between h-full border border-outline-variant/30">
+                        <div className="flex justify-between items-start mb-lg">
+                            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase text-xs font-bold">Total Revenue</span>
+                            <div className="bg-emerald-100 p-2 rounded-lg text-emerald-700">
+                                <DollarSign size={24} />
                             </div>
-                        ))}
-                    </div>
-                    <div className="grid grid-cols-2 mt-lg gap-lg">
-                        <div className="p-md bg-surface-container-low rounded-lg">
-                            <p className="ep-label-caps" style={{fontSize: '10px'}}>Total Revenue</p>
-                            <p className="text-2xl font-bold text-primary">{stats.total_revenue.toLocaleString()} DA</p>
                         </div>
-                        <div className="p-md bg-surface-container-low rounded-lg">
-                            <p className="ep-label-caps" style={{fontSize: '10px'}}>Active Leases</p>
-                            <p className="text-2xl font-bold text-secondary">{(stats.total_equipment - stats.available_fleet)} units</p>
+                        <div>
+                            <div className="text-2xl font-bold text-primary">{stats.total_revenue.toLocaleString()} DA</div>
+                            <div className="text-xs text-secondary font-medium mt-1">
+                                Earned from accepted leases
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] flex flex-col justify-between h-full border border-outline-variant/30">
+                        <div className="flex justify-between items-start mb-lg">
+                            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase text-xs font-bold">Active Bookings</span>
+                            <div className="bg-blue-100 p-2 rounded-lg text-blue-700">
+                                <ShoppingCart size={24} />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-2xl font-bold text-primary">{stats.total_bookings} requests</div>
+                            <div className="text-xs text-on-surface-variant font-medium mt-1">
+                                {stats.pending_bookings} awaiting confirmation
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-surface-container-lowest rounded-xl p-md shadow-[0_4px_20px_rgba(26,58,52,0.05)] flex flex-col justify-between h-full border border-outline-variant/30">
+                        <div className="flex justify-between items-start mb-lg">
+                            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase text-xs font-bold">Machinery Fleet</span>
+                            <div className="bg-orange-100 p-2 rounded-lg text-orange-700">
+                                <Package size={24} />
+                            </div>
+                        </div>
+                        <div>
+                            <div className="text-2xl font-bold text-primary">{stats.total_equipment} listed units</div>
+                            <div className="text-xs text-secondary font-medium mt-1">
+                                {stats.available_fleet} currently operational
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Inventory Status */}
-                <div className="col-span-1 md:col-span-4 ep-card ep-card-primary">
-                    <h3 className="ep-h3 text-white mb-lg"><Package size={24} className="text-secondary-container" /> Fleet Health</h3>
-                    <div className="space-y-6">
-                        <div className="ep-status-row">
-                            <div className="ep-status-info">
-                                <span className="font-semibold text-sm">Overall Availability</span>
-                                <span className="font-bold">{Math.round((stats.available_fleet / (stats.total_equipment || 1)) * 100)}%</span>
-                            </div>
-                            <div className="ep-progress-bg">
-                                <div className="ep-progress-fill" style={{ width: `${(stats.available_fleet / (stats.total_equipment || 1)) * 100}%` }}></div>
+                <div className="ep-bento-grid">
+                    {/* Sales Performance Chart */}
+                    <div className="col-span-1 md:col-span-8 ep-card">
+                        <div className="flex items-center justify-between mb-lg">
+                            <h3 className="ep-h3"><TrendingUp size={24} className="text-secondary" /> Rental Revenue</h3>
+                            <div className="flex gap-2">
+                                <span className="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold uppercase">
+                                    +12% Efficiency
+                                </span>
                             </div>
                         </div>
-                        <div className="ep-status-row">
-                            <div className="ep-status-info">
-                                <span className="font-semibold text-sm">Service Rate</span>
-                                <span className="font-bold">94%</span>
+                        <div className="ep-chart-container">
+                            {realChartData.map((d, i) => (
+                                <div key={i} className="ep-chart-bar" style={{ height: `${d.height}%` }}>
+                                    <div className="ep-chart-tooltip">{d.label}: {d.value.toLocaleString()} DA</div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="grid grid-cols-2 mt-lg gap-lg">
+                            <div className="p-md bg-surface-container-low rounded-lg">
+                                <p className="ep-label-caps" style={{fontSize: '10px'}}>Total Revenue</p>
+                                <p className="text-2xl font-bold text-primary">{stats.total_revenue.toLocaleString()} DA</p>
                             </div>
-                            <div className="ep-progress-bg">
-                                <div className="ep-progress-fill" style={{ width: '94%', backgroundColor: '#4ade80' }}></div>
+                            <div className="p-md bg-surface-container-low rounded-lg">
+                                <p className="ep-label-caps" style={{fontSize: '10px'}}>Active Leases</p>
+                                <p className="text-2xl font-bold text-secondary">{(stats.total_equipment - stats.available_fleet)} units</p>
                             </div>
                         </div>
                     </div>
-                    <button className="mt-auto w-full bg-white text-primary font-bold py-3 rounded-lg hover:bg-surface-container-high transition-colors" onClick={() => window.scrollTo(0,0)}>
-                        Optimize Fleet
-                    </button>
-                </div>
 
-                {/* Recent Inquiries/Bookings */}
-                <div className="col-span-1 md:col-span-6 ep-card">
-                    <div className="flex items-center justify-between mb-lg">
-                        <h3 className="ep-h3"><MessageSquare size={24} className="text-secondary" /> Active Inquiries</h3>
-                        <button className="text-secondary text-sm font-bold hover:underline">View All</button>
-                    </div>
-                    <div className="space-y-4">
-                        {bookings.filter(b => b.status === 'PENDING').slice(0, 3).map(b => (
-                            <div key={b.id} className="ep-inquiry-item">
-                                <div className="ep-avatar"><Users size={20} /></div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-start">
-                                        <h4 className="font-bold">{b.farmer_name}</h4>
-                                        <span className="text-[10px] text-outline font-bold uppercase">New</span>
-                                    </div>
-                                    <p className="text-sm text-on-surface-variant line-clamp-1">Requested {b.equipment_name} for {b.rental_days} days.</p>
-                                    <div className="flex gap-2 mt-2">
-                                        <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] rounded font-bold uppercase">Pending</span>
-                                    </div>
+                    {/* Inventory Status */}
+                    <div className="col-span-1 md:col-span-4 ep-card ep-card-primary">
+                        <h3 className="ep-h3 text-white mb-lg"><Package size={24} className="text-secondary-container" /> Fleet Health</h3>
+                        <div className="space-y-6">
+                            <div className="ep-status-row">
+                                <div className="ep-status-info">
+                                    <span className="font-semibold text-sm">Overall Availability</span>
+                                    <span className="font-bold">{Math.round((stats.available_fleet / (stats.total_equipment || 1)) * 100)}%</span>
+                                </div>
+                                <div className="ep-progress-bg">
+                                    <div className="ep-progress-fill" style={{ width: `${(stats.available_fleet / (stats.total_equipment || 1)) * 100}%` }}></div>
                                 </div>
                             </div>
-                        ))}
-                        {bookings.filter(b => b.status === 'PENDING').length === 0 && (
-                            <p className="text-sm text-on-surface-variant text-center py-4">No pending inquiries at this moment.</p>
+                            <div className="ep-status-row">
+                                <div className="ep-status-info">
+                                    <span className="font-semibold text-sm">Service Rate</span>
+                                    <span className="font-bold">94%</span>
+                                </div>
+                                <div className="ep-progress-bg">
+                                    <div className="ep-progress-fill" style={{ width: '94%', backgroundColor: '#4ade80' }}></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button className="mt-auto w-full bg-white text-primary font-bold py-3 rounded-lg hover:bg-surface-container-high transition-colors" onClick={() => window.scrollTo(0,0)}>
+                            Optimize Fleet
+                        </button>
+                    </div>
+
+                    {/* Recent Inquiries/Bookings */}
+                    <div className="col-span-1 md:col-span-6 ep-card">
+                        <div className="flex items-center justify-between mb-lg">
+                            <h3 className="ep-h3"><MessageSquare size={24} className="text-secondary" /> Active Inquiries</h3>
+                            <button className="text-secondary text-sm font-bold hover:underline">View All</button>
+                        </div>
+                        <div className="space-y-4">
+                            {bookings.filter(b => b.status === 'PENDING').slice(0, 3).map(b => (
+                                <div key={b.id} className="ep-inquiry-item">
+                                    <div className="ep-avatar"><Users size={20} /></div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-start">
+                                            <h4 className="font-bold">{b.farmer_name}</h4>
+                                            <span className="text-[10px] text-outline font-bold uppercase">New</span>
+                                        </div>
+                                        <p className="text-sm text-on-surface-variant line-clamp-1">Requested {b.equipment_name} for {b.rental_days} days.</p>
+                                        <div className="flex gap-2 mt-2">
+                                            <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[10px] rounded font-bold uppercase">Pending</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {bookings.filter(b => b.status === 'PENDING').length === 0 && (
+                                <p className="text-sm text-on-surface-variant text-center py-4">No pending inquiries at this moment.</p>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Service Alerts */}
+                    <div className="col-span-1 md:col-span-6 ep-card">
+                        <div className="flex items-center justify-between mb-lg">
+                            <h3 className="ep-h3"><Wrench size={24} className="text-error" /> Maintenance Desk</h3>
+                            <div className="flex items-center gap-1 bg-error-container text-on-error-container px-2 py-1 rounded text-xs font-bold">
+                                <AlertCircle size={14} /> 2 URGENT
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="ep-alert-item">
+                                <div className="ep-alert-info">
+                                    <div className="ep-alert-icon"><Activity size={18} /></div>
+                                    <div>
+                                        <p className="font-bold">Fleet Connectivity</p>
+                                        <p className="text-xs text-on-surface-variant">Real-time GPS tracking operational</p>
+                                    </div>
+                                </div>
+                                <span className="text-secondary font-bold text-xs uppercase">Normal</span>
+                            </div>
+                            <div className="mt-lg p-md bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-4">
+                                <ShieldCheck size={32} className="text-emerald-700" />
+                                <div>
+                                    <p className="font-bold text-emerald-900">Verified Provider Protection</p>
+                                    <p className="text-xs text-emerald-700">All rentals are backed by ministerial insurance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Showcased Fleet & Active Rentals Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-lg mt-lg">
+                    {/* Active Rentals ongoing right now */}
+                    <div className="ep-card bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-lg shadow-sm">
+                        <h3 className="ep-h3 mb-md flex items-center gap-2 text-primary font-bold"><Clock size={22} className="text-secondary" /> Active Rentals (Ongoing Leases)</h3>
+                        <div className="space-y-3">
+                            {bookings.filter(b => b.status === 'ACCEPTED').slice(0, 3).map(b => {
+                                const today = new Date();
+                                const endDate = new Date(b.end_date || b.expected_return_date);
+                                const diffTime = endDate - today;
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                const remainingText = diffDays > 0 ? `${diffDays} days remaining` : 'Return due today or overdue';
+                                
+                                return (
+                                    <div key={b.id} className="flex justify-between items-center bg-surface-container-low p-md rounded-xl border border-outline-variant/30 hover:border-emerald-500/40 transition-colors">
+                                        <div>
+                                            <h4 className="font-bold text-primary text-sm">{b.equipment_name}</h4>
+                                            <p className="text-xs text-on-surface-variant font-medium">Leased by <strong>{b.farmer_name}</strong></p>
+                                            <span className="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded mt-1 inline-block">{remainingText}</span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span className="block font-bold text-secondary text-sm">{b.total_price ? `${b.total_price.toLocaleString()} DA` : '--'}</span>
+                                            <span className="text-[10px] text-outline-variant block">{b.start_date} to {b.end_date}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                            {bookings.filter(b => b.status === 'ACCEPTED').length === 0 && (
+                                <div className="text-center py-10 bg-surface-container-low rounded-xl border border-dashed border-outline-variant/50">
+                                    <Clock size={32} className="mx-auto opacity-20 mb-2" />
+                                    <p className="text-xs text-on-surface-variant italic">No ongoing active rentals at the moment.</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Showcase One of My Equipment */}
+                    <div className="ep-card bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-lg shadow-sm">
+                        <h3 className="ep-h3 mb-md flex items-center gap-2 text-primary font-bold"><Package size={22} className="text-secondary" /> Featured Machinery Asset</h3>
+                        {equipment.length > 0 ? (
+                            (() => {
+                                const e = equipment[0];
+                                return (
+                                    <div className="flex flex-col sm:flex-row gap-md items-start sm:items-center bg-surface-container-low p-md rounded-xl border border-outline-variant/30 hover:shadow-md transition-all">
+                                        <div className="w-full sm:w-32 h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-highest border border-outline-variant/40 relative">
+                                            {e.images?.[0] ? (
+                                                <img src={e.images[0].image} alt={e.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="flex items-center justify-center h-full"><ImageIcon size={32} className="text-outline-variant" /></div>
+                                            )}
+                                            {e.is_electric && (
+                                                <span className="absolute top-1 left-1 bg-emerald-600 text-white text-[8px] px-1 rounded font-bold uppercase">⚡ Electric</span>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <span className="ep-label-caps" style={{fontSize: '9px'}}>{e.equipment_type || 'Agricultural Machine'}</span>
+                                            <h4 className="font-bold text-primary text-base truncate mb-1" title={e.name}>{e.name}</h4>
+                                            <div className="flex gap-2 items-center flex-wrap mb-2">
+                                                <span className="text-xs bg-surface-container-highest px-2 py-0.5 rounded text-on-surface font-semibold">{e.location || 'Nearby'}</span>
+                                                <span className="text-xs bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded font-bold">{e.price_per_day} DA/day</span>
+                                            </div>
+                                            <div className="text-xs text-on-surface-variant font-medium">
+                                                Status: <span className={e.is_available ? "text-emerald-600 font-semibold" : "text-error font-semibold"}>{e.is_available ? "Active & Available" : "Booked Out"}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })()
+                        ) : (
+                            <div className="text-center py-10 bg-surface-container-low rounded-xl border border-dashed border-outline-variant/50">
+                                <ImageIcon size={32} className="mx-auto opacity-20 mb-2" />
+                                <p className="text-xs text-on-surface-variant italic">No equipment listed in your fleet yet.</p>
+                            </div>
                         )}
                     </div>
                 </div>
-
-                {/* Service Alerts */}
-                <div className="col-span-1 md:col-span-6 ep-card">
-                    <div className="flex items-center justify-between mb-lg">
-                        <h3 className="ep-h3"><Wrench size={24} className="text-error" /> Maintenance Desk</h3>
-                        <div className="flex items-center gap-1 bg-error-container text-on-error-container px-2 py-1 rounded text-xs font-bold">
-                            <AlertCircle size={14} /> 2 URGENT
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <div className="ep-alert-item">
-                            <div className="ep-alert-info">
-                                <div className="ep-alert-icon"><Activity size={18} /></div>
-                                <div>
-                                    <p className="font-bold">Fleet Connectivity</p>
-                                    <p className="text-xs text-on-surface-variant">Real-time GPS tracking operational</p>
-                                </div>
-                            </div>
-                            <span className="text-secondary font-bold text-xs uppercase">Normal</span>
-                        </div>
-                        <div className="mt-lg p-md bg-emerald-50 rounded-xl border border-emerald-100 flex items-center gap-4">
-                            <ShieldCheck size={32} className="text-emerald-700" />
-                            <div>
-                                <p className="font-bold text-emerald-900">Verified Provider Protection</p>
-                                <p className="text-xs text-emerald-700">All rentals are backed by ministerial insurance.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const renderEquipment = () => (
         <div className="ep-dashboard-container animate-in">
@@ -330,19 +493,32 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                                 <img src={e.images[0].image} alt={e.name} className="ep-card-img" /> : 
                                 <div className="flex items-center justify-center bg-surface-container h-full"><ImageIcon size={40} className="text-outline-variant" /></div>
                             }
-                            <div className="ep-card-badge">
-                                {e.is_available && e.quantity_available > 0 ? 'Available' : 'Booked'}
+                             <div className="ep-card-badge flex items-center gap-1">
+                                {e.is_electric && <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase mr-1">⚡ Electric</span>}
+                                <span>{e.is_available && e.quantity_available > 0 ? 'Available' : 'Booked'}</span>
                             </div>
                         </div>
                         <div className="ep-card-body">
                             <p className="ep-label-caps" style={{fontSize: '10px'}}>{e.equipment_type || 'Machinery'}</p>
-                            <h3 className="font-bold text-lg text-primary">{e.name}</h3>
+                            <h3 className="font-bold text-lg text-primary truncate" title={e.name}>{e.name}</h3>
                             
                             <div className="grid grid-cols-2 gap-4 my-4">
                                 <div className="ep-meta-item"><Calendar size={14} /> <span>{e.year_of_manufacture || '2023'}</span></div>
-                                <div className="ep-meta-item"><Timer size={14} /> <span>{e.hours_of_use || '0'} Hrs</span></div>
-                                <div className="ep-meta-item"><MapPin size={14} /> <span>{e.location || 'Fleet Center'}</span></div>
+                                <div className="ep-meta-item"><MapPin size={14} className="truncate" /> <span className="truncate">{e.location || 'Fleet Center'}</span></div>
                                 <div className="ep-meta-item"><Package size={14} /> <span>{e.quantity_available} Units</span></div>
+                                {e.is_electric ? (
+                                    <>
+                                        {e.flight_time ? (
+                                            <div className="ep-meta-item text-emerald-600 font-medium" title="Flight/Operating Time"><Clock size={14} /> <span className="truncate">{e.flight_time}</span></div>
+                                        ) : e.battery_capacity ? (
+                                            <div className="ep-meta-item text-emerald-600 font-medium" title="Battery Capacity"><Activity size={14} /> <span className="truncate">{e.battery_capacity}</span></div>
+                                        ) : (
+                                            <div className="ep-meta-item text-emerald-600 font-medium"><Activity size={14} /> <span>Electric</span></div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="ep-meta-item" title="Hours of Use"><Timer size={14} /> <span>{e.hours_of_use || '0'} Hrs</span></div>
+                                )}
                             </div>
 
                             <div className="ep-card-footer">
@@ -405,25 +581,85 @@ const EquipmentProviderDashboard = ({ activeTab }) => {
                                 <option value="Fair">Fair</option>
                             </select>
                         </div>
+                        <div className="form-group">
+                            <label className="font-semibold text-sm">Power Source & Technology *</label>
+                            <select 
+                                name="is_electric" 
+                                value={formData.is_electric} 
+                                onChange={(e) => {
+                                    const val = e.target.value === "true";
+                                    setFormData(prev => ({ 
+                                        ...prev, 
+                                        is_electric: val,
+                                        fuel_type: val ? "Electric" : "Diesel",
+                                        horsepower: val ? "" : prev.horsepower,
+                                        battery_capacity: val ? prev.battery_capacity : "",
+                                        charging_time: val ? prev.charging_time : "",
+                                        flight_time: val ? prev.flight_time : "",
+                                        max_range: val ? prev.max_range : "",
+                                        payload_capacity: val ? prev.payload_capacity : ""
+                                    }));
+                                }} 
+                                className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2 font-semibold text-primary"
+                            >
+                                <option value="false">Conventional (Diesel / Gasoline)</option>
+                                <option value="true">Electric / Electronic (incl. Drones)</option>
+                            </select>
+                        </div>
                         <div className="span-2 pt-4">
                             <div className="ep-label-caps">Technical Specifications</div>
                         </div>
-                        <div className="form-group">
-                            <label className="font-semibold text-sm">Power (HP)</label>
-                            <input name="horsepower" value={formData.horsepower} onChange={handleChange} placeholder="410 HP" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
-                        </div>
-                        <div className="form-group">
-                            <label className="font-semibold text-sm">Production Year</label>
-                            <input type="number" name="year_of_manufacture" value={formData.year_of_manufacture} onChange={handleChange} placeholder="2023" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
-                        </div>
-                        <div className="form-group">
-                            <label className="font-semibold text-sm">Location / Base</label>
-                            <input name="location" value={formData.location} onChange={handleChange} placeholder="Wilaya, City" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
-                        </div>
-                        <div className="form-group">
-                            <label className="font-semibold text-sm">Fuel Type</label>
-                            <input name="fuel_type" value={formData.fuel_type} onChange={handleChange} placeholder="Diesel" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
-                        </div>
+                        {formData.is_electric ? (
+                            <>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Battery Capacity</label>
+                                    <input name="battery_capacity" value={formData.battery_capacity} onChange={handleChange} placeholder="e.g. 22000 mAh or 100 kWh" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Charging Time</label>
+                                    <input name="charging_time" value={formData.charging_time} onChange={handleChange} placeholder="e.g. 1.5 Hours" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Flight / Operating Time</label>
+                                    <input name="flight_time" value={formData.flight_time} onChange={handleChange} placeholder="e.g. 45 min or 8 hours" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Max Operating / Flight Range</label>
+                                    <input name="max_range" value={formData.max_range} onChange={handleChange} placeholder="e.g. 5 km" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Payload / Lift Capacity</label>
+                                    <input name="payload_capacity" value={formData.payload_capacity} onChange={handleChange} placeholder="e.g. 15 kg" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Production Year</label>
+                                    <input type="number" name="year_of_manufacture" value={formData.year_of_manufacture} onChange={handleChange} placeholder="2024" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Location / Base</label>
+                                    <input name="location" value={formData.location} onChange={handleChange} placeholder="Wilaya, City" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Power (HP)</label>
+                                    <input name="horsepower" value={formData.horsepower} onChange={handleChange} placeholder="410 HP" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Production Year</label>
+                                    <input type="number" name="year_of_manufacture" value={formData.year_of_manufacture} onChange={handleChange} placeholder="2023" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Location / Base</label>
+                                    <input name="location" value={formData.location} onChange={handleChange} placeholder="Wilaya, City" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                                <div className="form-group">
+                                    <label className="font-semibold text-sm">Fuel Type</label>
+                                    <input name="fuel_type" value={formData.fuel_type} onChange={handleChange} placeholder="Diesel" className="w-full bg-white border border-outline-variant/50 rounded-lg px-4 py-2" />
+                                </div>
+                            </>
+                        )}
                         <div className="form-group span-2">
                             <label className="font-semibold text-sm">Imagery</label>
                             {existingImages.length > 0 && (

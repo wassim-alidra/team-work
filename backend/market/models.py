@@ -228,6 +228,14 @@ class Equipment(models.Model):
     fuel_type = models.CharField(max_length=50, null=True, blank=True)
     hours_of_use = models.CharField(max_length=50, null=True, blank=True)
     
+    # Electric / Drone specifications
+    is_electric = models.BooleanField(default=False)
+    battery_capacity = models.CharField(max_length=100, null=True, blank=True)
+    charging_time = models.CharField(max_length=100, null=True, blank=True)
+    flight_time = models.CharField(max_length=100, null=True, blank=True)
+    max_range = models.CharField(max_length=100, null=True, blank=True)
+    payload_capacity = models.CharField(max_length=100, null=True, blank=True)
+    
     location = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField(null=True, blank=True, help_text="General notes or extra technical details")
     

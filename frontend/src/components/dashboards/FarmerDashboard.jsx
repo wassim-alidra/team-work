@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../api/axios";
-import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell, ChevronLeft, ChevronRight, Wrench, Calendar, MapPin, Users, Image as ImageIcon } from "lucide-react";
+import { Package, ShoppingBag, Clock, CheckCircle, DollarSign, Plus, Truck, AlertCircle, FileText, Bell, ChevronLeft, ChevronRight, Wrench, Calendar, MapPin, Users, Image as ImageIcon, Activity } from "lucide-react";
 import "../../styles/dashboard.css";
 import "../../styles/equipment_provider.css";
 import Pagination from "../common/Pagination";
@@ -1482,20 +1482,40 @@ const [selectedFarm, setSelectedFarm] = useState(null);
                                             <ImageIcon size={40} className="text-outline-variant" />
                                         </div>
                                     )}
-                                    <div className="ep-card-badge">
-                                        {e.is_available && e.quantity_available > 0 ? 'Available' : 'Booked Out'}
+                                    <div className="ep-card-badge flex items-center gap-1">
+                                        {e.is_electric && <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.5 rounded font-bold uppercase mr-1">⚡ Electric</span>}
+                                        <span>{e.is_available && e.quantity_available > 0 ? 'Available' : 'Booked Out'}</span>
                                     </div>
                                 </div>
                                 <div className="ep-card-body">
                                     <p className="ep-label-caps" style={{ fontSize: '10px' }}>{e.equipment_type}</p>
-                                    <h3 className="font-bold text-lg text-primary">{e.name}</h3>
-
-                                    <div className="grid grid-cols-2 gap-4 my-4">
-                                        <div className="ep-meta-item"><MapPin size={14} /> <span>{e.location || "Nearby"}</span></div>
+                                    <h3 className="font-bold text-lg text-primary truncate" title={e.name}>{e.name}</h3>
+ 
+                                    <div className="grid grid-cols-2 gap-x-2 gap-y-3 my-4 text-xs">
+                                        <div className="ep-meta-item"><MapPin size={14} className="truncate" /> <span className="truncate">{e.location || "Nearby"}</span></div>
                                         <div className="ep-meta-item"><Package size={14} /> <span>{e.quantity_available} Available</span></div>
-                                        <div className="ep-meta-item col-span-2"><Users size={14} /> <span>Provider: {e.provider_name}</span></div>
+                                        
+                                        {e.is_electric ? (
+                                            <>
+                                                {e.flight_time ? (
+                                                    <div className="ep-meta-item text-emerald-600 font-medium" title="Flight/Operating Time"><Clock size={14} /> <span className="truncate">{e.flight_time}</span></div>
+                                                ) : e.battery_capacity ? (
+                                                    <div className="ep-meta-item text-emerald-600 font-medium" title="Battery Capacity"><Activity size={14} /> <span className="truncate">{e.battery_capacity}</span></div>
+                                                ) : (
+                                                    <div className="ep-meta-item text-emerald-600 font-medium"><Activity size={14} /> <span>Electric</span></div>
+                                                )}
+                                                {e.payload_capacity && (
+                                                    <div className="ep-meta-item col-span-2 text-on-surface-variant" title="Payload Capacity">🔋 Range/Payload: {e.max_range ? `${e.max_range} / ` : ""}{e.payload_capacity}</div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                {e.horsepower && <div className="ep-meta-item" title="Horsepower"><Activity size={14} /> <span>{e.horsepower} HP</span></div>}
+                                            </>
+                                        )}
+                                        <div className="ep-meta-item col-span-2 text-on-surface-variant font-medium truncate"><Users size={14} /> <span className="truncate">Provider: {e.provider_name}</span></div>
                                     </div>
-
+ 
                                     {bookingFormId === e.id ? (
                                         <div className="bg-surface-container-low p-4 rounded-lg border border-outline-variant/30 space-y-4">
                                             <div>

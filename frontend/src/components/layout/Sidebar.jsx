@@ -15,8 +15,6 @@ const Sidebar = ({ user, activeTab, setActiveTab, logoutUser, mobileOpen, setMob
     { key: "equipment", label: "My Equipment", icon: <Package size={18} /> },
     { key: "orders", label: "Inquiries", icon: <ShoppingCart size={18} /> },
     { key: "notifications", label: "Notifications", icon: <Bell size={18} /> },
-    { key: "complaints", label: "Complaints", icon: <AlertCircle size={18} /> },
-    { key: "profile", label: "Profile", icon: <Sprout size={18} /> },
   ];
 
   const farmerItems = [

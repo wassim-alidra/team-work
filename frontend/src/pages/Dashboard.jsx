@@ -145,10 +145,6 @@ const Dashboard = () => {
             {user.role === "EQUIPMENT_PROVIDER" && (
                 <EquipmentProviderDashboard activeTab={activeTab} />
             )}
-
-            {user.role === "EQUIPMENT_PROVIDER" && (
-                <EquipmentProviderDashboard activeTab={activeTab} />
-            )}
         </DashboardLayout>
     );
 };
